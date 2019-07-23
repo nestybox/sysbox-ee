@@ -1,2 +1,2 @@
-# sysvisor-releases
-Sysvisor releases repository
+# sysvisor-external
+Sysvisor external repository
