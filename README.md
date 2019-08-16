@@ -1,85 +1,57 @@
 Nestybox Sysvisor
 =================
 
-## Introduction
+## About Nestybox
 
-Sysvisor is a container runtime that enables creation of system
-containers.
+Nestybox helps application developers use Docker in ways that extend
+beyond packaging a single application, and with additional security.
 
-A system container is a container whose main purpose is to package and
-deploy a full operating system environment.
+## About Sysvisor
 
-Sysvisor system containers use all Linux namespaces (including the
-user-namespace) and cgroups for strong isolation from the underlying
-host and other containers.
+Sysvisor is a container runtime (a.k.a runc) that integrates with
+Docker and allows it to run containers that enhance regular Docker
+containers in two ways:
 
+* It expands the types of programs that can run within the container.
+
+* It hardens the isolation of the container from the rest of the
+  system.
 
 ## Key Features
 
-* Designed to integrate with Docker
+* Improves Docker container isolation from the host and other containers:
 
-  - Users launch and manage system containers with Docker (i.e.,
-    `docker run ...`), just as with any other container.
+  - Uses all Linux namespaces.
 
-  - Leverages Docker's container image caching & sharing technology
-    (storage efficient).
+  - Uses exclusive user-ID and group-ID mappings per container.
 
-* Strong container-to-host isolation via use of *all* Linux namespaces
+* Supports running Docker *inside* the container (i.e., docker-in-docker)
 
-  - Including the user namespace (i.e., root in the system container
-    maps to a non-root `nobody:nogroup` user in the host).
+  - Securely, with total isolation between the Docker inside the container
+    and host (e.g,. without using Docker privileged containers on the
+    host and without bind mounting the host's Docker sockets).
 
-* Supports Docker daemon configured with `userns-remap` or without it.
+  - This is useful for testing & CI/CD use cases.
 
-  - With `userns-remap`, Docker manages the container's user
-    namespace; however, Docker currently assigns all containers the
-    same user-id/group-id mapping, reducing container-to-container
-    isolation.
+  - It also adds another layer of isolation between application
+    containers and the host, improving security.
 
-  - Without userns-remap, Sysvisor manages the container's user
-    namespace; Sysvisor assigns *exclusive* user-id/group-id mappings
-    to each container, for improved container-to-container isolation.
+* Exposes a partially virtualized procfs (`/proc`) to the container.
 
-* Supports running Docker *inside* the system container.
+  - This is done to make the container resemble a real host, while
+    ensuring isolation between it and the rest of the system.
 
-  - Securely, without using Docker privileged containers.
+* Supports running side-by-side with the default Docker runc.
 
-* Supports shared storage between system containers
-
-  - Without requiring lax permissions on the shared storage.
-
-The following sections describe how to use each of these features.
-
-
-## Sysvisor Components
-
-Sysvisor is made up of the following components:
-
-* sysvisor-runc
-
-* sysvisor-fs
-
-* sysvisor-mgr
-
-
-sysvisor-runc is the program that creates containers. It's the
-frontend of sysvisor: higher layers (e.g., Docker) invoke
-sysvisor-runc to launch system containers.
-
-sysvisor-fs is a file-system-in-user-space (FUSE) that emulates
-portions of the container's filesystem, in particular the `/proc/sys`
-directory. It's purpose is to expose system resources inside the
-system container with proper isolation from the host.
-
-sysvisor-mgr is a daemon that provides services to sysvisor-runc and
-sysvisor-fs. For example, it manages assignment of exclusive user
-namespace subuid mappings to system containers.
-
-Together, sysvisor-fs and sysvisor-mgr are the backends for
-sysvisor. Communication between sysvisor components is done via gRPC.
-
+  - This allows users to run regular Docker containers side-by-side
+    with Sysvisor enhanced containers, without any conflict.
 
 ## Supported Linux Distros
+
+When using Sysvisor without Docker userns-remap (for strongest
+container isolation):
+
+* Ubuntu 19.04 (Disco)
 
 When using Sysvisor with Docker userns-remap:
 
@@ -87,145 +59,211 @@ When using Sysvisor with Docker userns-remap:
 * Ubuntu 18.10 (Cosmic)
 * Ubuntu 19.04 (Disco)
 
-When using Sysvisor without Docker userns-remap:
-
-* Ubuntu 19.04 (Disco)
-
-
 ## Host Requirements
 
 * Docker must be installed on the host machine.
 
-* The host's kernel should be configured to allow unprivileged users
-  to create namespaces. This config likely varies by distro; thereby,
-  we expect an official kernel from a supported linux distribution
-  to be utilized on the host machine.
+* Systemd must be running as the system's process-manager.
 
-  Ubuntu's example:
+* The host's kernel must be configured to allow unprivileged users
+  to create namespaces. For Ubuntu:
 
-  ```
-  sudo sh -c "echo 1 > /proc/sys/kernel/unprivileged_userns_clone"
-  ```
+```
+sudo sh -c "echo 1 > /proc/sys/kernel/unprivileged_userns_clone"
+```
 
-    Note: The above instruction will be *automatically* executed by the
-    package installer, so there is no need for the user to manually
-    type it.
-
-* Systemd: The host should be running systemd as the system's process-manager.
-This is usually the case as most well-known Linux distributions (including
-Sysvisor's supported ones) rely on systemd as their default process-manager.
-
+  Note: This instruction will be *automatically* executed by the
+  Sysvisor package installer, so there is no need for the user to
+  manually type it.
 
 ## Installation
 
-* Download the latest package from the [release](https://github.com/nestybox/sysvisor-external/releases) page.
+1) Download the latest package from the [release](https://github.com/nestybox/sysvisor-external/releases) page.
+
+2) Verify that the checksum of the downloaded file fully matches the expected/published one:
+
+```bash
+$ sha256sum ~/sysvisor_0.0.1-0~ubuntu-bionic_amd64.deb
+2a02898dc53b4751cf413464b977f5b296d9aac3c5b477e05272bfa881d69cfc  /home/user/sysvisor_0.0.1-0~ubuntu-bionic_amd64.deb
+```
+
+3) Install the Sysvisor package:
+
+```bash
+$ sudo dpkg -i sysvisor_0.0.1-0~ubuntu-bionic_amd64.deb
+```
+
+In case you hit an error with missing dependencies, fix this with:
+
+```bash
+$ sudo apt-get install -f -y
+```
+
+This will install the missing dependencies and automatically re-launch
+the Sysvisor installation process.
 
 
-* Verify that the checksum of the downloaded file fully matches the expected/published one:
+4) Verify that Sysvisor's systemd units have been properly installed, and
+   associated daemons are properly running:
 
-    ```bash
-    $ sha256sum ~/sysvisor_0.0.1-0~ubuntu-bionic_amd64.deb
-    2a02898dc53b4751cf413464b977f5b296d9aac3c5b477e05272bfa881d69cfc  /home/user/sysvisor_0.0.1-0~ubuntu-bionic_amd64.deb
-    ```
+```
+$ systemctl list-units -t service --all | grep sysvisor
+sysvisor-fs.service                   loaded    active   running Sysvisor-fs component
+sysvisor-mgr.service                  loaded    active   running Sysvisor-mgr component
+sysvisor.service                      loaded    active   exited  Sysvisor General Service
+```
 
-* Install Sysvisor package:
+If you are curious on what these Sysvisor services are, refer to the [Sysvisor design document](docs/design.md).
 
-    ```
-    $ sudo dpkg -i sysvisor_0.0.1-0~ubuntu-bionic_amd64.deb
-    ```
+If you hit problems during installation, see the [Troubleshooting document](docs/troubleshoot.md).
 
-    Expected output:
+## Usage
 
-    ```
-    Selecting previously unselected package sysvisor.
-    (Reading database ... 150254 files and directories currently installed.)
-    Preparing to unpack .../sysvisor_0.0.1-0~ubuntu-bionic_amd64.deb ...
-    Unpacking sysvisor (1:0.0.1-0~ubuntu-bionic) ...
-    Setting up sysvisor (1:0.0.1-0~ubuntu-bionic) ...
+To launch a container with Docker + Sysvisor, simply use the Docker `--runtime` flag:
 
-    Disruptive changes made to docker configuration. Restarting docker service...
-    Created symlink /etc/systemd/system/sysvisor.service.wants/sysvisor-fs.service → /lib/systemd/system/sysvisor-fs.service.
-    Created symlink /etc/systemd/system/sysvisor.service.wants/sysvisor-mgr.service → /lib/systemd/system/sysvisor-mgr.service.
-    Created symlink /etc/systemd/system/multi-user.target.wants/sysvisor.service → /lib/systemd/system/sysvisor.service.
-    ```
+```bash
+$ docker run --runtime=sysvisor-runc --rm -it --hostname my_cont debian:latest
+root@my_cont:/#
+```
 
-* In case an error is observed above as a consequence of a missing
-software dependency, proceed to download/install this package as
-indicated below. Once this requirement is satisfied, Sysvisor's
-installation process will be automatically re-launched to conclude
-this task.
+If you omit the `--runtime` flag, Docker will use the default runc
+runtime. It's perfectly fine to have Sysvisor enhanced containers
+running along side with regular Docker containers on the host at the
+same time; they won't conflict.
 
-    Missing dependency output:
+Refer to the [Sysvisor User's Guide](docs/usage.md)
+for other ways to run Sysvisor containers.
 
-    ```
-    ...
-    dpkg: dependency problems prevent configuration of sysvisor:
-    sysvisor depends on jq; however:
-    Package jq is not installed.
+## Applications supported inside the container
 
-    dpkg: error processing package sysvisor (--install):
-    dependency problems - leaving unconfigured
-    Errors were encountered while processing:
-    sysvisor
-    ```
+A Sysvisor container is an enhanced Docker container, and should be
+able to run any application that runs in a regular Docker container,
+plus some additional ones (e.g., Docker).
 
-    Install missing package by fixing (-f) system's dependency
-    structures.
+### Docker-in-Docker
 
-    ```
-    $ sudo apt-get install -f -y
-    ```
+To run Docker inside a Sysvisor container (e.g., Docker-in-Docker),
+launch the container and then install Docker using the instructions in
+the Docker website.
 
-* Verify that Sysvisor's systemd units have been properly installed, and
-associated daemons are properly running:
+Once Docker is installed inside the container, launch the Docker
+daemon with:
 
-    ```
-    $ systemctl list-units -t service --all | grep sysvisor
-    sysvisor-fs.service                   loaded    active   running Sysvisor-fs component
-    sysvisor-mgr.service                  loaded    active   running Sysvisor-mgr component
-    sysvisor.service                      loaded    active   exited  Sysvisor General Service
-    ```
+```bash
+root@my_cont:/# dockerd &
+```
 
+And then run the (inner) containers as usual:
 
-## Usage -- host context
+```bash
+root@my_cont:/# docker run -it --hostname my_inner_cont busybox
+root@my_inner_cont:/#
+```
 
-* System-container creation
+A better way to do the above is to create a Dockerfile that contains
+those same Docker installation instructions, in order to create a
+container image that has Docker pre-installed in it.
 
-    We will make use of docker's existing `--runtime` cli attribute
-    during the creation of a system-container. This element shall be
-    defined as per the example shown below. Other than that, feel
-    free to make use of the docker-cli attributes that you are
-    familiarized with.
+There is a sample Dockerfile [here](dockerfiles/dind/Dockerfile).
+Feel free to use it and modify it to your needs.
 
-    The example below creates a system-container with 'syscont' as
-    its hostname, and making use of 'debian:latest' as its baseline
-    image:
+### Inner & Outer Containers
 
-    ```
-    $ docker run --runtime=sysvisor-runc --rm -it --hostname syscont debian:latest
-    root@syscont:/#
-    ```
+When launching Docker inside a container, terminology can quickly get
+confusing due to container nesting.
 
-* System-container logs
+To prevent confusion we refer to the containers as the "outer" and
+"inner" containers.
 
-    Sysvisor's daemons (i.e. sysvisor-fs and sysvisor-mgr) will log
-    information related to system-container's activities in
-    `/var/log/sysvisor-fs.log` and `/var/log/sysvisor-mgr.log` file
-    respectively. These logs should be useful during troubleshooting
-    exercises.
+* The outer container is created at the host level; it's launched with
+  Docker + Sysvisor.
 
+* The inner container is created from within the outer container. It's
+  launched by the Docker instance running inside the outer container.
 
-## Usage -- system-container context
+## Integration with Container Managers
 
+Sysvisor is designed to work with Docker / containerd.
 
-### Supported apps
+We don't yet support other container managers (e.g., cri-o).
 
-* Docker
+## Design
 
-  - May be installed inside a system container using the instructions
-    in the Docker website.
+For more detailed info about Sysvisor's design, refer to the
+[Sysvisor design document](docs/design.md).
 
-  - Alternatively, use a system container image that containers a
-    pre-installed Dockerd (e.g.,
-    `nestybox/sys-container:debian-plus-Docker`)
+## OCI Compatibility
 
+Sysvisor is a fork of the [OCI runc](https://github.com/opencontainers/runc). It is mostly
+(but not 100%) compatible with the OCI runtime specification. See [here](docs/design.md#oci-compatibility)
+for a list of incompatibilities.
+
+## Production Readiness
+
+Sysvisor is still in alpha. It's not production ready yet.
+
+## Troubleshooting
+
+Refer to the [Troubleshooting document](docs/troubleshoot.md).
+
+## Issues
+
+We apologize for any problems in the product, and we appreciate
+customers filing issues that help us improve it.
+
+For filing issues with Sysvisor (e.g., bugs, feature requests, documentation changes, etc.),
+please refer to the [bug filing guidelines](docs/bug-filing.md) document.
+
+## Roadmap
+
+The following is a list of features in the Sysvisor roadmap.
+
+We list these here so that our users can get a better idea of where we
+are going and can give us feedback on which of these they like best
+(or least).
+
+Nestybox reserves the right to change these based on business
+priorities.
+
+Here is the list:
+
+* Running Kubernetes inside the container
+
+* Running Systemd inside the container
+
+* Running window managers (e.g., X) inside the container (for GUI).
+
+* More virtualization of non-namespaced resources under `/proc/`.
+
+* Support for other container managers (e.g., cri-o)
+
+## Feedback
+
+We love feedback (especially constructive one), as it helps us improve Sysvisor.
+
+Do tell us please:
+
+* What current features you like most?
+
+* What features you would like to see?
+
+* What features in our roadmap you like best (or least)?
+
+* What features don't work well and how can we improve them?
+
+This is valuable information for us. While we can't guarantee that we
+will implement all requests, we will definitely listen and do our best
+to implement the requests that are most compelling to our users.
+
+TODO: what's the process for them to tell us?
+
+## Thank You!
+
+We thank you **very much** for using Sysvisor. We hope you find it useful.
+
+Our mission is to help you use Docker in new ways to solve your
+container-related problems.
+
+Your trust in us is very much appreciated.
+
+-- *The Nestybox Team*
