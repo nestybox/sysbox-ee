@@ -18,6 +18,10 @@ The following are guidelines for filing issues with Sysvisor.
 
 3) Describe the issue as clearly and completely as possible.
 
+4) Tell us how to best reproduce it.
+
 
 Nestybox will try to address issues ASAP. We will mark them
 as `fixed`, `invalid`, `duplicate`, or `wont-fix`.
+
+Thanks for helping us improve Sysvisor!

@@ -3,8 +3,9 @@ Nestybox Sysvisor
 
 ## About Nestybox
 
-Nestybox helps application developers use Docker in ways that extend
-beyond packaging a single application, and with additional security.
+Nestybox helps application developers deploy containers in ways that
+extend beyond packaging a single application, and with additional
+security.
 
 ## About Sysvisor
 
@@ -33,13 +34,13 @@ containers in two ways:
 
   - This is useful for testing & CI/CD use cases.
 
-  - It also adds another layer of isolation between application
-    containers and the host, improving security.
+  - It also improves application security by adding another layer of
+    isolation between the application and the host.
 
 * Exposes a partially virtualized procfs (`/proc`) to the container.
 
-  - This is done to make the container resemble a real host, while
-    ensuring isolation between it and the rest of the system.
+  - This makes the container more closely resemble a real host, and
+    further improves isolation from the rest of the system.
 
 * Supports running side-by-side with the default Docker runc.
 
@@ -200,7 +201,7 @@ for a list of incompatibilities.
 
 ## Production Readiness
 
-Sysvisor is still in alpha. It's not production ready yet.
+Sysvisor is still in Beta. It's stable, but not production ready yet.
 
 ## Troubleshooting
 
@@ -242,6 +243,8 @@ Here is the list:
 We love feedback (especially constructive one), as it helps us improve Sysvisor.
 
 Do tell us please:
+
+* What's your use case for Sysvisor?
 
 * What current features you like most?
 
