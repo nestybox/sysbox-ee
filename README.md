@@ -248,6 +248,23 @@ answer the following survey:
 
 https://www.surveymonkey.com/r/SH8HMGY
 
+## Uninstallation
+
+As is customary in debian ecosystem, we can rely on either of the following approaches:
+
+1) Remove all installed binaries, including 'nbox-shiftfs' kernel submodule:
+
+```bash
+$ sudo dpkg --remove sysvisor
+```
+or...
+
+2) Remove the above items plus all the associated configuration/systemd files (recommended):
+
+```bash
+$ sudo dpkg --purge sysvisor
+```
+
 ## Thank You!
 
 We thank you **very much** for using Sysvisor. We hope you find it useful.
