@@ -232,7 +232,7 @@ Here is the list:
 
 * Running Systemd inside the container
 
-* Running window managers (e.g., X) inside the container (for GUI).
+* Running window managers (e.g., X) inside the container (for GUI apps & desktops).
 
 * More virtualization of non-namespaced resources under `/proc/`.
 
@@ -240,25 +240,13 @@ Here is the list:
 
 ## Feedback
 
-We love feedback (especially constructive one), as it helps us improve Sysvisor.
+We love feedback, as it helps us improve Sysvisor and set its future
+direction.
 
-Do tell us please:
+We would appreciate if you would take a couple of minutes to
+answer the following survey:
 
-* What's your use case for Sysvisor?
-
-* What current features you like most?
-
-* What features you would like to see?
-
-* What features in our roadmap you like best (or least)?
-
-* What features don't work well and how can we improve them?
-
-This is valuable information for us. While we can't guarantee that we
-will implement all requests, we will definitely listen and do our best
-to implement the requests that are most compelling to our users.
-
-TODO: what's the process for them to tell us?
+https://www.surveymonkey.com/r/SH8HMGY
 
 ## Thank You!
 
