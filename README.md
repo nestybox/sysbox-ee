@@ -213,7 +213,7 @@ We apologize for any problems in the product, and we appreciate
 customers filing issues that help us improve it.
 
 For filing issues with Sysvisor (e.g., bugs, feature requests, documentation changes, etc.),
-please refer to the [bug filing guidelines](docs/bug-filing.md) document.
+please refer to the [issue guidelines](docs/issue-guidelines.md) document.
 
 ## Roadmap
 
