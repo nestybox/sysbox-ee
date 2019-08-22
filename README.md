@@ -52,7 +52,10 @@ the Sysvisor container runtime (see [Usage](#usage) below).
   - Securely, with total isolation between the Docker inside the
     container and the Docker on the host (e.g,. without using Docker
     privileged containers on the host and without bind mounting the
-    host's Docker sockets).
+    host's Docker sockets into the container).
+
+  - Fast: both the outer Docker and the inner Docker use the overlayfs
+    driver.
 
   - This is useful for testing & CI/CD use cases.
 
