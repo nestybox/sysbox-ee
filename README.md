@@ -52,7 +52,7 @@ the Sysvisor container runtime (see [Usage](#usage) below).
   - Securely, with total isolation between the Docker inside the
     container and the Docker on the host (e.g,. without using Docker
     privileged containers on the host and without bind mounting the
-    host's Docker sockets into the container).
+    host's Docker socket into the container).
 
   - Fast: both the outer Docker and the inner Docker use the overlayfs
     driver.
@@ -167,50 +167,23 @@ run system containers with Sysvisor.
 
 A system container is logically a super-set of a regular Docker
 application container, and thus should be able to run any application
-that runs in a regular Docker container, plus system-level software
-(e.g., Docker).
+that runs in a regular Docker container, plus system-level software.
+
+Nestybox's goal is to allow you run any software inside the system
+container just as you would on a physical host. Ideally there
+shouldn't be any difference.
 
 ### Docker-in-Docker
 
-To run Docker inside a system container (a.k.a Docker-in-Docker),
-launch the container and then install Docker using the instructions in
-the Docker website.
+Nestybox system containers support running Docker inside the system
+container, without using privileged containers or bind-mounting the
+host's Docker socket into the container. In other words, securely,
+with total isolation between the inner and outer Docker containers.
 
-Once Docker is installed inside the system container, launch the Docker
-daemon with:
+Furthermore, the inner Docker can use the fast overlayfs driver,
+rather than the slower vfs driver.
 
-```bash
-root@my_cont:/# dockerd &
-```
-
-And then run the (inner) containers as usual:
-
-```bash
-root@my_cont:/# docker run -it --hostname my_inner_cont busybox
-root@my_inner_cont:/#
-```
-
-A better way to do the above is to create a Dockerfile that contains
-those same Docker installation instructions, in order to create a
-system container image that has Docker pre-installed in it.
-
-There is a sample Dockerfile [here](dockerfiles/dind/Dockerfile).
-Feel free to use it and modify it to your needs.
-
-### Inner & Outer Containers
-
-When launching Docker inside a system container, terminology can
-quickly get confusing due to container nesting.
-
-To prevent confusion we refer to the containers as the "outer" and
-"inner" containers.
-
-* The outer container is a system container, created at the host
-  level; it's launched with Docker + Sysvisor.
-
-* The inner container is an application container, created within
-  the outer container. It's launched by the Docker instance running
-  inside the outer container.
+To run Docker-in-Docker, follow the instructions in the [Sysvisor User's Guide](docs/usage.md#docker-in-docker).
 
 ## Integration with Container Managers
 
