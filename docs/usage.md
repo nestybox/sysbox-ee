@@ -73,6 +73,44 @@ However, because Sysvisor is almost 100% OCI compatible, we plan to
 add support for other OCI compatible container managers (e.g.,
 [cri-o](https://cri-o.io/)) soon.
 
+## Sysvisor execution & configuration
+
+Sysvisor's [daemons](https://github.com/nestybox/sysvisor-external/blob/master/docs/design.md#sysvisor-components) execution and admin-state should be managed through systemd's cli interface.
+
+```bash
+$ sudo systemctl start sysvisor
+$ sudo systemctl stop sysvisor
+$ sudo sysctl restart sysvisor
+```
+
+These commands are particularly useful in scenarios where Sysvisor's daemons need to be initialized with customized parameters (e.g. --log-level debug). In these cases, user will be expected to proceed as below:
+
+1) Modify the desired service initialization instruction.
+
+   Example:
+
+   ```bash
+   $ sudo sed -i '/^ExecStart/ s/$/ --log-level debug/' /etc/systemd/system/sysvisor.service.wants/sysvisor-fs.service
+   $
+   $ egrep "ExecStart" /etc/systemd/system/sysvisor.service.wants/sysvisor-fs.service
+   ExecStart=/usr/local/sbin/sysvisor-fs --log /var/log/sysvisor-fs.log --log-level debug
+   ```
+
+2) Reload **systemd** to digest the previous change:
+
+   ```bash
+   $ sudo systemctl daemon-reload
+   ```
+
+3) Restart **sysvisor** service:
+
+   ```bash
+   $ sudo systemctl restart sysvisor
+   ```
+
+Finally, bear in mind that even though Sysvisor software is comprised of various daemons and its respective services, you should only interact with its outer-most systemd service: **sysvisor**.
+
+
 ## Rootless Container Support
 
 Sysvisor must run as root on the host system. It won't work
