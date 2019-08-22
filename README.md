@@ -40,8 +40,10 @@ the Sysvisor container runtime (see [Usage](#usage) below).
 
 * Exposes a partially virtualized procfs (`/proc`) to the container.
 
-  - This makes the container more closely resemble a real host, and
-    further improves isolation from the rest of the system.
+  - This makes the container more closely resemble a real host.
+
+  - Prevents processes within the container from changing global kernel
+    settings via `/proc`.
 
 ### Supported Software
 

@@ -33,9 +33,8 @@ docker, etc).
 
 ## Nestybox System Containers
 
-While we are not inventing system containers (e.g., Canonical's LXD
-product already supports them), Nestybox system containers are the
-first to support deployment with Docker.
+While we are not inventing system containers per-se, Nestybox system
+containers are the first to support deployment with Docker.
 
 This allows users to leverage the power of Docker to package and deploy
 system containers, and removes the need to learn about other container
@@ -110,7 +109,8 @@ System Container Cons:
 * It offers reduced isolation compared to a VM (i.e., system
   containers share the Linux kernel while VMs share the hypervisor;
   the attack surface of the former is wider than that of the latter).
-  Thus, VMs are better suited for multi-tenant clouds.
+  Thus, VMs are better suited for multi-tenant clouds with strict
+  security requirements.
 
 * It does not (currently) package hardware dependencies.
 
