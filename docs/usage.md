@@ -75,7 +75,7 @@ add support for other OCI compatible container managers (e.g.,
 
 ## Sysvisor execution & configuration
 
-Sysvisor's [daemons](https://github.com/nestybox/sysvisor-external/blob/master/docs/design.md#sysvisor-components) execution and admin-state should be managed through systemd's cli interface.
+Sysvisor's [daemons](design.md#sysvisor-components) execution and admin-state should be managed through systemd's cli interface.
 
 ```bash
 $ sudo systemctl start sysvisor
