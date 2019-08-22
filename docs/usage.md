@@ -76,9 +76,105 @@ However, because Sysvisor is almost 100% OCI compatible, we plan to
 add support for other OCI compatible container managers (e.g.,
 [cri-o](https://cri-o.io/)) soon.
 
-## Sysvisor execution & configuration
+## Running Software inside the System Container
 
-Sysvisor's [daemons](design.md#sysvisor-components) execution and admin-state should be managed through systemd's cli interface.
+A system container is logically a super-set of a regular Docker
+application container, and thus should be able to run any application
+that runs in a regular Docker container, plus system-level software
+(e.g., Docker inside the system container).
+
+Nestybox's goal is to allow you run any software inside the system
+container just as you would on a physical host. Ideally there
+shouldn't be any difference.
+
+The sub-sections below provide information on running system-level
+software inside a system container (software that normally does not
+run inside a regular Docker container).
+
+### Docker-in-Docker
+
+To run Docker inside a system container (a.k.a Docker-in-Docker),
+launch the container and then install Docker using the instructions in
+the Docker website.
+
+Once Docker is installed inside the system container, launch the Docker
+daemon with:
+
+```bash
+root@my_cont:/# dockerd &
+```
+
+And then run the (inner) containers as usual:
+
+```bash
+root@my_cont:/# docker run -it --hostname my_inner_cont busybox
+root@my_inner_cont:/#
+```
+
+A better way to do the above is to create a Dockerfile that contains
+those same Docker installation instructions, in order to create a
+system container image that has Docker pre-installed in it.
+
+There is a sample Dockerfile [here](dockerfiles/dind/Dockerfile).
+Feel free to use it and modify it to your needs.
+
+### Inner Docker Image Caching
+
+The Docker instance running inside the system container stores its
+images in the usual `/var/lib/docker` directory inside the container.
+
+When the system container is removed, the contents of that directory
+will also be removed.
+
+If you wish to keep the contents of that directory so that they may
+be reused by a future system container instance, then simply mount
+a Docker volume into it:
+
+```bash
+$ docker volume create myVol
+$ docker run --runtime=sysvisor-runc -it --mount --source=myVol,target=/var/lib/docker debian:latest
+```
+
+This way, the inner Docker's image cache will persist even after the
+system container is removed.
+
+But be aware: Docker does not support two or more daemons sharing the
+image cache. Thus, if you follow the approach above, you must mount
+the volume to a single system container at any given time. If you wish
+to have multiple system containers, each with Docker running inside,
+there must have a separate volume for each.
+
+### Inner Docker Restrictions
+
+The Docker instance inside the system container is assumed to store
+it's images at the usual `/var/lib/docker`. While it's possible to
+configure the inner Docker to store it's images at some other location
+within the system container (via the Docker daemon's `--data-root`
+option), Sysvisor does not currently support this (i.e., the inner
+Docker won't work).
+
+### Inner & Outer Containers
+
+When launching Docker inside a system container, terminology can
+quickly get confusing due to container nesting.
+
+To prevent confusion we refer to the containers as the "outer" and
+"inner" containers.
+
+* The outer container is a system container, created at the host
+  level; it's launched with Docker + Sysvisor.
+
+* The inner container is an application container, created within
+  the outer container. It's launched by the Docker instance running
+  inside the outer container.
+
+## Sysvisor Reconfiguration
+
+The Sysvisor installer starts the [Sysvisor daemons](design.md#sysvisor-components)
+automatically, using systemd.
+
+Thus, execution and admin-state of the Sysvisor daemons should be managed
+through systemd's cli interface.
 
 ```bash
 $ sudo systemctl start sysvisor
@@ -86,7 +182,12 @@ $ sudo systemctl stop sysvisor
 $ sudo sysctl restart sysvisor
 ```
 
-These commands are particularly useful in scenarios where Sysvisor's daemons need to be initialized with customized parameters (e.g. --log-level debug). In these cases, user will be expected to proceed as below:
+There are scenarios where the daemons may need to be reconfigured (e.g.,
+to enable a given option on sysvisor-fs or sysvisor-mgr). For
+example, increasing the log level by passing the `--log-level debug`
+to the sysvisor-fs or sysvisor-mgr daemons.
+
+In these cases, do the following:
 
 1) Modify the desired service initialization instruction.
 
@@ -105,14 +206,15 @@ These commands are particularly useful in scenarios where Sysvisor's daemons nee
    $ sudo systemctl daemon-reload
    ```
 
-3) Restart **sysvisor** service:
+3) Restart the **sysvisor** service:
 
    ```bash
    $ sudo systemctl restart sysvisor
    ```
 
-Finally, bear in mind that even though Sysvisor software is comprised of various daemons and its respective services, you should only interact with its outer-most systemd service: **sysvisor**.
-
+Note that even though Sysvisor software is comprised of various
+daemons and its respective services, you should only interact with its
+outer-most systemd service: **sysvisor**.
 
 ## Rootless Container Support
 
