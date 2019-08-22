@@ -52,11 +52,12 @@ containers in two ways:
 When using Sysvisor without Docker userns-remap (for strongest
 container isolation):
 
+* Ubuntu 18.04 (Bionic) [kernel upgrade required]
 * Ubuntu 19.04 (Disco)
 
 When using Sysvisor with Docker userns-remap:
 
-* Ubuntu 18.04 (Bionic)
+* Ubuntu 18.04 (Bionic) [default kernel]
 * Ubuntu 18.10 (Cosmic)
 * Ubuntu 19.04 (Disco)
 
@@ -76,6 +77,16 @@ sudo sh -c "echo 1 > /proc/sys/kernel/unprivileged_userns_clone"
   Note: This instruction will be *automatically* executed by the
   Sysvisor package installer, so there is no need for the user to
   manually type it.
+
+* For Ubuntu-Bionic scenarios where userns-remap functionality is
+disabled (recommended), the default kernel GA release (4.15+) will
+need to be upgraded to a more recent one (5.X+). Ubuntu's traditional
+[LTS-enablement](https://wiki.ubuntu.com/Kernel/LTSEnablementStack)
+package will serve us here to carry out this task:
+
+```
+$ sudo apt-get update && sudo apt install --install-recommends linux-generic-hwe-18.04 -y
+```
 
 ## Installation
 
