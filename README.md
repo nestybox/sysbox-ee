@@ -3,63 +3,74 @@ Nestybox Sysvisor
 
 ## About Nestybox
 
-Nestybox helps application developers deploy containers in ways that
-extend beyond packaging a single application, and with additional
-security.
+Nestybox is re-imagining server virtualization.
+
+We are developing software solutions that improve efficiency,
+scalability, performance, and security over current Linux container
+and virtualization technologies.
 
 ## About Sysvisor
 
 Sysvisor is a container runtime (a.k.a runc) that integrates with
-Docker and allows it to run containers that enhance regular Docker
-containers in two ways:
+Docker and allows it to create [system containers](docs/system-containers.md).
 
-* It expands the types of programs that can run within the container.
+Sysvisor installs on a Linux host and it's normally not used directly.
+Instead, users create containers using Docker and point it to use
+the Sysvisor container runtime (see [Usage](#usage) below).
 
-* It hardens the isolation of the container from the rest of the
-  system.
+## Features
 
-## Key Features
+### Deployment
 
-* Improves Docker container isolation from the host and other containers:
+* Supports deployment of system containers with Docker.
 
-  - Uses all Linux namespaces.
+* System containers can run concurrently with regular Docker
+  containers, without conflict.
 
-  - Uses exclusive user-ID and group-ID mappings per container.
+### Security & Isolation
 
-* Supports running Docker *inside* the container (i.e., docker-in-docker)
+* Strong system container isolation
 
-  - Securely, with total isolation between the Docker inside the container
-    and host (e.g,. without using Docker privileged containers on the
-    host and without bind mounting the host's Docker sockets).
+  - Improves on Docker's container isolation.
 
-  - This is useful for testing & CI/CD use cases.
+  - Strong container-to-host isolation via the Linux user namespace.
 
-  - It also improves application security by adding another layer of
-    isolation between the application and the host.
+  - Strong container-to-container isolation, by using exclusive
+    user-ID and group-ID mappings per system container.
 
 * Exposes a partially virtualized procfs (`/proc`) to the container.
 
   - This makes the container more closely resemble a real host, and
     further improves isolation from the rest of the system.
 
-* Supports running side-by-side with the default Docker runc.
+### Supported Software
 
-  - This allows users to run regular Docker containers side-by-side
-    with Sysvisor enhanced containers, without any conflict.
+* Supports running Docker inside the system container.
+
+  - Securely, with total isolation between the Docker inside the
+    container and the Docker on the host (e.g,. without using Docker
+    privileged containers on the host and without bind mounting the
+    host's Docker sockets).
+
+  - This is useful for testing & CI/CD use cases.
+
+**NOTE**: It's early days for Nestybox, so our system containers support a
+reduced set of features (and use-cases) at this time. Please see our
+[Roadmap](#roadmap) for a list of features we are working on.
 
 ## Supported Linux Distros
 
-When using Sysvisor without Docker userns-remap (for strongest
-container isolation):
+* Ubuntu 19.04 "Disco"
+* Ubuntu 18.04 "Bionic" (Ubuntu kernel 5.X+ required; see [Host Requirements](#host-requirements) below])
 
-* Ubuntu 18.04 (Bionic) [kernel upgrade required]
-* Ubuntu 19.04 (Disco)
+The supported distros increase when Docker is configured with
+[userns-remap](docs/usage.md#interaction-with-docker-userns-remap) enabled. In this case, the supported distros are:
 
-When using Sysvisor with Docker userns-remap:
+* Ubuntu 19.04 "Disco"
+* Ubuntu 18.10 "Cosmic"
+* Ubuntu 18.04 "Bionic"
 
-* Ubuntu 18.04 (Bionic) [default kernel]
-* Ubuntu 18.10 (Cosmic)
-* Ubuntu 19.04 (Disco)
+We plan to add support for more distros in the future.
 
 ## Host Requirements
 
@@ -78,11 +89,12 @@ sudo sh -c "echo 1 > /proc/sys/kernel/unprivileged_userns_clone"
   Sysvisor package installer, so there is no need for the user to
   manually type it.
 
-* For Ubuntu-Bionic scenarios where userns-remap functionality is
-disabled (recommended), the default kernel GA release (4.15+) will
-need to be upgraded to a more recent one (5.X+). Ubuntu's traditional
-[LTS-enablement](https://wiki.ubuntu.com/Kernel/LTSEnablementStack)
-package will serve us here to carry out this task:
+* If the host runs Ubuntu-Bionic, you'll need to update the Linux kernel to
+  5.X+ (unless you enable docker [userns-remap](docs/usage.md#interaction-with-docker-userns-remap)).
+
+  Note that you must use the Ubuntu 5.X+ kernel, **not** the Linux upstream kernel.
+  The easiest way to do this is to use Ubuntu's [LTS-enablement](https://wiki.ubuntu.com/Kernel/LTSEnablementStack)
+  package:
 
 ```
 $ sudo apt-get update && sudo apt install --install-recommends linux-generic-hwe-18.04 -y
@@ -131,7 +143,7 @@ If you hit problems during installation, see the [Troubleshooting document](docs
 
 ## Usage
 
-To launch a container with Docker + Sysvisor, simply use the Docker `--runtime` flag:
+To launch a system container with Docker, simply use the Docker `--runtime` flag:
 
 ```bash
 $ docker run --runtime=sysvisor-runc --rm -it --hostname my_cont debian:latest
@@ -139,26 +151,27 @@ root@my_cont:/#
 ```
 
 If you omit the `--runtime` flag, Docker will use the default runc
-runtime. It's perfectly fine to have Sysvisor enhanced containers
-running along side with regular Docker containers on the host at the
-same time; they won't conflict.
+runtime. It's perfectly fine to run system containers along side with
+regular Docker application containers on the host at the same time;
+they won't conflict.
 
-Refer to the [Sysvisor User's Guide](docs/usage.md)
-for other ways to run Sysvisor containers.
+Refer to the [Sysvisor User's Guide](docs/usage.md) for other ways to
+run system containers with Sysvisor.
 
-## Applications supported inside the container
+## Software supported inside the System Container
 
-A Sysvisor container is an enhanced Docker container, and should be
-able to run any application that runs in a regular Docker container,
-plus some additional ones (e.g., Docker).
+A system container is logically a super-set of a regular Docker
+application container, and thus should be able to run any application
+that runs in a regular Docker container, plus system-level software
+(e.g., Docker).
 
 ### Docker-in-Docker
 
-To run Docker inside a Sysvisor container (e.g., Docker-in-Docker),
+To run Docker inside a system container (a.k.a Docker-in-Docker),
 launch the container and then install Docker using the instructions in
 the Docker website.
 
-Once Docker is installed inside the container, launch the Docker
+Once Docker is installed inside the system container, launch the Docker
 daemon with:
 
 ```bash
@@ -174,24 +187,25 @@ root@my_inner_cont:/#
 
 A better way to do the above is to create a Dockerfile that contains
 those same Docker installation instructions, in order to create a
-container image that has Docker pre-installed in it.
+system container image that has Docker pre-installed in it.
 
 There is a sample Dockerfile [here](dockerfiles/dind/Dockerfile).
 Feel free to use it and modify it to your needs.
 
 ### Inner & Outer Containers
 
-When launching Docker inside a container, terminology can quickly get
-confusing due to container nesting.
+When launching Docker inside a system container, terminology can
+quickly get confusing due to container nesting.
 
 To prevent confusion we refer to the containers as the "outer" and
 "inner" containers.
 
-* The outer container is created at the host level; it's launched with
-  Docker + Sysvisor.
+* The outer container is a system container, created at the host
+  level; it's launched with Docker + Sysvisor.
 
-* The inner container is created from within the outer container. It's
-  launched by the Docker instance running inside the outer container.
+* The inner container is an application container, created within
+  the outer container. It's launched by the Docker instance running
+  inside the outer container.
 
 ## Integration with Container Managers
 
@@ -220,10 +234,10 @@ Refer to the [Troubleshooting document](docs/troubleshoot.md).
 
 ## Issues
 
-We apologize for any problems in the product, and we appreciate
+We apologize for any problems in the product or documentation, and we appreciate
 customers filing issues that help us improve it.
 
-For filing issues with Sysvisor (e.g., bugs, feature requests, documentation changes, etc.),
+To file issues with Sysvisor (e.g., bugs, feature requests, documentation changes, etc.),
 please refer to the [issue guidelines](docs/issue-guidelines.md) document.
 
 ## Roadmap
@@ -239,36 +253,37 @@ priorities.
 
 Here is the list:
 
+* Support for more Linux distros.
+
+* Support for other container managers (e.g., cri-o)
+
 * Running Kubernetes inside the container
 
 * Running Systemd inside the container
 
 * Running window managers (e.g., X) inside the container (for GUI apps & desktops).
 
-* More virtualization of non-namespaced resources under `/proc/`.
-
-* Support for other container managers (e.g., cri-o)
+* More virtualization of non-namespaced resources in procfs (`/proc/`).
 
 ## Feedback
 
 We love feedback, as it helps us improve Sysvisor and set its future
 direction.
 
-We would appreciate if you would take a couple of minutes to
+We would much appreciate if you would take a couple of minutes to
 answer the following survey:
 
 https://www.surveymonkey.com/r/SH8HMGY
 
 ## Uninstallation
 
-As is customary in debian ecosystem, we can rely on either of the following approaches:
-
 1) Remove all installed binaries, including 'nbox-shiftfs' kernel submodule:
 
 ```bash
 $ sudo dpkg --remove sysvisor
 ```
-or...
+
+or,
 
 2) Remove the above items plus all the associated configuration/systemd files (recommended):
 
@@ -279,9 +294,6 @@ $ sudo dpkg --purge sysvisor
 ## Thank You!
 
 We thank you **very much** for using Sysvisor. We hope you find it useful.
-
-Our mission is to help you use Docker in new ways to solve your
-container-related problems.
 
 Your trust in us is very much appreciated.
 

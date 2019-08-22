@@ -1,68 +1,71 @@
 Sysvisor User's Guide
 =====================
 
-The Sysvisor [README](../README.md) file contains the basic information on how to install and
-run Sysvisor. This document supplements the README file with additional information.
+The Sysvisor [README](../README.md) file contains the basic
+information on how to install Sysvisor and create containers with
+it. This document supplements the README file with additional
+information.
 
-## Running containers with Sysvisor
+## Running System Containers with Sysvisor
 
-We currently support two ways of running containers with Sysvisor:
+We currently support two ways of running system containers with Sysvisor:
 
 1) Using Docker
 
-2) Using the sysvisor-runc command directly.
+2) Using the sysvisor-runc command directly
 
 ### Using Docker
 
-To launch a container with Docker + Sysvisor, simply use the `--runtime` flag in
-the `docker run` command:
+It's easy to run system container using Docker. Simply use the `--runtime`
+flag in the `docker run` command:
 
 ```bash
 $ docker run --runtime=sysvisor-runc --rm -it --hostname my_cont debian:latest
 root@my_cont:/#
 ```
 
-If you wish to configure Sysvisor as the default runtime for Docker, refer to the
-[Docker website](https://docs.docker.com/engine/reference/commandline/dockerd/).
+It's possible to configure Sysvisor as the default runtime for Docker. This
+way you don't have to use the `--runtime` flag everytime. If you wish to do this,
+refer to the [Docker website](https://docs.docker.com/engine/reference/commandline/dockerd/).
 
 ### Using the sysvisor-runc command
 
-It's easiest to use a higher-level container manager to launch containers
-(e.g., Docker), but it's also possible to launch containers directly
-via the sysvisor-runc command line.
+It's also possible to launch system containers directly via the
+sysvisor-runc command line.
 
 As the root user, follow these steps:
 
-1) Create a rootfs image for the container:
+1) Create a rootfs image for the system container:
 
 ```bash
-# mkdir /root/mycontainer
-# cd /root/mycontainer
+# mkdir /root/syscontainer
+# cd /root/syscontainer
 # mkdir rootfs
 # docker export $(docker create debian:latest) | tar -C rootfs -xvf -
 ```
 
-2) Create the OCI spec for the container, using the `sysvisor-runc --spec` command:
+2) Create the OCI spec for the system container, using the
+`sysvisor-runc --spec` command:
 
 ```
 # sysvisor-runc spec
 ```
 
-This will create a default OCI spec (i.e., `config.json` file) for the container.
+This will create an OCI `config.json` file.
 
-3) Launch the container
+3) Launch the system container
 
 Choose a unique name for the container and run:
 
 ```
-# sysvisor-runc run mycontainerid
+# sysvisor-runc run my_syscontainer
 ```
 
 Use `sysvisor-runc --help` command for help on all commands supported by Sysvisor.
 
-Also, in step (2) above, feel free to modify the container's
+Also, in step (2) above, feel free to modify the system container's
 `config.json` to your needs. But note that Sysvisor ignores a few
-of the OCI directives in this file (refer to the [Sysvisor design document](design.md)
+of the OCI directives in this file (refer to the [Sysvisor design document](design.md#oci-compatibility)
 for details).
 
 ### Other
@@ -122,19 +125,20 @@ Docker has a configuration called [userns-remap](https://docs.docker.com/engine/
 that enables the Linux user namespace in containers. By default, userns-remap is disabled in Docker.
 
 Sysvisor works out-of-the-box with either configuration of Docker
-(with or without userns-remap enabled). No change to Sysvisor's
+(i.e., with or without userns-remap enabled). No change to Sysvisor's
 configuration is needed either way.
 
 However, Sysvisor works best with Docker userns-remap *disabled*
-(though this mode is supported on a reduced number of distros,
+(though this is supported by Sysvisor in a reduced number of distros,
 as described [here](../README.md#supported-linux-distros)).
 
-The reason is that when userns-remap is disabled, Sysvisor will
-allocate exclusive user-ID and group-ID mappings for the container's
-user namespace, thereby improving container-to-container isolation.
+The reason userns-remap disabled is preferred, is that in this case
+Sysvisor will allocate exclusive user-ID and group-ID mappings for the
+system container's user namespace, thereby improving
+container-to-container isolation.
 
 If on the other hand Docker userns-remap is enabled, then Docker
-chooses the user-ID and group-ID mappings for the container;
+chooses the user-ID and group-ID mappings for the container and
 Sysvisor honors these. However Docker currently has a limitation: it
 uses the same user-ID and group-ID mappings for all containers,
 thereby decreasing isolation between containers (i.e., if a process
@@ -145,7 +149,7 @@ The table below summarizes this:
 
 | Docker userns-remap | Description |
 |---------------------|-------------|
-| disabled            | sysvisor will allocate exclusive uid(gid) mappings per sys container and perform uid(gid) shifting. |
+| disabled            | sysvisor will allocate exclusive uid(gid) mappings per system container and perform uid(gid) shifting. |
 |                     | Strong container-to-host isolation. |
 |                     | Strong container-to-container isolation. |
 |                     | Uses the Nestybox Shiftfs module in the kernel. |
@@ -160,12 +164,13 @@ associated ID mappings, refer to the [Sysvisor design document](design.md).
 
 ## Docker Bind Mount Permissions
 
-Sysvisor supports all Docker storage mount types: volume, bind, or tmpfs.
+Sysvisor system containers support all Docker storage mount types:
+volume, bind, or tmpfs.
 
 However, for bind mounts there are some caveats. These caveats do not apply to
 volume mounts and tmpfs mounts.
 
-The caveats for bind mounts arise from the fact that Sysvisor containers
+The caveats for bind mounts arise from the fact that system containers
 use the Linux user namespace, and therefore the root user inside the
 container maps to a non-root user in the host.
 
@@ -182,7 +187,7 @@ rules that apply:
 2) The path to the bind mount source in the host must be
    accessible *only* by the root user in the host.
 
-For example, if running the container with:
+For example, if running the system container with:
 
 ```bash
 $ docker run --runtime=sysvisor-runc -it --mount type=bind,source=/a/b/c,target=/mnt/somedir debian:latest
@@ -198,13 +203,13 @@ have less restrictive permissions (e.g., `0644` or even `0777`).
 
 The rationale for these rules is the following.
 
-Rule (1) ensures that the root user in the container will have correct
-permissions to access the bind mount. Sysvisor uses the Nestybox
-shiftfs module to do some magic here.
+Rule (1) ensures that the root user in the system container will have
+correct permissions to access the bind mount. Sysvisor uses the
+Nestybox shiftfs module to do some magic here.
 
 Rule (2) is a security precaution. It reduces the chances of a
-malicious program inside the container from compromising security in
-the host system.
+malicious program inside the system container from compromising
+security in the host system.
 
 ### With Docker userns-remap
 
@@ -233,6 +238,6 @@ TODO ...
 E.g., what docker volume drivers don't work with shiftfs
 
 
-## Container Environment Checks
+## System Container Environment Checks
 
 TODO: show how to check that uid are assigned, userns is working, shiftfs is on, etc.

@@ -79,7 +79,7 @@ For sysvisor-runc, logging is handled as follows:
 
 ## Bind Mount Security Check Error
 
-When creating a container with a bind mount, Docker may report the following error:
+When creating a system container with a bind mount, Docker may report the following error:
 
 ```bash
 $ docker run --runtime=sysvisor-runc -it --mount type=bind,source=/some/path,target=/mnt/path debian:latest
@@ -94,13 +94,13 @@ for details on how to fix this.
 
 ## Bind Mount Permissions Error
 
-When running a container with a bind mount, you may see that the files
-and directories associated with the mount have `nobody:nouser`
-ownership from within the container.
+When running a system container with a bind mount, you may see that
+the files and directories associated with the mount have
+`nobody:nouser` ownership from within the container.
 
 This typically occurs when the source of the bind mount is owned by
 a user on the host that is different from the user on the host to which
-the container's root user maps (recall that Sysvisor containers always
+the system container's root user maps (recall that Sysvisor containers always
 use the Linux user namespace and thus map the root user in the container
 to a non-root user on the host).
 
@@ -117,8 +117,9 @@ details.
 
 ## Nestybox Shiftfs Module Error
 
-When creating a container, the following error indicates that the Nestybox Shiftfs module
-is required by Sysvisor but is not loaded in the Linux kernel:
+When creating a system container, the following error indicates that
+the Nestybox Shiftfs module is required by Sysvisor but is not loaded
+in the Linux kernel:
 
 ```bash
 # docker run --runtime=sysvisor-runc -it debian:latest
