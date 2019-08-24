@@ -50,6 +50,10 @@ abstraction of a virtual host as possible, to enable them to run a
 large variety of applications and system level software with strong
 isolation from the underlying host.
 
+Our goal is to allow you run any software inside the system container
+just as you would on a physical host. Ideally there shouldn't be any
+difference.
+
 ## Use cases
 
 Use cases for system containers are many. A few examples are:
@@ -96,7 +100,7 @@ System Container Pros:
   software that you want, from a single binary to a full blown system
   with systemd, multiple apps, ssh server, docker, etc.
 
-* Portability: the system container can run on bare-metal or in a
+* Portable: the system container can run on bare-metal or in a
   cloud VM, in a high-end server or low-end device. It's not tied to a
   given hypervisor but rather to Linux (which runs almost everywhere).
 
