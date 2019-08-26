@@ -22,10 +22,10 @@ create system containers with Docker. See [Usage](#usage) below for more info.
 ## Features
 
 **NOTE**: It's early days for Nestybox, so our system containers
-support a reduced set of features and use-cases at this time. Please
-see our [Roadmap](#roadmap) for a list of features we are working on.
+support a reduced set of features and use-cases at this time.
 
-Sysboxd currently supports the following features:
+Below is a list of features currently supported by sysboxd. Please
+see our [Roadmap](#roadmap) for a list of features we are working on.
 
 ### Deployment
 
@@ -74,7 +74,44 @@ We plan to add support for more distros in the future.
 
 ## Host Requirements
 
-See [here](docs/usage.md#host-requirements) for the list of host requirements.
+The Linux host on which sysboxd runs must meet the following requirements:
+
+1) Systemd must be running as the system's process-manager.
+
+2) Docker must be installed on the host machine.
+
+3) The host's kernel must be configured to allow unprivileged users
+   to create namespaces. For Ubuntu:
+
+   ```
+   sudo sh -c "echo 1 > /proc/sys/kernel/unprivileged_userns_clone"
+   ```
+
+   **Note:** This instruction will be *automatically* executed by the
+   Sysboxd package installer, so there is no need for the user to
+   manually type it.
+
+4) Sysboxd stores some internal state in `/var/lib/sysboxd`. This directory
+   must be on one of the following filesystems:
+
+   * ext4
+   * btrfs
+
+   The same requirement applies to the `/var/lib/docker` directory.
+
+   This is normally the case for vanilla Ubuntu installations.
+
+5) If the host runs Ubuntu-Bionic, you'll need to update the Linux kernel to
+   5.X+ (unless you enable docker [userns-remap](docs/usage.md#interaction-with-docker-userns-remap)).
+
+   Note that you must use the Ubuntu 5.X+ kernel, **not** the Linux
+   upstream kernel (because Ubuntu carries patches that are not
+   present in the upstream kernel). The easiest way to do this is to
+   use Ubuntu's [LTS-enablement](https://wiki.ubuntu.com/Kernel/LTSEnablementStack) package:
+
+   ```
+   $ sudo apt-get update && sudo apt install --install-recommends linux-generic-hwe-18.04 -y
+   ```
 
 ## Installation
 
