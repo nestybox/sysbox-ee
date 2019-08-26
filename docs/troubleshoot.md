@@ -135,3 +135,7 @@ To solve this problem, load the Nestybox Shiftfs module as described [here](http
 Note that normally the Sysboxd installer loads this module into the
 kernel, so this error implies that either the installer did not
 succeed or that the module was somehow unloaded since then.
+
+## System Container Environment Checks
+
+TODO: show how to check that uid are assigned, userns is working, shiftfs is on, etc.

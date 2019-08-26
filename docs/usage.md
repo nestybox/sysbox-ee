@@ -5,6 +5,50 @@ The Sysboxd [README](../README.md) file contains the basic information
 on how to install Sysboxd and create system containers with it. This
 document supplements the README file with additional information.
 
+## Host Requirements
+
+The following are the requirements to run sysboxd on a Linux host:
+
+1) Systemd must be running as the system's process-manager.
+
+2) Docker must be installed on the host machine.
+
+3) The host's kernel must be configured to allow unprivileged users
+   to create namespaces. For Ubuntu:
+
+   ```
+   sudo sh -c "echo 1 > /proc/sys/kernel/unprivileged_userns_clone"
+   ```
+
+   **Note:** This instruction will be *automatically* executed by the
+   Sysboxd package installer, so there is no need for the user to
+   manually type it.
+
+4) Sysboxd stores some internal state in `/var/lib/sysboxd`. This directory
+   must be on one of the following filesystems:
+
+   * ext4
+   * btrfs
+
+   The same requirement applies to the `/var/lib/docker` directory.
+
+   This is normally the case for vanilla Ubuntu installations.
+
+5) If the host runs Ubuntu-Bionic, you'll need to update the Linux kernel to
+   5.X+ (unless you enable docker [userns-remap](docs/usage.md#interaction-with-docker-userns-remap)).
+
+   Note that you must use the Ubuntu 5.X+ kernel, **not** the Linux
+   upstream kernel (because Ubuntu carries patches that are not
+   present in the upstream kernel). The easiest way to do this is to
+   use Ubuntu's [LTS-enablement](https://wiki.ubuntu.com/Kernel/LTSEnablementStack) package:
+
+   ```
+   $ sudo apt-get update && sudo apt install --install-recommends linux-generic-hwe-18.04 -y
+   ```
+
+Once you meet these requirements, follow the Sysboxd installation
+instructions [here](../README.md#installation).
+
 ## Running System Containers with Sysboxd
 
 We currently support two ways of running system containers with Sysboxd:
@@ -89,9 +133,19 @@ not run inside a regular Docker container).
 
 ### Docker-in-Docker
 
+Nestybox system containers support running Docker inside the system
+container, without using privileged containers or bind-mounting the
+host's Docker socket into the container. In other words, cleanly and
+securely, with total isolation between the inner and outer Docker
+containers.
+
+Moreover, it's fast: the Docker inside the container uses the fast
+overlay2 (or btrfs) storage drivers, rather than alternative
+docker-in-docker solutions that resort to the slower vfs driver.
+
 To run Docker inside a system container (a.k.a Docker-in-Docker),
-launch the container and then install Docker using the instructions in
-the Docker website.
+launch the system container and then install Docker using the
+instructions in the [Docker website](https://docs.docker.com/install/linux/docker-ce/ubuntu/).
 
 Once Docker is installed inside the system container, launch the Docker
 daemon with:
@@ -101,21 +155,34 @@ root@my_cont:/# dockerd &
 ```
 
 Note that we don't yet support systemd inside the system container, so
-dockerd needs to be launched manually as shown above.
+dockerd needs to be started manually as shown above.
 
-Then run the (inner) containers as usual:
+Once Docker is running inside the system container, use it as usual.
+For example, to start an (inner) busybox container:
 
 ```bash
 root@my_cont:/# docker run -it --hostname my_inner_cont busybox
 root@my_inner_cont:/#
 ```
 
-A better way to do the above is to create a Dockerfile that contains
-those same Docker installation instructions, in order to create a
-system container image that has Docker pre-installed in it.
-
-There is a sample Dockerfile [here](dockerfiles/dind/Dockerfile).
+A better way to do the above is to create a system container image
+that has Docker pre-installed in it. There is a sample Dockerfile [here](../dockerfiles/dind/Dockerfile).
 Feel free to use it and modify it to your needs.
+
+### Inner & Outer Containers
+
+When launching Docker inside a system container, terminology can
+quickly get confusing due to container nesting.
+
+To prevent confusion we refer to the containers as the "outer" and
+"inner" containers.
+
+* The outer container is a system container, created at the host
+  level; it's launched with Docker + Sysboxd.
+
+* The inner container is an application container, created within
+  the outer container. It's launched by the Docker instance running
+  inside the outer container.
 
 ### Inner Docker Image Caching
 
@@ -164,21 +231,6 @@ While it's possible to configure the inner Docker to store it's images
 at some other location within the system container (via the Docker
 daemon's `--data-root` option), Sysboxd does **not** currently support
 this (i.e., the inner Docker won't work).
-
-### Inner & Outer Containers
-
-When launching Docker inside a system container, terminology can
-quickly get confusing due to container nesting.
-
-To prevent confusion we refer to the containers as the "outer" and
-"inner" containers.
-
-* The outer container is a system container, created at the host
-  level; it's launched with Docker + Sysboxd.
-
-* The inner container is an application container, created within
-  the outer container. It's launched by the Docker instance running
-  inside the outer container.
 
 ## Sysboxd Reconfiguration
 
@@ -339,13 +391,11 @@ $ cat /etc/docker/daemon.json
 
 then the bind mount source must be owned by `someuser:someuser`.
 
-## Unsupported Docker Features
+## Support for Docker Volume Plugins
 
-TODO ...
+Docker supports a number of [volume plugins](https://docs.docker.com/engine/extend/legacy_plugins/).
+These extend Docker's default volume support and allow storing a
+container's data across a cluster of hosts, in the cloud, etc.
 
-E.g., what docker volume drivers don't work with shiftfs
-
-
-## System Container Environment Checks
-
-TODO: show how to check that uid are assigned, userns is working, shiftfs is on, etc.
+Nestybox does not yet support using any of these plugins
+for system containers.
