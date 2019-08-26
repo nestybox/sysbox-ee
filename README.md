@@ -11,15 +11,21 @@ and server virtualization technologies.
 
 ## About Sysboxd
 
-Sysboxd is software that integrates with Docker and allows it to
-create [system containers](docs/system-containers.md).
+Sysboxd is software that installs on a Linux host and integrates with Docker,
+enabling Docker to create **system containers**. See [here](docs/system-containers.md)
+for a description of what a system container is and the use cases
+we envision for them.
 
-Sysboxd installs on a Linux host and it's normally not used directly.
-Instead, users create containers using Docker by pointing it to use the
-Sysboxd container runtime component (sysbox-runc). See [Usage](#usage)
-below for more info.
+Users do not normally interact with Sysboxd directly. Instead, users
+create system containers with Docker. See [Usage](#usage) below for more info.
 
 ## Features
+
+**NOTE**: It's early days for Nestybox, so our system containers
+support a reduced set of features and use-cases at this time. Please
+see our [Roadmap](#roadmap) for a list of features we are working on.
+
+Sysboxd currently supports the following features:
 
 ### Deployment
 
@@ -32,12 +38,8 @@ below for more info.
 
 * Supports running Docker inside the system container.
 
-  - Securely, with total isolation between the Docker inside the
-    container and the Docker on the host (e.g,. without using Docker
-    privileged containers on the host and without bind mounting the
-    host's Docker socket into the container).
-
-  - Fast: the inner Docker uses the overlayfs driver.
+  - [Cleanly & securely](#docker-in-docker), with total isolation between the inner and
+    outer Docker containers.
 
   - This is useful for testing & CI/CD use cases.
 
@@ -46,11 +48,8 @@ below for more info.
 * Strong system container isolation
 
   - System containers use the Linux user namespace and exclusive
-    user-ID and group-ID mappings, for increased container-to-host and
-    contanier-to-container isolation.
-
-  - This means System containers are more secure than regular Docker
-    application containers.
+    user-ID and group-ID mappings for increased container-to-host and
+    container-to-container isolation.
 
 * Exposes a partially virtualized procfs (`/proc`) to the container.
 
@@ -58,10 +57,6 @@ below for more info.
 
   - Prevents processes within the container from changing global kernel
     settings via `/proc`.
-
-**NOTE**: It's early days for Nestybox, so our system containers support a
-reduced set of features and [use-cases](docs/system-containers.md#use-cases) at this time.
-Please see our [Roadmap](#roadmap) for a list of features we are working on.
 
 ## Supported Linux Distros
 
@@ -79,32 +74,7 @@ We plan to add support for more distros in the future.
 
 ## Host Requirements
 
-* Docker must be installed on the host machine.
-
-* Systemd must be running as the system's process-manager.
-
-* The host's kernel must be configured to allow unprivileged users
-  to create namespaces. For Ubuntu:
-
-```
-sudo sh -c "echo 1 > /proc/sys/kernel/unprivileged_userns_clone"
-```
-
-  Note: This instruction will be *automatically* executed by the
-  Sysboxd package installer, so there is no need for the user to
-  manually type it.
-
-* If the host runs Ubuntu-Bionic, you'll need to update the Linux kernel to
-  5.X+ (unless you enable docker [userns-remap](docs/usage.md#interaction-with-docker-userns-remap)).
-
-  Note that you must use the Ubuntu 5.X+ kernel, **not** the Linux upstream kernel (because
-  Ubuntu carries patches that are not present in the upstream kernel). The easiest way to do
-  this is to use Ubuntu's [LTS-enablement](https://wiki.ubuntu.com/Kernel/LTSEnablementStack)
-  package:
-
-```
-$ sudo apt-get update && sudo apt install --install-recommends linux-generic-hwe-18.04 -y
-```
+See [here](docs/usage.md#host-requirements) for the list of host requirements.
 
 ## Installation
 
@@ -145,22 +115,23 @@ sysboxd.service                     loaded    active   exited  Sysboxd General S
 
 The sysboxd.service is ephemeral (it exits once it launches the other sysboxd services).
 
-If you are curious on what these Sysboxd services are, refer to the [Sysboxd design document](docs/design.md).
+If you are curious on what the other Sysboxd services are, refer to the [Sysboxd design document](docs/design.md).
 
 If you hit problems during installation, see the [Troubleshooting document](docs/troubleshoot.md).
 
 ## Usage
 
-To launch a system container with Docker, simply use the Docker
-`--runtime=sysbox-runc` flag:
+To launch a system container with Docker, point Docker to the Sysboxd container
+runtime, using the `--runtime=sysbox-runc` option:
 
 ```bash
 $ docker run --runtime=sysbox-runc --rm -it --hostname my_cont debian:latest
 root@my_cont:/#
 ```
 
-If you omit the `--runtime` flag, Docker will use the default runc
-runtime to launch regular application containers (rather than system containers).
+If you omit the `--runtime` option, Docker will use its default runc
+runtime to launch regular application containers (rather than system
+containers).
 
 It's perfectly fine to run system containers along side with regular
 Docker application containers on the host at the same time; they won't
@@ -173,24 +144,12 @@ run system containers with Sysboxd.
 
 A system container is logically a super-set of a regular Docker
 application container, and thus should be able to run any application
-that runs in a regular Docker container, plus system-level software.
+that runs in a regular Docker container. In addition, it runs
+system-level software that does not run in a regular Docker container.
 
-Nestybox's goal is to allow you run any software inside the system
-container just as you would on a physical host. Ideally there
-shouldn't be any difference.
-
-### Docker-in-Docker
-
-Nestybox system containers support running Docker inside the system
-container, without using privileged containers or bind-mounting the
-host's Docker socket into the container. In other words, cleanly and
-securely, with total isolation between the inner and outer Docker
-containers.
-
-Furthermore, the inner Docker can use the fast overlayfs driver,
-rather than the slower vfs driver.
-
-To run Docker-in-Docker, follow the instructions in the [Sysboxd User's Guide](docs/usage.md#docker-in-docker).
+For system-level software, we currently only support running Docker
+inside the system container. See [here](docs/usage.md#running-software-inside-the-system-container)
+for more info on this.
 
 ## Integration with Container Managers
 
@@ -200,7 +159,7 @@ We don't yet support other container managers (e.g., cri-o).
 
 ## Design
 
-For more detailed info about Sysbox's design, refer to the
+For more detailed info about Sysboxd's design, refer to the
 [Sysboxd design document](docs/design.md).
 
 ## OCI Compatibility
@@ -208,6 +167,9 @@ For more detailed info about Sysbox's design, refer to the
 Sysboxd is a fork of the [OCI runc](https://github.com/opencontainers/runc). It is mostly
 (but not 100%) compatible with the OCI runtime specification. See [here](docs/design.md#oci-compatibility)
 for a list of incompatibilities.
+
+We believe these incompatibilities won't negatively affect users of
+Sysboxd and should mostly be transparent to them.
 
 ## Production Readiness
 
@@ -239,6 +201,8 @@ priorities.
 Here is the list:
 
 * Support for more Linux distros.
+
+* Support for Docker volume plugins for use with system containers.
 
 * Support for other container managers (e.g., cri-o)
 
