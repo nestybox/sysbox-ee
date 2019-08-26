@@ -5,50 +5,6 @@ The Sysboxd [README](../README.md) file contains the basic information
 on how to install Sysboxd and create system containers with it. This
 document supplements the README file with additional information.
 
-## Host Requirements
-
-The following are the requirements to run sysboxd on a Linux host:
-
-1) Systemd must be running as the system's process-manager.
-
-2) Docker must be installed on the host machine.
-
-3) The host's kernel must be configured to allow unprivileged users
-   to create namespaces. For Ubuntu:
-
-   ```
-   sudo sh -c "echo 1 > /proc/sys/kernel/unprivileged_userns_clone"
-   ```
-
-   **Note:** This instruction will be *automatically* executed by the
-   Sysboxd package installer, so there is no need for the user to
-   manually type it.
-
-4) Sysboxd stores some internal state in `/var/lib/sysboxd`. This directory
-   must be on one of the following filesystems:
-
-   * ext4
-   * btrfs
-
-   The same requirement applies to the `/var/lib/docker` directory.
-
-   This is normally the case for vanilla Ubuntu installations.
-
-5) If the host runs Ubuntu-Bionic, you'll need to update the Linux kernel to
-   5.X+ (unless you enable docker [userns-remap](docs/usage.md#interaction-with-docker-userns-remap)).
-
-   Note that you must use the Ubuntu 5.X+ kernel, **not** the Linux
-   upstream kernel (because Ubuntu carries patches that are not
-   present in the upstream kernel). The easiest way to do this is to
-   use Ubuntu's [LTS-enablement](https://wiki.ubuntu.com/Kernel/LTSEnablementStack) package:
-
-   ```
-   $ sudo apt-get update && sudo apt install --install-recommends linux-generic-hwe-18.04 -y
-   ```
-
-Once you meet these requirements, follow the Sysboxd installation
-instructions [here](../README.md#installation).
-
 ## Running System Containers with Sysboxd
 
 We currently support two ways of running system containers with Sysboxd:
