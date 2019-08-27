@@ -93,10 +93,10 @@ Nestybox system containers support running Docker inside the system
 container, without using privileged containers or bind-mounting the
 host's Docker socket into the container. In other words, cleanly and
 securely, with total isolation between the inner and outer Docker
-containers.
+daemons.
 
-Moreover, it's fast: the Docker inside the container uses the fast
-overlay2 (or btrfs) storage drivers, rather than alternative
+Moreover, it's fast: the Docker daemon inside the container uses the
+fast overlay2 (or btrfs) storage drivers, rather than alternative
 docker-in-docker solutions that resort to the slower vfs driver.
 
 To run Docker inside a system container (a.k.a Docker-in-Docker),

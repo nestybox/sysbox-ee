@@ -38,8 +38,8 @@ see our [Roadmap](#roadmap) for a list of features we are working on.
 
 * Supports running Docker inside the system container.
 
-  - [Cleanly & securely](#docker-in-docker), with total isolation between the inner and
-    outer Docker containers.
+  - Cleanly & securely, without using privileged containers or
+    bind-mounting the host's Docker socket into the container.
 
   - This is useful for testing & CI/CD use cases.
 

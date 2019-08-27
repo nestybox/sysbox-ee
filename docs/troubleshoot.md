@@ -81,6 +81,31 @@ For sysbox-runc, logging is handled as follows:
 * When running sysbox-runc directly, sysbox-runc will not produce any logs by default.
   Use the `sysbox-runc --log` option to change this.
 
+## Docker reports "Unknown runtime" error
+
+When creating a system container, Docker may report the following error:
+
+```
+$ docker run --runtime=sysbox-runc -it ubuntu:latest
+docker: Error response from daemon: Unknown runtime specified sysbox-runc.
+```
+
+This indicates that the Docker daemon is not aware of the sysbox-runc
+runtime. This is likely caused by a misconfiguration of the
+`/etc/docker/daemon.json` file. That file should have an entry for
+sysbox-runc as follows:
+
+```
+# cat /etc/docker/daemon.json
+{
+   "runtimes": {
+        "sysbox-runc": {
+            "path": "/usr/local/sbin/sysbox-runc"
+        }
+    }
+}
+```
+
 ## Bind Mount Security Check Error
 
 When creating a system container with a bind mount, Docker may report the following error:
@@ -135,7 +160,3 @@ To solve this problem, load the Nestybox Shiftfs module as described [here](http
 Note that normally the Sysboxd installer loads this module into the
 kernel, so this error implies that either the installer did not
 succeed or that the module was somehow unloaded since then.
-
-## System Container Environment Checks
-
-TODO: show how to check that uid are assigned, userns is working, shiftfs is on, etc.
