@@ -169,3 +169,45 @@ To solve this problem, load the Nestybox Shiftfs module as described [here](http
 Note that normally the Sysboxd installer loads this module into the
 kernel, so this error implies that either the installer did not
 succeed or that the module was somehow unloaded since then.
+
+## Unprivileged User Namespace Creation Error
+
+When creating a system container, Docker may report the following error:
+
+```bash
+docker run --runtime=sysbox-runc -it ubuntu:latest
+docker: Error response from daemon: OCI runtime create failed: host is not configured properly: kernel is not configured to allow unprivileged users to create namespaces: /proc/sys/kernel/unprivileged_userns_clone: want 1, have 0: unknown.
+```
+
+This means that the host's kernel is not configured to allow unprivileged users
+to create user namespaces.
+
+For Ubuntu, fix this with:
+
+```
+sudo sh -c "echo 1 > /proc/sys/kernel/unprivileged_userns_clone"
+```
+
+**Note:** The Sysboxd package installer automatically executes this
+instruction, so normally there is no need to do this configuration
+manually.
+
+## Failed to Setup Docker Volume Manager Error
+
+When creating a system container, Docker may report the following error:
+
+```bash
+docker run --runtime=sysbox-runc -it ubuntu:latest
+docker: Error response from daemon: OCI runtime create failed: failed to setup docker volume manager: host dir for docker store /var/lib/sysboxd/docker can't be on ..."
+```
+
+This means that directory `/var/lib/sysboxd` is on a filesystem not supported by Sysboxd.
+
+This directory must be on one of the following filesystems:
+
+   * ext4
+   * btrfs
+
+The same requirement applies to the `/var/lib/docker` directory.
+
+This is normally the case for vanilla Ubuntu installations.

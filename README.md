@@ -80,28 +80,7 @@ The Linux host on which sysboxd runs must meet the following requirements:
 
 2) Docker must be installed on the host machine.
 
-3) The host's kernel must be configured to allow unprivileged users
-   to create namespaces. For Ubuntu:
-
-   ```
-   sudo sh -c "echo 1 > /proc/sys/kernel/unprivileged_userns_clone"
-   ```
-
-   **Note:** This instruction will be *automatically* executed by the
-   Sysboxd package installer, so there is no need for the user to
-   manually type it.
-
-4) Sysboxd stores some internal state in `/var/lib/sysboxd`. This directory
-   must be on one of the following filesystems:
-
-   * ext4
-   * btrfs
-
-   The same requirement applies to the `/var/lib/docker` directory.
-
-   This is normally the case for vanilla Ubuntu installations.
-
-5) If the host runs Ubuntu-Bionic, you'll need to update the Linux kernel to
+3) If the host runs Ubuntu-Bionic, you'll need to update the Linux kernel to
    5.X+ (unless you enable docker [userns-remap](docs/usage.md#interaction-with-docker-userns-remap)).
 
    Note that you must use the Ubuntu 5.X+ kernel, **not** the Linux
