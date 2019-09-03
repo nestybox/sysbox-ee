@@ -99,24 +99,21 @@ Moreover, it's fast: the Docker daemon inside the container uses the
 fast overlay2 (or btrfs) storage drivers, rather than alternative
 docker-in-docker solutions that resort to the slower vfs driver.
 
-To run Docker inside a system container (a.k.a Docker-in-Docker),
-the easiest way is to create a system container image that has
-Docker pre-installed in it.
+To run Docker inside a system container (a.k.a Docker-in-Docker), the
+easiest way is to use a system container image that has Docker
+pre-installed in it.
 
-There is a sample Dockerfile [here](../dockerfiles/dind/Dockerfile).
-This Dockerfile simply follows the installation instructions for
-Docker, obtained from the [Docker website](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
+You can find a few such images in the Nestybox DockerHub repo:
 
-Download the Dockerfile it and build it:
-
-```bash
-$ docker build -t syscont_with_docker .
+```
+https://hub.docker.com/r/nestybox
 ```
 
-Then launch the system container:
+For example, to run a system container that has Ubuntu Disco + Docker inside, simply
+type:
 
 ```bash
-$ docker run --runtime=sysbox-runc -it --hostname sc syscont_with_docker
+$ docker run --runtime=sysbox-runc -it --hostname sc nestybox/ubuntu-disco-docker:latest
 root@sc:/#
 ```
 
@@ -158,10 +155,15 @@ Status: Downloaded newer image for busybox:latest
 / #
 ```
 
-That's it, the system container is running Docker inside of it, with total
-isolation from the host's Docker daemon.
+As you can see, the system container is running Docker inside of it,
+with total isolation from the host's Docker daemon.
 
-Feel free to copy and modify the Dockerfile shown above to suit your needs.
+The Dockerfiles for the images in the Nestybox repo are
+[here](../dockerfiles/).
+
+Feel free to source the Nestybox sample images from your own Dockerfile,
+or make a copy of a Nestybox Dockerfile and modify it per your needs.
+Instructions for doing so are [here](../dockerfiles/README.md).
 
 ### Inner & Outer Containers
 
