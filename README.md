@@ -273,6 +273,11 @@ $ sudo rmmod nbox_shiftfs
 $ sudo userdel sysboxd
 ```
 
+## Contact
+
+Please contact us at `contact@nestybox.com` for any questions. We will
+be happy to help.
+
 ## Thank You!
 
 We thank you **very much** for using Sysboxd. We hope you find it useful.
