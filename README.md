@@ -3,18 +3,25 @@ Nestybox Sysboxd
 
 ## About Nestybox
 
-Nestybox is re-imagining server virtualization.
+Nestybox expands the power of Linux containers.
 
-We are developing software solutions that improve efficiency,
-performance, portability, and security over current Linux container
-and server virtualization technologies.
+We are developing software that enables deployment of **system containers**
+with Docker (and soon Kubernetes).
+
+A system container is a Linux container designed to run low-level system
+software, not just applications. See [here](docs/system-containers.md) for more info on system
+containers and the use cases we envision for them.
+
+Our mission is to make system containers run as many system-level
+workload types as possible in order to provide users a fast,
+efficient, and easy-to-use alternative to virtual machines for
+deploying virtual hosts on Linux. And for this work out-of-the-box and
+securely, without complex configurations or hacks.
 
 ## About Sysboxd
 
 Sysboxd is software that installs on a Linux host and integrates with Docker,
-enabling Docker to create **system containers**. See [here](docs/system-containers.md)
-for a description of what a system container is and the use cases
-we envision for them.
+enabling Docker to create [system containers](docs/system-containers.md).
 
 Users do not normally interact with Sysboxd directly. Instead, users
 create system containers with Docker. See [Usage](#usage) below for more info.
@@ -24,22 +31,27 @@ create system containers with Docker. See [Usage](#usage) below for more info.
 **NOTE**: It's early days for Nestybox, so our system containers
 support a reduced set of features and use-cases at this time.
 
-Below is a list of features currently supported by sysboxd. Please
+Below is a list of features currently supported by Sysboxd. Please
 see our [Roadmap](#roadmap) for a list of features we are working on.
 
 ### Deployment
 
 * Supports deployment of system containers with Docker.
 
-* System containers can run concurrently with regular Docker
-  containers, without conflict.
+* The system containers can run concurrently with regular Docker
+  application containers, without conflict.
 
 ### System Container Software
 
 * Supports running Docker inside the system container.
 
-  - Cleanly & securely, without using privileged containers or
-    bind-mounting the host's Docker socket into the container.
+  - Cleanly & securely, with total isolation between the Docker inside
+    the container and the Docker on the host. No need to use insecure
+    privileged containers, or to bind-mount the host's Docker socket
+    into the container.
+
+  - The Docker inside the system container can build and run
+    containers as usual.
 
   - This is useful for testing & CI/CD use cases.
 
@@ -51,12 +63,19 @@ see our [Roadmap](#roadmap) for a list of features we are working on.
     user-ID and group-ID mappings for increased container-to-host and
     container-to-container isolation.
 
-* Exposes a partially virtualized procfs (`/proc`) to the container.
+* Resource isolation
 
-  - This makes the container more closely resemble a real host.
+  - Programs inside the system container (e.g., Docker) are limited
+    to using the resources given to the system container itself.
 
-  - Prevents processes within the container from changing global kernel
-    settings via `/proc`.
+* Partially virtualized procfs
+
+  - Processes inside the system container see a partially virtualized `/proc`.
+
+  - This makes the system container more closely resemble a real host.
+
+  - Prevents processes within the container from changing global
+    kernel settings.
 
 ## Supported Linux Distros
 
@@ -74,7 +93,7 @@ We plan to add support for more distros in the future.
 
 ## Host Requirements
 
-The Linux host on which sysboxd runs must meet the following requirements:
+The Linux host on which Sysboxd runs must meet the following requirements:
 
 1) Systemd must be running as the system's process-manager.
 
@@ -96,7 +115,8 @@ The Linux host on which sysboxd runs must meet the following requirements:
 
 1) Download the latest package from the [release](https://github.com/nestybox/sysboxd-external/releases) page.
 
-2) Verify that the checksum of the downloaded file fully matches the expected/published one:
+2) Verify that the checksum of the downloaded file fully matches the expected/published one.
+   For example:
 
 ```bash
 $ sha256sum ~/sysboxd_0.0.1-0~ubuntu-bionic_amd64.deb
@@ -129,7 +149,7 @@ sysbox-mgr.service                  loaded    active   running sysbox-mgr compon
 sysboxd.service                     loaded    active   exited  Sysboxd General Service
 ```
 
-The sysboxd.service is ephemeral (it exits once it launches the other sysboxd services).
+Note: the sysboxd.service is ephemeral (it exits once it launches the other sysboxd services).
 
 If you are curious on what the other Sysboxd services are, refer to the [Sysboxd design document](docs/design.md).
 
@@ -167,8 +187,12 @@ that runs in a regular Docker container. In addition, it runs
 system-level software that does not run in a regular Docker container.
 
 For system-level software, we currently only support running Docker
-inside the system container. See [here](docs/usage.md#running-software-inside-the-system-container)
-for more info on this.
+inside the system container. This allows you to build and run Docker
+application containers inside the system container, just as you would
+on a physical host or in a VM. It's useful in CI/CD pipelines where
+the need for a container to build another container arises often.
+
+See [here](docs/usage.md#running-software-inside-the-system-container) for more info on this.
 
 ## Integration with Container Managers
 
