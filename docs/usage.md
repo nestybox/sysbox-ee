@@ -395,3 +395,15 @@ container's data across a cluster of hosts, in the cloud, etc.
 
 Nestybox does not yet support using any of these plugins
 for system containers.
+
+## Support for Linux Security Modules (LSMs)
+
+### AppArmor
+
+Sysboxd currently uses a permissive AppArmor profile for system
+containers. We plan to create a more restrictive profile in
+the near future.
+
+### SELinux
+
+Sysboxd does not yet support running on systems with SELinux enabled.
