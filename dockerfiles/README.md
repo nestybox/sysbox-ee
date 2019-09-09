@@ -4,6 +4,8 @@ Nestybox System Container Dockerfiles
 This directory contains the Dockerfiles for system container images
 uploaded to the Nestybox public repos on DockerHub.
 
+The Dockerfiles and associated images are meant to be used as examples.
+
 Feel free to copy them and modify them to your needs, or source them
 from within your Dockerfiles.
 

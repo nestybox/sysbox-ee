@@ -1,5 +1,5 @@
-Nestybox Sysboxd
-================
+Sysbox: System Container Runtime
+================================
 
 ## About Nestybox
 
@@ -18,12 +18,12 @@ efficient, and easy-to-use alternative to virtual machines for
 deploying virtual hosts on Linux. And for this work out-of-the-box and
 securely, without complex configurations or hacks.
 
-## About Sysboxd
+## About Sysbox
 
-Sysboxd is software that installs on a Linux host and integrates with Docker,
+Sysbox is software that installs on a Linux host and integrates with Docker,
 enabling Docker to create [system containers](docs/system-containers.md).
 
-Users do not normally interact with Sysboxd directly. Instead, users
+Users do not normally interact with Sysbox directly. Instead, users
 create system containers with Docker. See [Usage](#usage) below for more info.
 
 ## Features
@@ -31,7 +31,7 @@ create system containers with Docker. See [Usage](#usage) below for more info.
 **NOTE**: It's early days for Nestybox, so our system containers
 support a reduced set of features and use-cases at this time.
 
-Below is a list of features currently supported by Sysboxd. Please
+Below is a list of features currently supported by Sysbox. Please
 see our [Roadmap](#roadmap) for a list of features we are working on.
 
 ### Deployment
@@ -93,7 +93,7 @@ We plan to add support for more distros in the future.
 
 ## Host Requirements
 
-The Linux host on which Sysboxd runs must meet the following requirements:
+The Linux host on which Sysbox runs must meet the following requirements:
 
 1) Systemd must be running as the system's process-manager.
 
@@ -113,20 +113,20 @@ The Linux host on which Sysboxd runs must meet the following requirements:
 
 ## Installation
 
-1) Download the latest package from the [release](https://github.com/nestybox/sysboxd-external/releases) page.
+1) Download the latest package from the [release](https://github.com/nestybox/sysbox-external/releases) page.
 
 2) Verify that the checksum of the downloaded file fully matches the expected/published one.
    For example:
 
 ```bash
-$ sha256sum ~/sysboxd_0.0.1-0~ubuntu-bionic_amd64.deb
-2a02898dc53b4751cf413464b977f5b296d9aac3c5b477e05272bfa881d69cfc  /home/user/sysboxd_0.0.1-0~ubuntu-bionic_amd64.deb
+$ sha256sum ~/sysbox_0.0.1-0~ubuntu-bionic_amd64.deb
+2a02898dc53b4751cf413464b977f5b296d9aac3c5b477e05272bfa881d69cfc  /home/user/sysbox_0.0.1-0~ubuntu-bionic_amd64.deb
 ```
 
-3) Install the Sysboxd package:
+3) Install the Sysbox package:
 
 ```bash
-$ sudo dpkg -i sysboxd_0.0.1-0~ubuntu-bionic_amd64.deb
+$ sudo dpkg -i sysbox_0.0.1-0~ubuntu-bionic_amd64.deb
 ```
 
 In case you hit an error with missing dependencies, fix this with:
@@ -136,28 +136,28 @@ $ sudo apt-get install -f -y
 ```
 
 This will install the missing dependencies and automatically re-launch
-the Sysboxd installation process.
+the Sysbox installation process.
 
 
-4) Verify that Sysboxd's systemd units have been properly installed, and
+4) Verify that Sysbox's systemd units have been properly installed, and
    associated daemons are properly running:
 
 ```
 $ systemctl list-units -t service --all | grep sysbox
 sysbox-fs.service                   loaded    active   running sysbox-fs component
 sysbox-mgr.service                  loaded    active   running sysbox-mgr component
-sysboxd.service                     loaded    active   exited  Sysboxd General Service
+sysbox.service                     loaded    active   exited  Sysbox General Service
 ```
 
-Note: the sysboxd.service is ephemeral (it exits once it launches the other sysboxd services).
+Note: the sysbox.service is ephemeral (it exits once it launches the other sysbox services).
 
-If you are curious on what the other Sysboxd services are, refer to the [Sysboxd design document](docs/design.md).
+If you are curious on what the other Sysbox services are, refer to the [Sysbox design document](docs/design.md).
 
 If you hit problems during installation, see the [Troubleshooting document](docs/troubleshoot.md).
 
 ## Usage
 
-To launch a system container with Docker, point Docker to the Sysboxd container
+To launch a system container with Docker, point Docker to the Sysbox container
 runtime, using the `--runtime=sysbox-runc` option:
 
 ```bash
@@ -173,8 +173,8 @@ It's perfectly fine to run system containers along side with regular
 Docker application containers on the host at the same time; they won't
 conflict.
 
-Refer to the [Sysboxd User's Guide](docs/usage.md) for other ways to
-run system containers with Sysboxd.
+Refer to the [Sysbox User's Guide](docs/usage.md) for other ways to
+run system containers with Sysbox.
 
 If you hit problems with the instructions above, see the
 [Troubleshooting document](docs/troubleshoot.md).
@@ -196,27 +196,27 @@ See [here](docs/usage.md#running-software-inside-the-system-container) for more 
 
 ## Integration with Container Managers
 
-Sysboxd is designed to work with Docker / containerd.
+Sysbox is designed to work with Docker / containerd.
 
 We don't yet support other container managers (e.g., cri-o).
 
 ## Design
 
-For more detailed info about Sysboxd's design, refer to the
-[Sysboxd design document](docs/design.md).
+For more detailed info about Sysbox's design, refer to the
+[Sysbox design document](docs/design.md).
 
 ## OCI Compatibility
 
-Sysboxd is a fork of the [OCI runc](https://github.com/opencontainers/runc). It is mostly
+Sysbox is a fork of the [OCI runc](https://github.com/opencontainers/runc). It is mostly
 (but not 100%) compatible with the OCI runtime specification. See [here](docs/design.md#oci-compatibility)
 for a list of incompatibilities.
 
 We believe these incompatibilities won't negatively affect users of
-Sysboxd and should mostly be transparent to them.
+Sysbox and should mostly be transparent to them.
 
 ## Production Readiness
 
-Sysboxd is still in Beta. It's stable, but not production ready yet.
+Sysbox is still in Beta. It's stable, but not production ready yet.
 
 ## Troubleshooting
 
@@ -227,12 +227,12 @@ Refer to the [Troubleshooting document](docs/troubleshoot.md).
 We apologize for any problems in the product or documentation, and we appreciate
 customers filing issues that help us improve them.
 
-To file issues with Sysboxd (e.g., bugs, feature requests, documentation changes, etc.),
+To file issues with Sysbox (e.g., bugs, feature requests, documentation changes, etc.),
 please refer to the [issue guidelines](docs/issue-guidelines.md) document.
 
 ## Roadmap
 
-The following is a list of features in the Sysboxd roadmap.
+The following is a list of features in the Sysbox roadmap.
 
 We list these here so that our users can get a better idea of where we
 are going and can give us feedback on which of these they like best
@@ -259,7 +259,7 @@ Here is the list:
 
 ## Feedback
 
-We love feedback, as it helps us improve Sysboxd and set its future
+We love feedback, as it helps us improve Sysbox and set its future
 direction.
 
 We would much appreciate if you would take a couple of minutes to
@@ -269,20 +269,20 @@ https://www.surveymonkey.com/r/SH8HMGY
 
 ## Uninstallation
 
-Prior to uninstalling Sysboxd, make sure all system containers are removed.
+Prior to uninstalling Sysbox, make sure all system containers are removed.
 There is a simple shell script to do this [here](scr/rm_all_syscont).
 
-1) Uninstall Sysboxd binaries:
+1) Uninstall Sysbox binaries:
 
 ```bash
-$ sudo dpkg --remove sysboxd
+$ sudo dpkg --remove sysbox
 ```
 
 Alternatively, remove the above items plus all the associated
 configuration and systemd files (recommended):
 
 ```bash
-$ sudo dpkg --purge sysboxd
+$ sudo dpkg --purge sysbox
 ```
 
 2) Unload the `nbox_shiftfs` module:
@@ -291,10 +291,10 @@ $ sudo dpkg --purge sysboxd
 $ sudo rmmod nbox_shiftfs
 ```
 
-3) Finally remove the `sysboxd` user from the system:
+3) Finally remove the `sysbox` user from the system:
 
 ```bash
-$ sudo userdel sysboxd
+$ sudo userdel sysbox
 ```
 
 ## Contact
@@ -304,7 +304,7 @@ be happy to help.
 
 ## Thank You!
 
-We thank you **very much** for using Sysboxd. We hope you find it useful.
+We thank you **very much** for using Sysbox. We hope you find it useful.
 
 Your trust in us is very much appreciated.
 

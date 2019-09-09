@@ -1,13 +1,13 @@
-Sysboxd User's Guide
+Sysbox User's Guide
 ====================
 
-The Sysboxd [README](../README.md) file contains the basic information
-on how to install Sysboxd and create system containers with it. This
+The Sysbox [README](../README.md) file contains the basic information
+on how to install Sysbox and create system containers with it. This
 document supplements the README file with additional information.
 
-## Running System Containers with Sysboxd
+## Running System Containers with Sysbox
 
-We currently support two ways of running system containers with Sysboxd:
+We currently support two ways of running system containers with Sysbox:
 
 1) Using Docker (the easy and preferred way)
 
@@ -23,7 +23,7 @@ $ docker run --runtime=sysbox-runc --rm -it --hostname my_cont debian:latest
 root@my_cont:/#
 ```
 
-It's possible to configure Sysboxd as the default runtime for Docker. This
+It's possible to configure Sysbox as the default runtime for Docker. This
 way you don't have to use the `--runtime` flag everytime. If you wish to do this,
 refer to the [Docker website](https://docs.docker.com/engine/reference/commandline/dockerd/).
 
@@ -60,15 +60,15 @@ Choose a unique name for the container and run:
 Use `sysbox-runc --help` command for help on all commands supported.
 
 Also, in step (2) above, feel free to modify the system container's
-`config.json` to your needs. But note that Sysboxd ignores a few
-of the OCI directives in this file (refer to the [Sysboxd design document](design.md#oci-compatibility)
+`config.json` to your needs. But note that Sysbox ignores a few
+of the OCI directives in this file (refer to the [Sysbox design document](design.md#oci-compatibility)
 for details).
 
 ### Support for Other Container Managers
 
-We officially only support the above methods to run Sysboxd.
+We officially only support the above methods to run Sysbox.
 
-However, because Sysboxd is almost 100% OCI compatible, we plan to
+However, because Sysbox is almost 100% OCI compatible, we plan to
 add support for other OCI compatible container managers (e.g.,
 [cri-o](https://cri-o.io/)) soon.
 
@@ -174,7 +174,7 @@ To prevent confusion we refer to the containers as the "outer" and
 "inner" containers.
 
 * The outer container is a system container, created at the host
-  level; it's launched with Docker + Sysboxd.
+  level; it's launched with Docker + Sysbox.
 
 * The inner container is an application container, created within
   the outer container. It's launched by the Docker instance running
@@ -225,15 +225,15 @@ Docker "data-root".
 
 While it's possible to configure the inner Docker to store it's images
 at some other location within the system container (via the Docker
-daemon's `--data-root` option), Sysboxd does **not** currently support
+daemon's `--data-root` option), Sysbox does **not** currently support
 this (i.e., the inner Docker won't work).
 
-## Sysboxd Reconfiguration
+## Sysbox Reconfiguration
 
-The Sysboxd installer starts the [Sysboxd components](design.md#sysboxd-components)
+The Sysbox installer starts the [Sysbox components](design.md#sysbox-components)
 automatically, using systemd.
 
-Normally this is sufficient and the user need not worry about reconfiguring Sysboxd.
+Normally this is sufficient and the user need not worry about reconfiguring Sysbox.
 
 However, there are scenarios where the daemons may need to be
 reconfigured (e.g., to enable a given option on sysbox-fs or
@@ -247,9 +247,9 @@ In these cases, do the following:
    Example:
 
    ```bash
-   $ sudo sed -i '/^ExecStart/ s/$/ --log-level debug/' /etc/systemd/system/sysboxd.service.wants/sysbox-fs.service
+   $ sudo sed -i '/^ExecStart/ s/$/ --log-level debug/' /etc/systemd/system/sysbox.service.wants/sysbox-fs.service
    $
-   $ egrep "ExecStart" /etc/systemd/system/sysboxd.service.wants/sysbox-fs.service
+   $ egrep "ExecStart" /etc/systemd/system/sysbox.service.wants/sysbox-fs.service
    ExecStart=/usr/local/sbin/sysbox-fs --log /var/log/sysbox-fs.log --log-level debug
    ```
 
@@ -259,19 +259,19 @@ In these cases, do the following:
    $ sudo systemctl daemon-reload
    ```
 
-3) Restart the **sysboxd** service:
+3) Restart the **sysbox** service:
 
    ```bash
-   $ sudo systemctl restart sysboxd
+   $ sudo systemctl restart sysbox
    ```
 
-Note that even though Sysboxd is comprised of various daemons and its
+Note that even though Sysbox is comprised of various daemons and its
 respective services, you should only interact with its outer-most
-systemd service: **sysboxd**.
+systemd service: **sysbox**.
 
 ## Rootless Container Support
 
-Sysboxd must run with root privileges on the host system. It won't
+Sysbox must run with root privileges on the host system. It won't
 work if executed without root privileges.
 
 ## Interaction with Docker Userns Remap
@@ -279,22 +279,22 @@ work if executed without root privileges.
 Docker has a configuration called [userns-remap](https://docs.docker.com/engine/security/userns-remap)
 that enables the Linux user namespace in containers. By default, userns-remap is disabled in Docker.
 
-Sysboxd works out-of-the-box with either configuration of Docker
-(i.e., with or without userns-remap enabled). No change to Sysboxd's
+Sysbox works out-of-the-box with either configuration of Docker
+(i.e., with or without userns-remap enabled). No change to Sysbox's
 configuration is needed either way.
 
-However, Sysboxd works best with Docker userns-remap *disabled*
-(though this is supported by Sysboxd in a reduced number of distros,
+However, Sysbox works best with Docker userns-remap *disabled*
+(though this is supported by Sysbox in a reduced number of distros,
 as described [here](../README.md#supported-linux-distros)).
 
 The reason userns-remap disabled is preferred is that in this case
-Sysboxd will allocate exclusive user-ID and group-ID mappings for the
+Sysbox will allocate exclusive user-ID and group-ID mappings for the
 system container's user namespace, thereby improving
 isolation between system containers.
 
 If on the other hand Docker userns-remap is enabled, then Docker
 chooses the user-ID and group-ID mappings for the container and
-Sysboxd honors these. However Docker currently has a limitation: it
+Sysbox honors these. However Docker currently has a limitation: it
 uses the same user-ID and group-ID mappings for all containers,
 thereby decreasing isolation between containers (i.e., if a process
 escapes the container, it may be able to access the filesystem
@@ -304,22 +304,22 @@ The table below summarizes this:
 
 | Docker userns-remap | Description |
 |---------------------|-------------|
-| disabled            | sysboxd will allocate exclusive uid(gid) mappings per system container and perform uid(gid) shifting. |
+| disabled            | Sysbox will allocate exclusive uid(gid) mappings per system container and perform uid(gid) shifting. |
 |                     | Strong container-to-host isolation. |
 |                     | Strong container-to-container isolation. |
 |                     | Uses the Nestybox Shiftfs module in the kernel. |
 |                     |
-| enabled             | sysboxd will honor Docker's uid(gid) mappings. |
+| enabled             | Sysbox will honor Docker's uid(gid) mappings. |
 |                     | Strong container-to-host isolation. |
 |                     | Reduced container-to-container isolation (same uid(gid) range). |
 |                     | Does not use the Nestybox Shiftfs module in the kernel. |
 
-For further info Sysboxd's usage of the Linux user namespace and
-associated ID mappings, refer to the [Sysboxd design document](design.md).
+For further info Sysbox's usage of the Linux user namespace and
+associated ID mappings, refer to the [Sysbox design document](design.md).
 
 ## Docker Bind Mount Permissions
 
-Sysboxd system containers support all Docker storage mount types:
+Sysbox system containers support all Docker storage mount types:
 volume, bind, or tmpfs.
 
 However, for bind mounts there are some caveats. These caveats do not apply to
@@ -360,7 +360,7 @@ must be owned by `root:root`.
 The rationale for these rules is the following.
 
 Rule (1) ensures that the root user in the system container will have
-correct permissions to access the bind mount. Sysboxd uses the
+correct permissions to access the bind mount. Sysbox uses the
 Nestybox shiftfs module to do some magic here.
 
 Rule (2) is a security precaution. It reduces the chances of a
@@ -400,10 +400,10 @@ for system containers.
 
 ### AppArmor
 
-Sysboxd currently uses a permissive AppArmor profile for system
+Sysbox currently uses a permissive AppArmor profile for system
 containers. We plan to create a more restrictive profile in
 the near future.
 
 ### SELinux
 
-Sysboxd does not yet support running on systems with SELinux enabled.
+Sysbox does not yet support running on systems with SELinux enabled.

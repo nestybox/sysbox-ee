@@ -1,42 +1,42 @@
-Sysboxd Troubleshooting
+Sysbox Troubleshooting
 ========================
 
 ## Installation Problems
 
-When installing the Sysboxd package with the `dpkg` command
+When installing the Sysbox package with the `dpkg` command
 (see the [Installation instructions](../README.md#installation)), the expected output is:
 
 ```
-Selecting previously unselected package sysboxd.
+Selecting previously unselected package sysbox.
 (Reading database ... 150254 files and directories currently installed.)
-Preparing to unpack .../sysboxd_0.0.1-0~ubuntu-bionic_amd64.deb ...
-Unpacking sysboxd (1:0.0.1-0~ubuntu-bionic) ...
-Setting up sysboxd (1:0.0.1-0~ubuntu-bionic) ...
+Preparing to unpack .../sysbox_0.0.1-0~ubuntu-bionic_amd64.deb ...
+Unpacking sysbox (1:0.0.1-0~ubuntu-bionic) ...
+Setting up sysbox (1:0.0.1-0~ubuntu-bionic) ...
 
 Disruptive changes made to docker configuration. Restarting docker service...
-Created symlink /etc/systemd/system/sysboxd.service.wants/sysbox-fs.service → /lib/systemd/system/sysbox-fs.service.
-Created symlink /etc/systemd/system/sysboxd.service.wants/sysbox-mgr.service → /lib/systemd/system/sysbox-mgr.service.
-Created symlink /etc/systemd/system/multi-user.target.wants/sysboxd.service → /lib/systemd/system/sysboxd.service.
+Created symlink /etc/systemd/system/sysbox.service.wants/sysbox-fs.service → /lib/systemd/system/sysbox-fs.service.
+Created symlink /etc/systemd/system/sysbox.service.wants/sysbox-mgr.service → /lib/systemd/system/sysbox-mgr.service.
+Created symlink /etc/systemd/system/multi-user.target.wants/sysbox.service → /lib/systemd/system/sysbox.service.
 ```
 
 In case an error is observed above as a consequence of a missing
 software dependency, proceed to download and install the missing
 package(s) as indicated below. Once this requirement is satisfied,
-Sysboxd's installation process will be automatically re-launched to
+Sysbox's installation process will be automatically re-launched to
 conclude this task.
 
 Missing dependency output:
 
 ```
 ...
-dpkg: dependency problems prevent configuration of sysboxd:
-sysboxd depends on jq; however:
+dpkg: dependency problems prevent configuration of sysbox:
+sysbox depends on jq; however:
 Package jq is not installed.
 
-dpkg: error processing package sysboxd (--install):
+dpkg: error processing package sysbox (--install):
 dependency problems - leaving unconfigured
 Errors were encountered while processing:
-sysboxd
+sysbox
 ```
 
 Install missing package by fixing (-f) system's dependency structures.
@@ -45,23 +45,23 @@ Install missing package by fixing (-f) system's dependency structures.
 $ sudo apt-get install -f -y
 ```
 
-Verify that Sysboxd's systemd units have been properly installed, and
+Verify that Sysbox's systemd units have been properly installed, and
 associated daemons are properly running:
 
 ```
-$ systemctl list-units -t service --all | grep sysboxd
+$ systemctl list-units -t service --all | grep sysbox
 sysbox-fs.service                   loaded    active   running sysbox-fs component
 sysbox-mgr.service                  loaded    active   running sysbox-mgr component
-sysboxd.service                     loaded    active   exited  Sysboxd General Service
+sysbox.service                     loaded    active   exited  Sysbox General Service
 ```
 
-The sysboxd.service is ephemeral (it exits once it launches the other sysboxd services).
+The sysbox.service is ephemeral (it exits once it launches the other sysbox services).
 
-## Sysboxd Logs
+## Sysbox Logs
 
 ### sysbox-mgr & sysbox-fs
 
-The Sysboxd daemons (i.e. sysbox-fs and sysbox-mgr) will log
+The Sysbox daemons (i.e. sysbox-fs and sysbox-mgr) will log
 information related to their activities in the
 `/var/log/sysbox-fs.log` and `/var/log/sysbox-mgr.log` files
 respectively. These logs should be useful during troubleshooting
@@ -112,7 +112,7 @@ When this file is changed, the Docker daemon needs to be restarted:
 # systemctl restart docker.service
 ```
 
-**Note:** The sysboxd installer automatically configures the `/etc/docker/daemon.json`
+**Note:** The sysbox installer automatically configures the `/etc/docker/daemon.json`
 file to add the `sysbox-runc` runtime to it, and restarts the Docker daemon.
 
 ## Bind Mount Security Check Error
@@ -127,7 +127,7 @@ docker: Error response from daemon: OCI runtime create failed: ... shiftfs mount
 
 This means that the bind mount security check has failed. This occurs when running with Docker
 userns remap disabled (the default configuration for Docker) and the source of the bind
-mount does not meet Sysboxd's security requirements. Refer to [Docker Bind Mount Permissions](usage.md#docker-bind-mount-permissions)
+mount does not meet Sysbox's security requirements. Refer to [Docker Bind Mount Permissions](usage.md#docker-bind-mount-permissions)
 for details on how to fix this.
 
 ## Bind Mount Permissions Error
@@ -138,7 +138,7 @@ the files and directories associated with the mount have
 
 This typically occurs when the source of the bind mount is owned by a
 user on the host that is different from the user on the host to which
-the system container's root user maps. Recall that Sysboxd containers
+the system container's root user maps. Recall that Sysbox containers
 always use the Linux user namespace and thus map the root user in the
 system container to a non-root user on the host.
 
@@ -156,7 +156,7 @@ details.
 ## Nestybox Shiftfs Module Error
 
 When creating a system container, the following error indicates that
-the Nestybox Shiftfs module is required by Sysboxd but is not loaded
+the Nestybox Shiftfs module is required by Sysbox but is not loaded
 in the Linux kernel:
 
 ```bash
@@ -166,7 +166,7 @@ docker: Error response from daemon: OCI runtime create failed:  container requir
 
 To solve this problem, load the Nestybox Shiftfs module as described [here](https://github.com/nestybox/nbox-shiftfs-external).
 
-Note that normally the Sysboxd installer loads this module into the
+Note that normally the Sysbox installer loads this module into the
 kernel, so this error implies that either the installer did not
 succeed or that the module was somehow unloaded since then.
 
@@ -188,7 +188,7 @@ For Ubuntu, fix this with:
 sudo sh -c "echo 1 > /proc/sys/kernel/unprivileged_userns_clone"
 ```
 
-**Note:** The Sysboxd package installer automatically executes this
+**Note:** The Sysbox package installer automatically executes this
 instruction, so normally there is no need to do this configuration
 manually.
 
@@ -198,10 +198,10 @@ When creating a system container, Docker may report the following error:
 
 ```bash
 docker run --runtime=sysbox-runc -it ubuntu:latest
-docker: Error response from daemon: OCI runtime create failed: failed to setup docker volume manager: host dir for docker store /var/lib/sysboxd/docker can't be on ..."
+docker: Error response from daemon: OCI runtime create failed: failed to setup docker volume manager: host dir for docker store /var/lib/sysbox/docker can't be on ..."
 ```
 
-This means that directory `/var/lib/sysboxd` is on a filesystem not supported by Sysboxd.
+This means that directory `/var/lib/sysbox` is on a filesystem not supported by Sysbox.
 
 This directory must be on one of the following filesystems:
 
