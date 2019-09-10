@@ -216,7 +216,11 @@ Sysbox and should mostly be transparent to them.
 
 ## Production Readiness
 
-Sysbox is still in Beta. It's stable, but not production ready yet.
+Sysbox is still in experimental stage. It's **not** production ready yet.
+
+Nestybox is actively enhancing its functionality and fixing issues at this stage.
+
+Your feedback is much appreciated!
 
 ## Troubleshooting
 
@@ -247,6 +251,8 @@ Here is the list:
 
 * Support for Docker volume plugins for use with system containers.
 
+* Support for deploying system containers with Kubernetes.
+
 * Support for other container managers (e.g., cri-o)
 
 * Running Kubernetes inside the system container
@@ -254,8 +260,6 @@ Here is the list:
 * Running Systemd inside the system container
 
 * Running window managers (e.g., X) inside the system container (for GUI apps & desktops).
-
-* More virtualization of non-namespaced resources in procfs (`/proc/`).
 
 ## Feedback
 
