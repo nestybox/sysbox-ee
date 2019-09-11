@@ -180,43 +180,6 @@ To prevent confusion we refer to the containers as the "outer" and
   the outer container. It's launched by the Docker instance running
   inside the outer container.
 
-### Inner Docker Image Caching
-
-The Docker instance running inside the system container stores its
-images in the `/var/lib/docker` directory inside the container.
-
-When the system container is removed, the contents of that directory
-will also be removed.
-
-If you wish to keep the contents of that directory so that they may be
-reused by a future system container instance (e.g., to avoid forcing
-the future instance to re-download inner container images), then
-simply mount a Docker volume on the host into the system container's
-`/var/lib/docker`:
-
-```bash
-$ docker volume create myVol
-$ docker run --runtime=sysbox-runc -it --mount source=myVol,target=/var/lib/docker debian:latest
-```
-
-This way, the inner Docker's image cache will persist even after the
-system container is removed.
-
-But note the following: Docker does not support two or more daemons
-sharing the same image cache. Thus, if you follow the approach above,
-you must mount the host volume to a **single** system container at any
-given time.
-
-If you wish to have multiple system containers using this technique,
-use a separate host volume for each:
-
-```bash
-$ docker volume create myVol1
-$ docker volume create myVol2
-$ docker run --runtime=sysbox-runc -it --mount source=myVol1,target=/var/lib/docker debian:latest
-$ docker run --runtime=sysbox-runc -it --mount source=myVol2,target=/var/lib/docker debian:latest
-```
-
 ### Inner Docker Restrictions
 
 The Docker instance inside the system container is assumed to store
@@ -227,6 +190,32 @@ While it's possible to configure the inner Docker to store it's images
 at some other location within the system container (via the Docker
 daemon's `--data-root` option), Sysbox does **not** currently support
 this (i.e., the inner Docker won't work).
+
+### Inner Docker Image Caching
+
+The Docker instance running inside the system container stores its
+images in the `/var/lib/docker` directory inside the container.
+
+When the system container is removed (i.e., not just stopped, but
+actualy removed), the contents of that directory will also be removed.
+
+This means that the inner Docker's image cache is removed when the
+associated system container is removed.
+
+Normally, it would be possible to override this behavior by mounting a
+host volume into the system container's `/var/lib/docker`, in order to
+persist the inner Docker's image cache accross system container
+lifecycles.
+
+However, Sysbox does not currently support mounts into the system
+container's `/var/lib/docker` (due to a low-level problem in the
+interaction between overlayfs and the Nestybox nbox_shiftfs module).
+
+If a user creates a system container with a mount into the system
+container's `/var/lib/docker`, Sysbox ignores the mount configuration
+and runs the system container without it.
+
+We are working on a solution for this.
 
 ## Sysbox Reconfiguration
 
@@ -320,7 +309,7 @@ associated ID mappings, refer to the [Sysbox design document](design.md).
 ## Docker Bind Mount Permissions
 
 Sysbox system containers support all Docker storage mount types:
-volume, bind, or tmpfs.
+[volume, bind, or tmpfs](https://docs.docker.com/storage/).
 
 However, for bind mounts there are some caveats. These caveats do not apply to
 volume mounts and tmpfs mounts.
@@ -407,3 +396,7 @@ the near future.
 ### SELinux
 
 Sysbox does not yet support running on systems with SELinux enabled.
+
+### Others
+
+Sysbox does not have support for other Linux LSMs at this time.

@@ -216,7 +216,7 @@ Sysbox and should mostly be transparent to them.
 
 ## Production Readiness
 
-Sysbox is still in experimental stage. It's **not** production ready yet.
+Sysbox is still in an experimental stage. It's **not** production ready yet.
 
 Nestybox is actively enhancing its functionality and fixing issues at this stage.
 
