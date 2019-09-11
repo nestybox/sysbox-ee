@@ -400,3 +400,18 @@ Sysbox does not yet support running on systems with SELinux enabled.
 ### Others
 
 Sysbox does not have support for other Linux LSMs at this time.
+
+## Support for Docker Run --init Flag
+
+The `docker run` command has a `--init` flag that inserts a tiny
+init-process into the container as the main process, to handle reaping
+of processes when the container exits.
+
+It's useful when running multiple apps / services in a container.
+
+Sysbox does not currently support this flag. We are working on a
+solution to this.
+
+As an alternative, you can insert supervisord into the container, or
+use a bash shell wrapper script to start multiple services, as
+recommnded by Docker [here](https://docs.docker.com/config/containers/multi-service_container/).
