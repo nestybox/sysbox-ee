@@ -1,17 +1,17 @@
-# Nestybox's Drone system-container dockerfile.
+# Nestybox's Drone-server Dockerfile.
 #
 # Description:
 #
-# Image's purpose is to provide a full-fledge Drone CI/CD system. Obtained image
-# will incorporate all the necessary Drone binaries, as well as the dockerd
-# binary required to instantiate 'inner' containers. Both daemons will be managed
+# Dockerfile to construct a system container to host Drone-server functionality.
+# The obtained image will incorporate the drone-server binary, as well as the
+# Docker package required to instantiate 'slave' containers to execute continous
+# integration tasks. Both daemons (drone-server and dockerd) will be managed
 # through supervisord process manager.
 #
 # Requirements:
 #
 # A supervisord.conf file in charge of launching dockerd & drone-server daemons,
-# must be provided as part of this docker image compilation process. See example
-# below:
+# must be provided as part of this image compilation process. See example below:
 #
 # ---
 # $ cat supervisord.conf
@@ -41,15 +41,11 @@
 #  --env=DRONE_GITHUB_SERVER=https://github.com \
 #  --env=DRONE_GITHUB_CLIENT_ID=${DRONE_GITHUB_CLIENT_ID} \
 #  --env=DRONE_GITHUB_CLIENT_SECRET=${DRONE_GITHUB_CLIENT_ID} \
-#  --env=DRONE_RUNNER_CAPACITY=2 \
 #  --env=DRONE_SERVER_HOST=${DRONE_SERVER_HOST} \
-#  --env=DRONE_SERVER_PROTO=https \
-#  --env=DRONE_TLS_AUTOCERT=true \
 #  --env=DRONE_SERVER=http://${DRONE_SERVER_HOST} \
-#  --env=DRONE_TOKEN=${DRONE_TOKEN} \
 #  --env=DRONE_USER_CREATE=username:nestybox,admin:true,token:${DRONE_TOKEN} \
 #  --publish=80:80 --publish=443:443 \
-#  -d --rm --name=drone nestybox/ubuntu-bionic-docker-drone
+#  -d --rm --name=drone nestybox/ubuntu-bionic-drone-server
 #
 #  [ refer to Drone's official documentation for more details ]
 #
