@@ -1,12 +1,50 @@
 Sysbox Troubleshooting
 ========================
 
-## Installation Problems
+## Upgrading the Ubuntu Kernel
+
+In case you need to upgrade your machine's Linux kernel to meet Sysbox [distro requirements](../README.md#supported-linux-distros),
+here are some suggestions. Refer to the Ubuntu documentation online for further info.
+
+### Bionic Beaver
+
+For Bionic Beaver, we recommend using Ubuntu's [LTS-enablement](https://wiki.ubuntu.com/Kernel/LTSEnablementStack)
+package:
+
+```console
+$ sudo apt-get update && sudo apt install --install-recommends linux-generic-hwe-18.04 -y
+```
+
+### Disco Dingo
+
+For Disco Dingo, we recommend simply upgrading the distro:
+
+```console
+$ sudo apt-get update
+$ sudo apt-get upgrade
+$ sudo apt-get dist-upgrade
+$ reboot
+```
+
+## Sysbox Installation Problems
 
 When installing the Sysbox package with the `dpkg` command
 (see the [Installation instructions](../README.md#installation)), the expected output is:
 
+```console
+Selecting previously unselected package sysbox.
+(Reading database ... 150254 files and directories currently installed.)
+Preparing to unpack .../sysbox_0.0.1-0~ubuntu-bionic_amd64.deb ...
+Unpacking sysbox (1:0.0.1-0~ubuntu-bionic) ...
+Setting up sysbox (1:0.0.1-0~ubuntu-bionic) ...
+
+Non-disruptive changes made to docker configuration. Sending SIGHUP signal to docker daemon...
 ```
+
+Or if your Docker daemon is configured with [userns-remap](usage.md#interaction-with-docker-userns-remap), the
+expected output is:
+
+```console
 Selecting previously unselected package sysbox.
 (Reading database ... 150254 files and directories currently installed.)
 Preparing to unpack .../sysbox_0.0.1-0~ubuntu-bionic_amd64.deb ...
@@ -19,6 +57,8 @@ Created symlink /etc/systemd/system/sysbox.service.wants/sysbox-mgr.service → 
 Created symlink /etc/systemd/system/multi-user.target.wants/sysbox.service → /lib/systemd/system/sysbox.service.
 ```
 
+Both mean that the installation completed successfully.
+
 In case an error is observed above as a consequence of a missing
 software dependency, proceed to download and install the missing
 package(s) as indicated below. Once this requirement is satisfied,
@@ -27,7 +67,7 @@ conclude this task.
 
 Missing dependency output:
 
-```
+```console
 ...
 dpkg: dependency problems prevent configuration of sysbox:
 sysbox depends on jq; however:
@@ -41,21 +81,22 @@ sysbox
 
 Install missing package by fixing (-f) system's dependency structures.
 
-```
+```console
 $ sudo apt-get install -f -y
 ```
 
 Verify that Sysbox's systemd units have been properly installed, and
 associated daemons are properly running:
 
-```
+```console
 $ systemctl list-units -t service --all | grep sysbox
 sysbox-fs.service                   loaded    active   running sysbox-fs component
 sysbox-mgr.service                  loaded    active   running sysbox-mgr component
 sysbox.service                     loaded    active   exited  Sysbox General Service
 ```
 
-The sysbox.service is ephemeral (it exits once it launches the other sysbox services).
+The sysbox.service is ephemeral (it exits once it launches the other sysbox services),
+so the `active exited` status above is expected.
 
 ## Sysbox Logs
 
@@ -85,7 +126,7 @@ For sysbox-runc, logging is handled as follows:
 
 When creating a system container, Docker may report the following error:
 
-```
+```console
 $ docker run --runtime=sysbox-runc -it ubuntu:latest
 docker: Error response from daemon: Unknown runtime specified sysbox-runc.
 ```
@@ -95,7 +136,7 @@ runtime. This is likely caused by a misconfiguration of the
 `/etc/docker/daemon.json` file. That file should have an entry for
 sysbox-runc as follows:
 
-```
+```console
 # cat /etc/docker/daemon.json
 {
    "runtimes": {
@@ -108,27 +149,12 @@ sysbox-runc as follows:
 
 When this file is changed, the Docker daemon needs to be restarted:
 
-```
+```console
 # systemctl restart docker.service
 ```
 
 **Note:** The sysbox installer automatically configures the `/etc/docker/daemon.json`
 file to add the `sysbox-runc` runtime to it, and restarts the Docker daemon.
-
-## Bind Mount Security Check Error
-
-When creating a system container with a bind mount, Docker may report the following error:
-
-```bash
-$ docker run --runtime=sysbox-runc -it --mount type=bind,source=/some/path,target=/mnt/path debian:latest
-
-docker: Error response from daemon: OCI runtime create failed: ... shiftfs mountpoint security check failed: path /some/path is not exclusively accessible to the root user or group ...
-```
-
-This means that the bind mount security check has failed. This occurs when running with Docker
-userns remap disabled (the default configuration for Docker) and the source of the bind
-mount does not meet Sysbox's security requirements. Refer to [Docker Bind Mount Permissions](usage.md#docker-bind-mount-permissions)
-for details on how to fix this.
 
 ## Bind Mount Permissions Error
 
@@ -153,28 +179,28 @@ enabled, then make sure that the bind mount source has the same owner
 Refer to [Docker Bind Mount Permissions](usage.md#docker-bind-mount-permissions) for further
 details.
 
-## Nestybox Shiftfs Module Error
+## Ubuntu Shiftfs Module Not Present
 
 When creating a system container, the following error indicates that
-the Nestybox Shiftfs module is required by Sysbox but is not loaded
+the Ubuntu shiftfs module is required by Sysbox but is not loaded
 in the Linux kernel:
 
-```bash
+```console
 # docker run --runtime=sysbox-runc -it debian:latest
-docker: Error response from daemon: OCI runtime create failed:  container requires uid shifting but error was found: nbox_shiftfs module is not loaded in the kernel
+docker: Error response from daemon: OCI runtime create failed:  container requires uid shifting but error was found: shiftfs module is not loaded in the kernel
 ```
 
-To solve this problem, load the Nestybox Shiftfs module as described [here](https://github.com/nestybox/nbox-shiftfs-external).
+The Ubuntu shiftfs module is required when Sysbox detects that Docker is
+running without userns-remap (Docker's default configuration).
 
-Note that normally the Sysbox installer loads this module into the
-kernel, so this error implies that either the installer did not
-succeed or that the module was somehow unloaded since then.
+The error likely means you are running Sysbox on an older Ubuntu kernel. See [here](../README.md#supported-linux-distros)
+for the list of Linux distros supported by Sysbox.
 
 ## Unprivileged User Namespace Creation Error
 
 When creating a system container, Docker may report the following error:
 
-```bash
+```console
 docker run --runtime=sysbox-runc -it ubuntu:latest
 docker: Error response from daemon: OCI runtime create failed: host is not configured properly: kernel is not configured to allow unprivileged users to create namespaces: /proc/sys/kernel/unprivileged_userns_clone: want 1, have 0: unknown.
 ```
@@ -184,7 +210,7 @@ to create user namespaces.
 
 For Ubuntu, fix this with:
 
-```
+```console
 sudo sh -c "echo 1 > /proc/sys/kernel/unprivileged_userns_clone"
 ```
 
@@ -196,7 +222,7 @@ manually.
 
 When creating a system container, Docker may report the following error:
 
-```bash
+```console
 docker run --runtime=sysbox-runc -it ubuntu:latest
 docker: Error response from daemon: OCI runtime create failed: failed to setup docker volume manager: host dir for docker store /var/lib/sysbox/docker can't be on ..."
 ```

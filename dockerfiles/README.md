@@ -13,7 +13,7 @@ from within your Dockerfiles.
 
 For example, to run the system container image that contains Ubuntu Disco + Docker, simply type:
 
-```bash
+```console
 $ docker run --runtime=sysbox-runc -it nestybox/ubuntu-disco-docker:latest
 ```
 
@@ -31,7 +31,7 @@ Nestybox Dockerfile that you wish to change.
 
 Simply add this at the beginning of your Dockerfile
 
-```bash
+```console
 FROM nestybox/ubuntu-disco-docker:latest
 ```
 
@@ -39,14 +39,14 @@ Then add your instructions to the Dockerfile.
 
 Then build the image and tag it:
 
-```bash
+```console
 $ docker build .
 $ docker tag <image-tag> my-custom-syscont:latest
 ```
 
 And run it with:
 
-```bash
+```console
 $ docker run --runtime=sysbox-runc -it my-custom-syscont:latest
 ```
 
@@ -58,14 +58,14 @@ First, copy the Nestybox Dockerfile to some directory, `cd` to that directory, a
 
 Then build the image and tag it:
 
-```bash
+```console
 $ docker build .
 $ docker tag <image-tag> my-custom-syscont:latest
 ```
 
 And run it with:
 
-```bash
+```console
 $ docker run --runtime=sysbox-runc -it my-custom-syscont:latest
 ```
 

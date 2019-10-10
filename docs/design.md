@@ -49,7 +49,7 @@ This is one area where Sysbox deviates from the OCI specification,
 which allows a higher layer (e.g., Docker + containerd) to choose the
 namespaces that should be enabled for the container.
 
-## User Namespace & ID Mappings
+## User Namespace and ID Mappings
 
 As mentioned in the prior section, Sysbox enables the Linux user
 namespace in all system containers.
@@ -61,9 +61,23 @@ root in the container maps to a non-root user in the host.
 
 When starting a system container, if the higher-layer (e.g., Docker +
 containerd) provides these mappings to Sysbox via the container's
-OCI `config.json` file, then Sysbox honors them. Otherwise, Sysbox
-allocates these mappings for the system container. The mappings remain
-allocated until the container is destroyed.
+OCI `config.json` file, then Sysbox honors them. Docker does this
+when the Docker daemon is configured with the userns-remap option.
+
+Otherwise (e.g., when Docker is configured without userns-remap),
+Sysbox allocates these mappings for the system container. The mappings
+remain allocated until the container is destroyed.
+
+For example, Sysbox may allocate user-ID mappings for a system container
+as follows:
+
+  | User-ID Range on Host | User-ID range in System Container  |
+  |-----------------------|------------------------------------|
+  | X -> X + 65535        | 0 (root) -> 65535                  |
+
+where X is chosen by Sysbox from the corresponding range in
+`/etc/subuid` as described below. The same mapping applies to Group ID
+ranges.
 
 When allocating the mappings, Sysbox ensures all system containers
 get *exclusive* user-ID and group-ID mappings on the host. This has
@@ -76,7 +90,7 @@ The allocated mappings come from the range specified in the host files
 configured by Sysbox during installation (more specifically when the
 sysbox-mgr component is started during installation). For example:
 
-```
+```console
 # more /etc/subuid
 sysbox:296608:268435456
 ```
@@ -100,53 +114,140 @@ Sysbox (in particular the sysbox-mgr component). See section
 [Sysbox Reconfiguration](usage.md#sysbox-reconfiguration) for details on this.
 
 One final note: when Sysbox allocates user-ID mappings, the presence
-of the [Nestybox shiftfs module](#nestybox-shiftfs-module) in the
-kernel is required.
+of the Ubuntu shiftfs module in the kernel is required as described
+below.
 
-## Nestybox Shiftfs Module
+## Ubuntu Shiftfs Module
 
-Sysbox makes use of the Nestybox Shiftfs module, which can be
-found [here](https://github.com/nestybox/nbox-shiftfs-external).
+Sysbox makes use of the Ubuntu shiftfs module, which is included
+in recent Ubuntu kernels (see the list of [supported Linux distros](../README.md#supported-linux-distros)
+for more info on this).
 
-The purpose of this module is to perform user-ID and group-ID
-"shifting" between the a container's Linux user namespace and the
-host's initial user namespace.
+The purpose of this module is to perform filesystem user-ID and
+group-ID "shifting" between the a container's Linux user namespace and
+the host's initial user namespace.
 
-This functionality is needed in order to allow a system container
-whose root user is mapped to a non-root user in the host (for extra
-isolation), to access the container's root filesystem on the host
-(which is normally owned by root:root).
+Recall from the [prior section](#user-namespace-and-id-mappings)
+that Sysbox uses the Linux user namespace and allocates an exclusive
+user-ID range on the host for each system container.
 
-The Nestybox shiftfs module is based on a similar module originally
-written by James Bottomley, but has been modified by Nestybox for use
-in conjunction with Sysbox.
+Without the shiftfs module, the system container would see its root
+filesystem files (as well as any mounted directories and files) owned
+by `nobody:nogroup`, which in essence renders the container
+unusable. The reason for this is that the container's rootfs is
+typically owned by `root:root` on the host, but there is no mapping
+from user `root` on the host to the exclusive user-ID range assigned
+to the system container by Sysbox.
 
-The Nestybox shiftfs module is not upstreamed into the Linux
-kernel. It's included in the Sysbox installer and loaded
-automatically into the kernel when Sysbox is installed. Sysbox
-users normally need not worry about it.
+This problem is resolved by Sysbox's use of the Ubuntu shiftfs
+module. By virtue of Sysbox mounting shiftfs on the system container's
+rootfs as well as mount sources, the ownership of files will be mapped
+as follows between the host and the system container:
 
-To verify the module is loaded, type:
+  | File Ownership on Host | File Ownership in System Container |
+  |------------------------|------------------------------------|
+  | 0 (root) -> 65535      | 0 (root) -> 65535                  |
+  | Others                 | nobody:nogroup                     |
 
+This means that the system container processes will now see files with
+the correct ownership (i.e., directories in the container's `/`
+directory will have `root:root` ownership).
+
+This however also means that files written by the system container's
+root user will appear as `root:root` on the host (even though the root
+user in the system container is mapped to a non-root, fully
+unprivileged user on the host). Because of this, some security
+precautions on the host are needed, as described in the next section.
+
+To verify the Ubuntu shiftfs module is loaded, type:
+
+```console
+# lsmod | grep shiftfs
+shiftfs           24576  0
 ```
-# lsmod | grep shift
-nbox_shiftfs           24576  0
+
+The Ubuntu shiftfs module is required to be present in the kernel when
+running Docker with Sysbox, specifically when Docker is configured
+without userns-remap (the default and prefered configuration, as
+described in the [Sysbox Usage Guide](usage.md#interaction-with-docker-userns-remap)).
+If Docker is configured with userns-remap enabled, the Ubuntu shiftfs module
+is not required.
+
+Sysbox will check for this. If the module is required but not present
+in the Linux kernel, Sysbox will fail to launch containers and issue
+an [appropriate error](troubleshoot.md#ubuntu-shiftfs-module-not-present).
+
+### Shiftfs Security Precautions
+
+When Sysbox uses shiftfs, some security precautions are recommended.
+
+These arise from the fact that while the root user in the system
+container is mapped to a non-root user on the host, files written by
+the root user in the system container to mountpoints under shiftfs are
+mapped into `root:root` on the host. If the system container is
+compromised or runs untrusted workloads, this can cause problems.
+
+For example, an attacker running inside the system container can
+create set-user-ID-root executables which can then be executed by
+non-root users on the host to gain root privileges.
+
+Note that this vulnerability is not specific to Nestybox system
+containers or shiftfs; the same attack is possible with regular Docker
+containers because in those the root user in the container is in fact
+the root user on the host, so files written by the root user in the
+container have `root:root` ownership on the host.
+
+To reduce the attack surface, the following security precautions are
+recommended:
+
+* The container's root filesystem should be in a directory accessible
+  to the host's root user only (e.g., 0700 permissions).
+
+  - This is always the case when using Docker with Sysbox, because the
+    Docker daemon makes `/var/lib/docker` accessible by the host's
+    root user only.
+
+* The container's mount sources on the host should also be in a
+  directory only accessible to the host's root user.
+
+  - This is always the case when using Docker volume and tmpfs mounts,
+    since the mount source is also under `/var/lib/docker`.
+
+  - For bind mounts however this is not guaranteed because the user
+    chooses the bind mount source. Thus, the user performing the bind
+    mount should explictly ensure this or take alternative precautions
+    as described below.
+
+For cases where the mount source (e.g., a bind mount source) is not in
+a directory accessible by the root user only, an alternative
+precaution is to mount the bind source as read-only inside the system
+container. For example:
+
+```console
+$ docker run --runtime=sysbox-runc -it --mount type=bind,source=/path/to/bind/source,target=/path/to/mnt/point,readonly my-syscont
 ```
 
-**Notes:**
+If this is not possible (e.g., because the system container must have
+write access to the bind mount), another alternative is to explicitly
+remount the mount source with the `noexec` attribute on the host prior
+to starting the system container:
 
-1) The Nestybox shiftfs module is required to be present in the kernel
-when running Docker with Sysbox, specifically when Docker is
-configured without userns-remap (the default and prefered
-configuration, as described in the [Sysbox Usage Guide](usage.md#interaction-with-docker-userns-remap)).
-If the module is not present in the Linux kernel in this case, Sysbox
-will fail to launch containers and issue an appropriate error.
+```console
+$ sudo mount --bind /path/to/bind/source /path/to/bind/source
+$ sudo mount -o remount,bind,noexec /path/to/bind/source /path/to/bind/source
+$ docker run --runtime=sysbox-runc -it --mount type=bind,source=/path/to/bind/source,target=/path/to/mnt/point my-syscont`
+```
 
-2) Ubuntu kernels starting with 5.0 (including the upcoming Ubuntu
-19.10 release) already include a module called "shiftfs". While this
-module is conceptually similar to Nestybox's shiftfs, it's **not** the
-same. The Nestybox shiftfs module includes some changes that are
-specific to Sysbox.
+Note that when a system container starts, Sysbox mounts shiftfs over
+the rootfs and mount source. The shiftfs mount implicitly gives them a
+`noexec` attribute on the host in order to protect against the attack
+described above. However this only lasts while the associated system
+container is running.
+
+By explicitly remounting the bind source directory with the `noexec`
+attribute as described above, a user can ensure that no user on the
+host can execute files within the mount-source directory even after
+the container is stopped.
 
 ## Procfs Virtualization
 
@@ -275,6 +376,6 @@ file. However, it adds the following mounts to the system container:
 
 ## Sysbox Nesting
 
-Sysbox must run at the host level; it does not support running
-inside a system container. This implies that we don't support
-running a system container inside a system container.
+Sysbox must run at the host level; it does not support running inside
+a system container. This implies that we don't support running a
+system container inside a system container at this time.

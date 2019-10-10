@@ -8,11 +8,11 @@ Nestybox expands the power of Linux containers.
 We are developing software that enables deployment of **system containers**
 with Docker (and soon Kubernetes).
 
-A system container is a Linux container designed to run low-level system
-software, not just applications. See [here](docs/system-containers.md) for more info on system
+A Nestybox system container is a Linux container designed to run low-level system
+software, not just applications. See this [blog article](https://blog.nestybox.com/2019/09/13/system-containers.html) for more info on system
 containers and the use cases we envision for them.
 
-Our mission is to make system containers run as many system-level
+Our mission is to make our system containers run as many system-level
 workload types as possible in order to provide users a fast,
 efficient, and easy-to-use alternative to virtual machines for
 deploying virtual hosts on Linux. And for this work out-of-the-box and
@@ -21,18 +21,17 @@ securely, without complex configurations or hacks.
 ## About Sysbox
 
 Sysbox is software that installs on a Linux host and integrates with Docker,
-enabling Docker to create [system containers](docs/system-containers.md).
+enabling Docker to create system containers.
 
 Users do not normally interact with Sysbox directly. Instead, users
-create system containers with Docker. See [Usage](#usage) below for more info.
+create system containers with Docker as described below.
 
 ## Features
 
 **NOTE**: It's early days for Nestybox, so our system containers
 support a reduced set of features and use-cases at this time.
 
-Below is a list of features currently supported by Sysbox. Please
-see our [Roadmap](#roadmap) for a list of features we are working on.
+Below is a list of features currently supported by Sysbox.
 
 ### Deployment
 
@@ -77,13 +76,26 @@ see our [Roadmap](#roadmap) for a list of features we are working on.
   - Prevents processes within the container from changing global
     kernel settings.
 
+Please see our [Roadmap](#roadmap) for a list of features we are working on.
+
 ## Supported Linux Distros
 
-* Ubuntu 19.04 "Disco"
-* Ubuntu 18.04 "Bionic" (kernel upgrade required; see [Host Requirements](#host-requirements) below)
+Sysbox relies on functionality that is only present in very recent
+Ubuntu kernels:
 
-The supported distros increase when Docker is configured with
-[userns-remap](docs/usage.md#interaction-with-docker-userns-remap) enabled. In this case, the supported distros are:
+* Ubuntu 19.04 "Disco" (kernel >= 5.0.0-21.22)
+* Ubuntu 18.04 "Bionic" (with 5.0+ kernel upgrade)
+
+If you need to upgrade your kernel the match requirements stated
+above, see [here](docs/troubleshoot.md#upgrading-ubuntu-kernel) for
+suggestions on how to do this.
+
+Alternatively it's possible to use Sysbox with slightly older Ubuntu
+kernels, but doing so requires that the Docker daemon be configured
+with [userns-remap](docs/usage.md#interaction-with-docker-userns-remap).
+
+In this case you can run Sysbox on the following distros (without the
+need to upgrade the kernel):
 
 * Ubuntu 19.04 "Disco"
 * Ubuntu 18.10 "Cosmic"
@@ -95,21 +107,11 @@ We plan to add support for more distros in the future.
 
 The Linux host on which Sysbox runs must meet the following requirements:
 
-1) Systemd must be running as the system's process-manager.
+1) It must have one of the Linux distros listed in the prior section.
 
-2) Docker must be installed on the host machine.
+2) Systemd must be the system's process-manager (the default in the supported distros).
 
-3) If the host runs Ubuntu-Bionic, you'll need to update the Linux kernel to
-   5.X+ (unless you enable docker [userns-remap](docs/usage.md#interaction-with-docker-userns-remap)).
-
-   Note that you must use the Ubuntu 5.X+ kernel, **not** the Linux
-   upstream kernel (because Ubuntu carries patches that are not
-   present in the upstream kernel). The easiest way to do this is to
-   use Ubuntu's [LTS-enablement](https://wiki.ubuntu.com/Kernel/LTSEnablementStack) package:
-
-   ```
-   $ sudo apt-get update && sudo apt install --install-recommends linux-generic-hwe-18.04 -y
-   ```
+3) Docker must be installed on the host machine.
 
 ## Installation
 
@@ -118,20 +120,20 @@ The Linux host on which Sysbox runs must meet the following requirements:
 2) Verify that the checksum of the downloaded file fully matches the expected/published one.
    For example:
 
-```bash
+```console
 $ sha256sum ~/sysbox_0.0.1-0~ubuntu-bionic_amd64.deb
 2a02898dc53b4751cf413464b977f5b296d9aac3c5b477e05272bfa881d69cfc  /home/user/sysbox_0.0.1-0~ubuntu-bionic_amd64.deb
 ```
 
 3) Install the Sysbox package:
 
-```bash
+```console
 $ sudo dpkg -i sysbox_0.0.1-0~ubuntu-bionic_amd64.deb
 ```
 
 In case you hit an error with missing dependencies, fix this with:
 
-```bash
+```console
 $ sudo apt-get install -f -y
 ```
 
@@ -142,7 +144,7 @@ the Sysbox installation process.
 4) Verify that Sysbox's systemd units have been properly installed, and
    associated daemons are properly running:
 
-```
+```console
 $ systemctl list-units -t service --all | grep sysbox
 sysbox-fs.service                   loaded    active   running sysbox-fs component
 sysbox-mgr.service                  loaded    active   running sysbox-mgr component
@@ -160,7 +162,7 @@ If you hit problems during installation, see the [Troubleshooting document](docs
 To launch a system container with Docker, point Docker to the Sysbox container
 runtime, using the `--runtime=sysbox-runc` option:
 
-```bash
+```console
 $ docker run --runtime=sysbox-runc --rm -it --hostname my_cont debian:latest
 root@my_cont:/#
 ```
@@ -255,9 +257,9 @@ Here is the list:
 
 * Support for other container managers (e.g., cri-o)
 
-* Running Kubernetes inside the system container
-
 * Running Systemd inside the system container
+
+* Running Kubernetes inside the system container
 
 * Running window managers (e.g., X) inside the system container (for GUI apps & desktops).
 
@@ -278,26 +280,20 @@ There is a simple shell script to do this [here](scr/rm_all_syscont).
 
 1) Uninstall Sysbox binaries:
 
-```bash
+```console
 $ sudo dpkg --remove sysbox
 ```
 
 Alternatively, remove the above items plus all the associated
 configuration and systemd files (recommended):
 
-```bash
+```console
 $ sudo dpkg --purge sysbox
 ```
 
-2) Unload the `nbox_shiftfs` module:
+2) Remove the `sysbox` user from the system:
 
-```bash
-$ sudo rmmod nbox_shiftfs
-```
-
-3) Finally remove the `sysbox` user from the system:
-
-```bash
+```console
 $ sudo userdel sysbox
 ```
 
