@@ -1,5 +1,4 @@
-Guidelines for Filing Issues
-============================
+# Guidelines for Filing Issues
 
 Issues can be filed [here](https://github.com/nestybox/sysbox-external/issues)
 
@@ -7,14 +6,13 @@ Please follow these guidelines when filing issues with Sysbox.
 
 1) Create an issue with one of the following labels:
 
-* `Bug`: for functional defects, performance issues, etc.
+-   `Bug`: for functional defects, performance issues, etc.
 
-* `Documentation`: documentation errors or improvements
+-   `Documentation`: documentation errors or improvements
 
-* `Enhancement`: Feature requests
+-   `Enhancement`: Feature requests
 
-* `Question`: for questions related to usage, design, etc.
-
+-   `Question`: for questions related to usage, design, etc.
 
 2) Add a label corresponding to the Sysbox release (e.g. `v0.1.0`)
 

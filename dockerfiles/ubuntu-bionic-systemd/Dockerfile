@@ -1,18 +1,19 @@
-# Nestybox's systemd dockerfile.
+#
+# Ubuntu Bionic + Systemd
 #
 # Description:
 #
-# Image's goal is to serve as a basic building-block for users looking to
-# run various background processes (daemons) in Nestybox's system containers.
-# For this purpose we are installing systemd process-manager as part of this
-# Dockerfile.
+# This image serves as a basic reference example for user's looking to
+# run Systemd inside a system container in order to deploy various
+# services within the system container, or use it as a virtual host
+# environment.
 #
+# Usage:
 #
-# Container initialization:
+# $ docker run --runtime=sysbox-runc -it --rm --name=syscont nestybox/ubuntu-bionic-systemd
 #
-# $ docker run --runtime=sysbox-runc \
-#        -it --rm --name=sys-cont nestybox/ubuntu-bionic-systemd
-#
+# This will run systemd and prompt for a user login; the default user/password
+# in this image is "admin/admin".
 
 FROM ubuntu:bionic
 
@@ -50,7 +51,6 @@ RUN apt-get update &&                            \
                                                                       \
     # Create default 'admin/admin' user
     useradd --create-home --shell /bin/bash admin && echo "admin:admin" | chpasswd && adduser admin sudo
-
 
 # Make use of stopsignal (instead of sigterm) to stop systemd containers.
 STOPSIGNAL SIGRTMIN+3

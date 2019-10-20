@@ -1,5 +1,19 @@
-Sysbox Troubleshooting
-========================
+# Sysbox Troubleshooting
+
+## Contents
+
+-   [Upgrading the Ubuntu Kernel](#upgrading-the-ubuntu-kernel)
+    -   [Bionic Beaver](#bionic-beaver)
+    -   [Disco Dingo](#disco-dingo)
+-   [Sysbox Installation Problems](#sysbox-installation-problems)
+-   [Sysbox Logs](#sysbox-logs)
+    -   [sysbox-mgr and sysbox-fs](#sysbox-mgr-and-sysbox-fs)
+    -   [sysbox-runc](#sysbox-runc)
+-   [Docker reports Unknown Runtime error](#docker-reports-unknown-runtime-error)
+-   [Bind Mount Permissions Error](#bind-mount-permissions-error)
+-   [Ubuntu Shiftfs Module Not Present](#ubuntu-shiftfs-module-not-present)
+-   [Unprivileged User Namespace Creation Error](#unprivileged-user-namespace-creation-error)
+-   [Failed to Setup Docker Volume Manager Error](#failed-to-setup-docker-volume-manager-error)
 
 ## Upgrading the Ubuntu Kernel
 
@@ -39,31 +53,25 @@ Unpacking sysbox (1:0.0.1-0~ubuntu-bionic) ...
 Setting up sysbox (1:0.0.1-0~ubuntu-bionic) ...
 
 Non-disruptive changes made to docker configuration. Sending SIGHUP signal to docker daemon...
-```
 
-Or if your Docker daemon is configured with [userns-remap](usage.md#interaction-with-docker-userns-remap), the
-expected output is:
-
-```console
-Selecting previously unselected package sysbox.
-(Reading database ... 150254 files and directories currently installed.)
-Preparing to unpack .../sysbox_0.0.1-0~ubuntu-bionic_amd64.deb ...
-Unpacking sysbox (1:0.0.1-0~ubuntu-bionic) ...
-Setting up sysbox (1:0.0.1-0~ubuntu-bionic) ...
-
-Disruptive changes made to docker configuration. Restarting docker service...
 Created symlink /etc/systemd/system/sysbox.service.wants/sysbox-fs.service → /lib/systemd/system/sysbox-fs.service.
 Created symlink /etc/systemd/system/sysbox.service.wants/sysbox-mgr.service → /lib/systemd/system/sysbox-mgr.service.
 Created symlink /etc/systemd/system/multi-user.target.wants/sysbox.service → /lib/systemd/system/sysbox.service.
 ```
 
+If your Docker daemon is configured with userns-remap enabled, you may also see the following:
+
+```console
+Disruptive changes made to docker configuration. Restarting docker service...
+```
+
 Both mean that the installation completed successfully.
 
-In case an error is observed above as a consequence of a missing
-software dependency, proceed to download and install the missing
-package(s) as indicated below. Once this requirement is satisfied,
-Sysbox's installation process will be automatically re-launched to
-conclude this task.
+In case an error occurs during installation as a consequence of a
+missing software dependency, proceed to download and install the
+missing package(s) as indicated below. Once this requirement is
+satisfied, Sysbox's installation process will be automatically
+re-launched to conclude this task.
 
 Missing dependency output:
 
@@ -100,7 +108,7 @@ so the `active exited` status above is expected.
 
 ## Sysbox Logs
 
-### sysbox-mgr & sysbox-fs
+### sysbox-mgr and sysbox-fs
 
 The Sysbox daemons (i.e. sysbox-fs and sysbox-mgr) will log
 information related to their activities in the
@@ -112,17 +120,17 @@ exercises.
 
 For sysbox-runc, logging is handled as follows:
 
-* When running Docker + sysbox-runc, the sysbox-runc logs are actually stored in
-  a containerd directory such as:
+-   When running Docker + sysbox-runc, the sysbox-runc logs are actually stored in
+    a containerd directory such as:
 
-  `/run/containerd/io.containerd.runtime.v1.linux/moby/<container-id>/log.json`
+    `/run/containerd/io.containerd.runtime.v1.linux/moby/<container-id>/log.json`
 
-  where `<container-id>` is the container ID returned by Docker.
+    where `<container-id>` is the container ID returned by Docker.
 
-* When running sysbox-runc directly, sysbox-runc will not produce any logs by default.
-  Use the `sysbox-runc --log` option to change this.
+-   When running sysbox-runc directly, sysbox-runc will not produce any logs by default.
+    Use the `sysbox-runc --log` option to change this.
 
-## Docker reports "Unknown runtime" error
+## Docker reports Unknown Runtime error
 
 When creating a system container, Docker may report the following error:
 
@@ -147,20 +155,21 @@ sysbox-runc as follows:
 }
 ```
 
-When this file is changed, the Docker daemon needs to be restarted:
+If this file is changed, the Docker daemon needs to be restarted:
 
 ```console
 # systemctl restart docker.service
 ```
 
 **Note:** The sysbox installer automatically configures the `/etc/docker/daemon.json`
-file to add the `sysbox-runc` runtime to it, and restarts the Docker daemon.
+file to add the `sysbox-runc` runtime to it, and restarts the Docker daemon. Thus
+this error is uncommon.
 
 ## Bind Mount Permissions Error
 
 When running a system container with a bind mount, you may see that
 the files and directories associated with the mount have
-`nobody:nouser` ownership when listed from within the container.
+`nobody:nogroup` ownership when listed from within the container.
 
 This typically occurs when the source of the bind mount is owned by a
 user on the host that is different from the user on the host to which
@@ -168,16 +177,8 @@ the system container's root user maps. Recall that Sysbox containers
 always use the Linux user namespace and thus map the root user in the
 system container to a non-root user on the host.
 
-If the system container was created via Docker with userns-remap
-disabled (the default configuration of Docker), then make sure that
-the bind mount source has `root:root` ownership on the host.
-
-If the system container was created via Docker with userns-remap
-enabled, then make sure that the bind mount source has the same owner
-(user:group) as the Docker userns remap configuration.
-
-Refer to [Docker Bind Mount Permissions](usage.md#docker-bind-mount-permissions) for further
-details.
+Refer to [System Container Bind Mount Requirements](usage.md#system-container-bind-mount-requirements) for
+info on how to set the correct permissions on the bind mount.
 
 ## Ubuntu Shiftfs Module Not Present
 
@@ -187,14 +188,28 @@ in the Linux kernel:
 
 ```console
 # docker run --runtime=sysbox-runc -it debian:latest
-docker: Error response from daemon: OCI runtime create failed:  container requires uid shifting but error was found: shiftfs module is not loaded in the kernel
+docker: Error response from daemon: OCI runtime create failed: container requires user-ID shifting but error was found: shiftfs module is not loaded in the kernel. Update your kernel to include shiftfs module or enable Docker with userns-remap. Refer to the Sysbox troubleshooting guide for more info: unknown
 ```
 
-The Ubuntu shiftfs module is required when Sysbox detects that Docker is
-running without userns-remap (Docker's default configuration).
+The error likely means you are running Sysbox on an older Ubuntu
+kernel, as newer Ubuntu kernel come with shiftfs.
 
-The error likely means you are running Sysbox on an older Ubuntu kernel. See [here](../README.md#supported-linux-distros)
-for the list of Linux distros supported by Sysbox.
+The Ubuntu shiftfs module is required when Sysbox is configured in
+[exclusive userns-remap mode](usage.md#exclusive-userns-remap-mode)
+(it's default operating mode).
+
+You can work-around this error by either:
+
+-   Updating your Linux distro. See
+    [here](../README.md#supported-linux-distros) for the list of Linux
+    distros supported by Sysbox, and [here](#upgrading-the-ubuntu-kernel)
+    for recommendations on how to update the distro.
+
+or
+
+-   Configuring Sysbox in docker userns-remap mode, as described
+    [here](usage.md#system-container-isolation-modes). This
+    mode does not require use of shiftfs.
 
 ## Unprivileged User Namespace Creation Error
 
@@ -227,13 +242,15 @@ docker run --runtime=sysbox-runc -it ubuntu:latest
 docker: Error response from daemon: OCI runtime create failed: failed to setup docker volume manager: host dir for docker store /var/lib/sysbox/docker can't be on ..."
 ```
 
-This means that directory `/var/lib/sysbox` is on a filesystem not supported by Sysbox.
+This means that Sysbox's `/var/lib/sysbox` directory is on a
+filesystem not supported by Sysbox.
 
 This directory must be on one of the following filesystems:
 
-   * ext4
-   * btrfs
+-   ext4
+-   btrfs
 
 The same requirement applies to the `/var/lib/docker` directory.
 
-This is normally the case for vanilla Ubuntu installations.
+This is normally the case for vanilla Ubuntu installations, so this
+error is not common.
