@@ -53,9 +53,6 @@ create system containers with Docker as described below.
 
 ## Features
 
-**NOTE**: It's early days for Nestybox, so our system containers
-support a reduced set of features and use-cases at this time.
-
 Below is a list of features currently supported by Sysbox.
 
 ### System Container Deployment
@@ -141,9 +138,9 @@ stated above, see [here](docs/troubleshoot.md#upgrading-the-ubuntu-kernel)
 for suggestions on how to do this.
 
 Alternatively it's possible to use Sysbox with slightly older Ubuntu
-kernels, but doing so requires configuring Sysbox in "Docker
-userns-remap isolation mode". In this case you can run Sysbox on the
-following distros (without needing to upgrade the kernel):
+kernels, but doing so requires using system containers in [Docker userns-remap isolation mode](docs/usage.md#system-container-isolation-modes).
+In this case you can run Sysbox on the following distros (without
+needing to upgrade the kernel):
 
 -   Ubuntu 19.04 "Disco"
 -   Ubuntu 18.10 "Cosmic"
@@ -153,13 +150,13 @@ We plan to add support for more distros in the future.
 
 Here is a summary of the distro requirements:
 
-| System Container Isolation Mode | Required Distro & Kernel            |
-| ------------------------------- | ----------------------------------- |
-| Exclusive userns-remap          | Ubuntu 19.04 Disco (>= 5.0.0-21.22) |
-|                                 | Ubuntu 18.04 Bionic (5.0+ kernel)   |
-| Docker userns-remap             | Ubuntu 19.04 Disco                  |
-|                                 | Ubuntu 18.10 Cosmic                 |
-|                                 | Ubuntu 18.04 Bionic                 |
+| System Container Isolation Mode  | Required Distro & Kernel            |
+| ---------------------------------| ----------------------------------- |
+| Exclusive userns-remap (default) | Ubuntu 19.04 Disco (>= 5.0.0-21.22) |
+|                                  | Ubuntu 18.04 Bionic (5.0+ kernel)   |
+| Docker userns-remap              | Ubuntu 19.04 Disco                  |
+|                                  | Ubuntu 18.10 Cosmic                 |
+|                                  | Ubuntu 18.04 Bionic                 |
 
 See [here](docs/usage.md#system-container-isolation-modes) for info on
 Sysbox isolation modes and how to configure them.
@@ -211,7 +208,8 @@ sysbox-mgr.service                  loaded    active   running sysbox-mgr compon
 sysbox.service                     loaded    active   exited  Sysbox General Service
 ```
 
-Note: the sysbox.service is ephemeral (it exits once it launches the other sysbox services).
+Note: the sysbox.service is ephemeral (it exits once it launches the other sysbox services; that's why
+you see `sysbox.service   loaded  active  exited` above).
 
 If you are curious on what the other Sysbox services are, refer to the [Sysbox design document](docs/design.md).
 
@@ -219,8 +217,8 @@ If you hit problems during installation, see the [Troubleshooting document](docs
 
 ## Usage
 
-To launch a system container with Docker, point Docker to the Sysbox container
-runtime, using the `--runtime=sysbox-runc` option:
+To launch a system container with Docker, simply point Docker to the
+Sysbox container runtime as follows:
 
 ```console
 $ docker run --runtime=sysbox-runc --rm -it --hostname my_cont debian:latest
@@ -303,9 +301,11 @@ We don't yet support other container managers (e.g., cri-o, etc).
 
 ## Production Readiness
 
-Sysbox is still in alpha / experimental stage. It's **not production ready yet**.
+Sysbox is well tested and will work for all use-cases described in our
+documentation.
 
-Nestybox is actively enhancing its functionality and fixing issues at this time.
+Having said that, it's early days for Nestybox so the product is not
+production ready yet.
 
 Your feedback regarding issues or improvements is much appreciated!
 

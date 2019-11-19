@@ -6,14 +6,16 @@
     -   [Bionic Beaver](#bionic-beaver)
     -   [Disco Dingo](#disco-dingo)
 -   [Sysbox Installation Problems](#sysbox-installation-problems)
+-   [Ubuntu Shiftfs Module Not Present](#ubuntu-shiftfs-module-not-present)
+-   [Unprivileged User Namespace Creation Error](#unprivileged-user-namespace-creation-error)
+-   [Docker reports Unknown Runtime error](#docker-reports-unknown-runtime-error)
+-   [Bind Mount Permissions Error](#bind-mount-permissions-error)
+-   [Failed to Setup Docker Volume Manager Error](#failed-to-setup-docker-volume-manager-error)
+-   [Failed to stat mount source at /var/lib/sysboxfs](#failed-to-stat-mount-source-at-varlibsysboxfs)
+-   [Failed to register with sysbox-mgr](#failed-to-register-with-sysbox-mgr)
 -   [Sysbox Logs](#sysbox-logs)
     -   [sysbox-mgr and sysbox-fs](#sysbox-mgr-and-sysbox-fs)
     -   [sysbox-runc](#sysbox-runc)
--   [Docker reports Unknown Runtime error](#docker-reports-unknown-runtime-error)
--   [Bind Mount Permissions Error](#bind-mount-permissions-error)
--   [Ubuntu Shiftfs Module Not Present](#ubuntu-shiftfs-module-not-present)
--   [Unprivileged User Namespace Creation Error](#unprivileged-user-namespace-creation-error)
--   [Failed to Setup Docker Volume Manager Error](#failed-to-setup-docker-volume-manager-error)
 
 ## Upgrading the Ubuntu Kernel
 
@@ -106,29 +108,58 @@ sysbox.service                     loaded    active   exited  Sysbox General Ser
 The sysbox.service is ephemeral (it exits once it launches the other sysbox services),
 so the `active exited` status above is expected.
 
-## Sysbox Logs
+## Ubuntu Shiftfs Module Not Present
 
-### sysbox-mgr and sysbox-fs
+When creating a system container, the following error indicates that
+the Ubuntu shiftfs module is required by Sysbox but is not loaded
+in the Linux kernel:
 
-The Sysbox daemons (i.e. sysbox-fs and sysbox-mgr) will log
-information related to their activities in the
-`/var/log/sysbox-fs.log` and `/var/log/sysbox-mgr.log` files
-respectively. These logs should be useful during troubleshooting
-exercises.
+```console
+# docker run --runtime=sysbox-runc -it debian:latest
+docker: Error response from daemon: OCI runtime create failed: container requires user-ID shifting but error was found: shiftfs module is not loaded in the kernel. Update your kernel to include shiftfs module or enable Docker with userns-remap. Refer to the Sysbox troubleshooting guide for more info: unknown
+```
 
-### sysbox-runc
+The error likely means you are running Sysbox on an older Ubuntu
+kernel, as newer Ubuntu kernels come with shiftfs.
 
-For sysbox-runc, logging is handled as follows:
+The Ubuntu shiftfs module is required when Sysbox is configured in
+[exclusive userns-remap mode](usage.md#exclusive-userns-remap-mode)
+(it's default operating mode).
 
--   When running Docker + sysbox-runc, the sysbox-runc logs are actually stored in
-    a containerd directory such as:
+You can work-around this error by either:
 
-    `/run/containerd/io.containerd.runtime.v1.linux/moby/<container-id>/log.json`
+-   Updating your Linux distro. See [here](../README.md#supported-linux-distros)
+    for the list of Linux distros supported by Sysbox, and
+    [here](#upgrading-the-ubuntu-kernel) for recommendations on how to
+    update the distro.
 
-    where `<container-id>` is the container ID returned by Docker.
+or
 
--   When running sysbox-runc directly, sysbox-runc will not produce any logs by default.
-    Use the `sysbox-runc --log` option to change this.
+-   Configuring Sysbox in docker userns-remap mode, as described
+    [here](usage.md#system-container-isolation-modes). This
+    mode does not require use of shiftfs.
+
+## Unprivileged User Namespace Creation Error
+
+When creating a system container, Docker may report the following error:
+
+```console
+docker run --runtime=sysbox-runc -it ubuntu:latest
+docker: Error response from daemon: OCI runtime create failed: host is not configured properly: kernel is not configured to allow unprivileged users to create namespaces: /proc/sys/kernel/unprivileged_userns_clone: want 1, have 0: unknown.
+```
+
+This means that the host's kernel is not configured to allow unprivileged users
+to create user namespaces.
+
+For Ubuntu, fix this with:
+
+```console
+sudo sh -c "echo 1 > /proc/sys/kernel/unprivileged_userns_clone"
+```
+
+**Note:** The Sysbox package installer automatically executes this
+instruction, so normally there is no need to do this configuration
+manually.
 
 ## Docker reports Unknown Runtime error
 
@@ -180,59 +211,6 @@ system container to a non-root user on the host.
 Refer to [System Container Bind Mount Requirements](usage.md#system-container-bind-mount-requirements) for
 info on how to set the correct permissions on the bind mount.
 
-## Ubuntu Shiftfs Module Not Present
-
-When creating a system container, the following error indicates that
-the Ubuntu shiftfs module is required by Sysbox but is not loaded
-in the Linux kernel:
-
-```console
-# docker run --runtime=sysbox-runc -it debian:latest
-docker: Error response from daemon: OCI runtime create failed: container requires user-ID shifting but error was found: shiftfs module is not loaded in the kernel. Update your kernel to include shiftfs module or enable Docker with userns-remap. Refer to the Sysbox troubleshooting guide for more info: unknown
-```
-
-The error likely means you are running Sysbox on an older Ubuntu
-kernel, as newer Ubuntu kernel come with shiftfs.
-
-The Ubuntu shiftfs module is required when Sysbox is configured in
-[exclusive userns-remap mode](usage.md#exclusive-userns-remap-mode)
-(it's default operating mode).
-
-You can work-around this error by either:
-
--   Updating your Linux distro. See
-    [here](../README.md#supported-linux-distros) for the list of Linux
-    distros supported by Sysbox, and [here](#upgrading-the-ubuntu-kernel)
-    for recommendations on how to update the distro.
-
-or
-
--   Configuring Sysbox in docker userns-remap mode, as described
-    [here](usage.md#system-container-isolation-modes). This
-    mode does not require use of shiftfs.
-
-## Unprivileged User Namespace Creation Error
-
-When creating a system container, Docker may report the following error:
-
-```console
-docker run --runtime=sysbox-runc -it ubuntu:latest
-docker: Error response from daemon: OCI runtime create failed: host is not configured properly: kernel is not configured to allow unprivileged users to create namespaces: /proc/sys/kernel/unprivileged_userns_clone: want 1, have 0: unknown.
-```
-
-This means that the host's kernel is not configured to allow unprivileged users
-to create user namespaces.
-
-For Ubuntu, fix this with:
-
-```console
-sudo sh -c "echo 1 > /proc/sys/kernel/unprivileged_userns_clone"
-```
-
-**Note:** The Sysbox package installer automatically executes this
-instruction, so normally there is no need to do this configuration
-manually.
-
 ## Failed to Setup Docker Volume Manager Error
 
 When creating a system container, Docker may report the following error:
@@ -254,3 +232,77 @@ The same requirement applies to the `/var/lib/docker` directory.
 
 This is normally the case for vanilla Ubuntu installations, so this
 error is not common.
+
+## Failed to stat mount source at /var/lib/sysboxfs
+
+While creating a system container, Docker may report the following error:
+
+```console
+$ docker run --runtime=sysbox-runc -it alpine
+docker: Error response from daemon: OCI runtime create failed: failed to create lib container mount: failed to stat mount source at /var/lib/sysboxfs/proc/sys: stat /var/lib/sysboxfs/proc/sys: no such file or directory: unknown.
+```
+
+This likely means that the sysbox-fs daemon is not running (for some reason).
+
+Check if the sysbox-fs process is running via `ps`. Ideally it should look like this:
+
+```console
+$ ps -fu root | grep sysbox
+root     23945     1  0 Nov12 pts/0    00:00:00 sysbox-fs --log-level=debug --log /dev/stdout
+root     23946     1  0 Nov12 pts/0    00:00:00 sysbox-mgr --log-level=debug --log /dev/stdout
+```
+
+If sysbox-fs is missing from the `ps` output, stop and restart Sysbox via Systemd:
+
+```console
+$ sudo systemctl restart sysbox
+```
+
+## Failed to register with sysbox-mgr
+
+While creating a system container, Docker may report the following error:
+
+```console
+$ docker run --runtime=sysbox-runc -it alpine
+docker: Error response from daemon: OCI runtime create failed: failed to register with sysbox-mgr: failed to invoke Register via grpc: rpc error: code = Unavailable desc = all SubConns are in TransientFailure, latest connection error: connection error: desc = "transport: Error while dialing dial unix /run/sysbox/sysmgr.sock: connect: connection refused": unknown.
+```
+
+This likely means that the sysbox-mgr daemon is not running (for some reason).
+
+Check if the sysbox-mgr process is running via `ps`. Ideally it should look like this:
+
+```console
+$ ps -fu root | grep sysbox
+root     23945     1  0 Nov12 pts/0    00:00:00 sysbox-fs --log-level=debug --log /dev/stdout
+root     23946     1  0 Nov12 pts/0    00:00:00 sysbox-mgr --log-level=debug --log /dev/stdout
+```
+
+If sysbox-mgr is missing from the `ps` output, stop and restart Sysbox via Systemd:
+
+```console
+$ sudo systemctl restart sysbox
+```
+
+## Sysbox Logs
+
+### sysbox-mgr and sysbox-fs
+
+The Sysbox daemons (i.e. sysbox-fs and sysbox-mgr) will log
+information related to their activities in the
+`/var/log/sysbox-fs.log` and `/var/log/sysbox-mgr.log` files
+respectively. These logs should be useful during troubleshooting
+exercises.
+
+### sysbox-runc
+
+For sysbox-runc, logging is handled as follows:
+
+-   When running Docker + sysbox-runc, the sysbox-runc logs are actually stored in
+    a containerd directory such as:
+
+    `/run/containerd/io.containerd.runtime.v1.linux/moby/<container-id>/log.json`
+
+    where `<container-id>` is the container ID returned by Docker.
+
+-   When running sysbox-runc directly, sysbox-runc will not produce any logs by default.
+    Use the `sysbox-runc --log` option to change this.
