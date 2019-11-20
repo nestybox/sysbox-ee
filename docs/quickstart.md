@@ -849,12 +849,21 @@ container can leverage an existing Docker image cache stored somewhere
 on the host, and thus avoid having to pull inner Docker images from
 the network each time a new system container is started.
 
-A warning though: a persistent Docker image cache must only be mounted
-on a **single system container at any given time**. This is a
-restriction imposed by the Docker daemon, which does not allow its
-image cache to be shared concurrently among multiple daemon instances.
-Sysbox will check for violations of this rule and report an
-appropriate error during system container creation.
+There are a couple of caveats to keep in mind:
+
+* A persistent Docker image cache must only be mounted on a **single
+  system container at any given time**. This is a restriction imposed
+  by the Docker daemon, which does not allow its image cache to be
+  shared concurrently among multiple daemon instances.  Sysbox will
+  check for violations of this rule and report an appropriate error
+  during system container creation.
+
+* A persistent Docker image cache mounted into the system container's
+  `/var/lib/docker` directory will "mask" any files present in that
+  same directory as part of the system container's image. Such files
+  would be present when using the system container build or commit
+  features described [here](#building-a-system-container-that-includes-inner-container-images)
+  and [here](#committing-a-system-container-that-includes-inner-container-images).
 
 ## Persistence of Inner Container Images with Bind Mounts
 
