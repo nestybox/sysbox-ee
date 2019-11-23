@@ -512,6 +512,11 @@ we hope to add support for this, such that the privileged inner
 container is privileged within the context of the system container
 only rather than the underlying host.
 
+## Checkpoint and Restore Support
+
+Sysbox does not currently support checkpoint and restore support of
+system containers.
+
 ## Sysbox Reconfiguration
 
 The Sysbox installer starts the [Sysbox components](design.md#sysbox-components)
