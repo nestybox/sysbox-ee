@@ -504,6 +504,72 @@ This option **does not work** with Sysbox (i.e., don't use
 Usage of this option is rare as it can lead to the problems as
 described [in this Docker article](https://docs.docker.com/engine/security/userns-remap/#disable-namespace-remapping-for-a-container).
 
+## Support for Read-Only Root Filesystem
+
+Sysbox does not currently support system containers configured with a
+read-only rootfile system (e.g., those created with the `docker run
+--read-only` flag).
+
+## Docker cgroup driver restriction
+
+Docker uses the Linux cgroups feature to place resource limits on containers.
+
+Docker supports two cgroup drivers: `cgroupfs` and `systemd`.
+In the former, Docker directly manages the container resource
+limits. In the latter, Docker works with Systemd to manage the
+resource limits. The `cgroupfs` driver is the default driver.
+
+Sysbox currently requires that Docker be configured with the
+`cgroupfs` driver. Sysbox does not currently work when Docker is
+configured with the `systemd` cgroup driver.
+
+## Out-of-Memory Score Adjustment
+
+The Linux kernel has a mechanism to kill processes when the
+system is running low on memory.
+
+The decision on which process to kill is done based on an
+out-of-memory (OOM) score assigned to all processes. The score is in
+the range [-1000:1000], where higher values means higher probability
+of the process being killed when the host reaches an out-of-memory
+scenario.
+
+It's possible for users with sufficient privileges to adjust the OOM
+score of a given process, via the `/proc/[pid]/oom_score_adj` file.
+
+A system container's init process OOM score adjustment can be
+configured to start at a given value. For example, when using Docker
+to deploy the system container, by passing the `--oom-score-adj`:
+
+```console
+$ docker run --runtime=sysbox-runc --oom-score-adj=-100 -it alpine:latest
+```
+
+In addition, Sysbox ensures that system container processes are
+allowed to modify their out-of-memory (OOM) score adjustment to any
+value in the range [-999:1000], via `/proc/[pid]/oom_score_adj`. This
+is necessary in order to allow system software that requires such
+adjustments to operate correctly within the system container.
+
+From a host security perspective however, allowing system container
+processes to adjust their OOM score downwards is risky, since it
+means that such processes are unlikely to be killed when the host is
+running low on memory.
+
+To mitigate this risk, a user can always put an upper bound on the
+memory allocated to each system container. Though this does not
+prevent a system container process from reducing its OOM score,
+placing such an upper bound reduces the chances of the system
+running out of memory and prevents memory exhaustion attacks
+by malicious processes inside the system container.
+
+Placing an upper bound on the memory allocated to the system container
+can be done by using Docker's `--memory` option:
+
+```console
+$ docker run --runtime=sysbox-runc --memory=100m -it alpine:latest
+```
+
 ## Rootless Container Support
 
 Sysbox must run with root privileges on the host system. It won't
