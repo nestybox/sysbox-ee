@@ -2,19 +2,18 @@
 
 ## Contents
 
--   [About Nestybox](#about-nestybox)
--   [About Sysbox](#about-sysbox)
--   [Features](#features)
-    -   [System Container Deployment](#system-container-deployment)
-    -   [System Container Software](#system-container-software)
-    -   [System Container Image Creation](#system-container-image-creation)
-    -   [Security and Isolation](#security-and-isolation)
+-   [Introduction](#introduction)
+-   [Download](#download)
 -   [Supported Linux Distros](#supported-linux-distros)
 -   [Host Requirements](#host-requirements)
 -   [Installation](#installation)
 -   [Usage](#usage)
+-   [Sysbox Features](#sysbox-features)
+    -   [System Container Deployment](#system-container-deployment)
+    -   [System Container Software](#system-container-software)
+    -   [System Container Image Creation](#system-container-image-creation)
+    -   [Security and Isolation](#security-and-isolation)
 -   [Documentation](#documentation)
--   [Software supported inside the System Container](#software-supported-inside-the-system-container)
 -   [Integration with Container Managers](#integration-with-container-managers)
 -   [Production Readiness](#production-readiness)
 -   [Troubleshooting](#troubleshooting)
@@ -22,108 +21,37 @@
 -   [Roadmap](#roadmap)
 -   [We need your feedback](#we-need-your-feedback)
 -   [Uninstallation](#uninstallation)
+-   [About Nestybox](#about-nestybox)
 -   [Contact](#contact)
 -   [Thank You](#thank-you)
 
-## About Nestybox
+## Introduction
 
-Nestybox expands the power of Linux containers.
+Sysbox is a container runtime, developed by [Nestybox](#about-nestybox), that installs on a Linux host and
+integrates with Docker, enabling Docker to create **system containers**.
 
-We are developing software that enables deployment of **system containers**
-with Docker (and soon Kubernetes).
+A Nestybox system container is a Linux container designed to run
+low-level system software, not just applications. For example you can
+run Docker and Systemd inside the system container, **without resorting
+to unsecure privileged containers or complex Docker configurations**.
 
-A Nestybox system container is a Linux container designed to run low-level system
-software, not just applications. See this [blog article](https://blog.nestybox.com/2019/09/13/system-containers.html) for more info on system
-containers and some of the use cases we envision for them.
-
-Our mission is to make our system containers run as many system-level
-workload types as possible in order to provide users a fast,
-efficient, and easy-to-use alternative to virtual machines for
-deploying virtual hosts on Linux. And for this to work out-of-the-box
-and securely, without complex configurations and without resorting
-to unsecure privileged containers.
-
-## About Sysbox
-
-Sysbox is software that installs on a Linux host and integrates with Docker,
-enabling Docker to create system containers.
+See this [blog article](https://blog.nestybox.com/2019/09/13/system-containers.html)
+for more info on system containers and some of the use cases we
+envision for them.
 
 Users do not normally interact with Sysbox directly. Instead, users
-create system containers with Docker as described below.
+typically use Docker to create and deploy system containers.
 
-## Features
+Checkout this [video](https://asciinema.org/a/kkTmOxl8DhEZiM2fLZNFlYzbo?speed=1.75) to see how it works.
 
-Below is a list of features currently supported by Sysbox.
+The [Sysbox Quickstart Guide](docs/quickstart.md) and the [Nestybox Blog Site](https://blog.nestybox.com) have
+many more examples.
 
-### System Container Deployment
+## Download
 
--   Supports deployment of system containers with Docker.
+The latest release of Sysbox is [here](https://github.com/nestybox/sysbox-external/releases).
 
--   The system containers can run concurrently with regular Docker
-    application containers, without conflict.
-
-### System Container Software
-
--   Supports running Docker inside the system container.
-
-    -   Cleanly & securely, with total isolation between the Docker inside
-        the container and the Docker on the host. No need to use unsecure
-        privileged containers or to bind-mount the host's Docker socket
-        into the container.
-
-    -   The Docker inside the system container can build and run
-        containers as usual.
-
-    -   This is useful for Docker sandboxing, testing and CI/CD use cases.
-
--   Supports running Systemd inside the system container (preliminary support).
-
-    -   Useful for system containers that are used as virtual hosts.
-
-    -   Run Systemd securely (without resorting to privileged Docker containers).
-
-    -   Super easy: simply launch a system container image with Systemd as
-        its entry point and Sysbox will ensure the system container is setup
-        to run Systemd without problems.
-
-### System Container Image Creation
-
--   Use Docker to build system container images, just like regular containers.
-
--   In addition, Sysbox supports using `docker build` or `docker commit` to create
-    system container images with pre-packaged inner containers in them.
-
-    -   This enables you to use the system container as a fully pre-configured
-        Docker sandbox environment.
-
-    -   When you start the system container all inner Docker container images
-        are ready to run. No need to pull the inner Docker images from a
-        remote repository.
-
-### Security and Isolation
-
--   Enhanced system container isolation
-
-    -   System containers use the Linux user namespace and exclusive
-        user-ID and group-ID mappings for increased container-to-host and
-        container-to-container isolation.
-
--   Resource isolation
-
-    -   Programs inside the system container (e.g., Docker) are limited
-        to using the resources given to the system container itself.
-
--   Partially virtualized procfs
-
-    -   Processes inside the system container see a partially virtualized `/proc`.
-
-    -   This makes the system container more closely resemble a physical
-        host or VM.
-
-    -   Prevents processes within the container from changing global
-        kernel settings.
-
-Please see our [Roadmap](#roadmap) for a list of features we are working on.
+Installation instructions are below.
 
 ## Supported Linux Distros
 
@@ -217,8 +145,8 @@ If you hit problems during installation, see the [Troubleshooting document](docs
 
 ## Usage
 
-To launch a system container with Docker, simply point Docker to the
-Sysbox container runtime as follows:
+Once Sysbox is installed, you launch a system container with Docker by
+simply pointing Docker to the Sysbox container runtime as follows:
 
 ```console
 $ docker run --runtime=sysbox-runc --rm -it --hostname my_cont debian:latest
@@ -232,6 +160,90 @@ containers).
 It's perfectly fine to run system containers launched with Docker +
 Sysbox along side regular Docker application containers; they won't
 conflict.
+
+The [Sysbox Quickstart Guide](docs/quickstart.md) and the [Nestybox Blog Site](https://blog.nestybox.com) have
+more usage examples.
+
+Also, this [video](https://asciinema.org/a/kkTmOxl8DhEZiM2fLZNFlYzbo?speed=1.75) shows how it works.
+
+## Sysbox Features
+
+Below is a list of features currently supported by Sysbox.
+
+### System Container Deployment
+
+-   Supports deployment of system containers with Docker.
+
+-   The system containers can run concurrently with regular Docker
+    application containers, without conflict.
+
+### System Container Software
+
+-   Supports running Docker inside the system container.
+
+    -   Cleanly & securely, with total isolation between the Docker
+        inside the container and the Docker on the host. No need to
+        use unsecure privileged containers or to bind-mount the host's
+        Docker socket into the container.
+
+    -   The Docker inside the system container can build and run
+        containers as usual.
+
+    -   This is useful for Docker sandboxing, testing and CI/CD use
+        cases.
+
+-   Supports running Systemd inside the system container (preliminary support).
+
+    -   Useful for system containers that are used as virtual hosts.
+
+    -   Run Systemd securely (without resorting to privileged Docker
+        containers).
+
+    -   Super easy: simply launch a system container image with
+        Systemd as its entry point and Sysbox will ensure the system
+        container is setup to run Systemd without problems.
+
+-   See [here](docs/usage.md#running-software-inside-the-system-container)
+    for more info on this.
+
+### System Container Image Creation
+
+-   Use Docker to build system container images, just like regular containers.
+
+-   In addition, Sysbox supports using `docker build` or `docker commit` to create
+    system container images with pre-packaged inner containers in them.
+
+    -   This enables you to use the system container as a fully pre-configured
+        Docker sandbox environment.
+
+    -   When you start the system container all inner Docker container images
+        are ready to run. No need to pull the inner Docker images from a
+        remote repository.
+
+### Security and Isolation
+
+-   Enhanced system container isolation
+
+    -   System containers use the Linux user namespace and exclusive
+        user-ID and group-ID mappings for increased container-to-host and
+        container-to-container isolation.
+
+-   Resource isolation
+
+    -   Programs inside the system container (e.g., Docker) are limited
+        to using the resources given to the system container itself.
+
+-   Partially virtualized procfs
+
+    -   Processes inside the system container see a partially virtualized `/proc`.
+
+    -   This makes the system container more closely resemble a physical
+        host or VM.
+
+    -   Prevents processes within the container from changing global
+        kernel settings.
+
+Please see our [Roadmap](#roadmap) for a list of features we are working on.
 
 ## Documentation
 
@@ -265,33 +277,6 @@ system containers.
 
 Also, the [Nestybox blog site](https://blog.nestybox.com) has articles
 on how to use system containers.
-
-## Software supported inside the System Container
-
-A system container is logically a super-set of a regular Docker
-application container, and thus should be able to run any application
-that runs in a regular Docker container. In addition, it runs
-system-level software that does not run in a regular Docker container.
-
-For system-level software, we currently support running the following
-inside the system container:
-
--   Systemd
-
-    -   Allows using the system container as a virtual host, much like you
-        would use a VM.
-
--   Docker
-
-    -   Allows you to build and run Docker application containers inside
-        the system container, just as you would on a physical host or in a
-        VM.
-
-    -   Allows you to use the system container as a Docker sandbox, or in
-        CI/CD pipelines where the need to deploy a container to build
-        another container arises often.
-
-See [here](docs/usage.md#running-software-inside-the-system-container) for more info on this.
 
 ## Integration with Container Managers
 
@@ -379,6 +364,20 @@ $ sudo dpkg --purge sysbox
 ```console
 $ sudo userdel sysbox
 ```
+
+## About Nestybox
+
+[Nestybox](https://www.nestybox.com) expands the power of Linux containers.
+
+We are developing software that enables deployment of **system containers**
+with Docker (and soon Kubernetes).
+
+Our mission is to make our system containers run as many system-level
+workload types as possible in order to provide users a fast,
+efficient, and easy-to-use alternative to virtual machines for
+deploying virtual hosts on Linux. And for this to work out-of-the-box
+and securely, without complex configurations and without resorting to
+unsecure privileged containers.
 
 ## Contact
 
