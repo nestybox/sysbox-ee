@@ -382,16 +382,16 @@ Sysbox adds the following namespaces to all system containers:
 Sysbox always enables all process capabilities for the system
 container's init process (which runs as the root user).
 
-### Procfs
+### Procfs and Sysfs
 
-Sysbox always mounts `/proc/sys` read-write inside the
+Sysbox always mounts `/proc` and `/sys` read-write inside the
 system container.
 
 Note that by virtue of enabling the Linux user namespace, only
-namespaced resources under `/proc/sys` will be writable from within
-the system container. Non-namespaced resources (e.g., those under
-`/proc/sys/kernel`) won't be writable from within the system container,
-unless they are virtualized by Sysbox (see [Procfs Virtualization](#procfs-virtualization)).
+namespaced resources under `/proc` and `/sys` will be writable from
+within the system container. Non-namespaced resources (e.g., those
+under `/proc/sys/kernel`) won't be writable from within the system
+container, unless they are virtualized by Sysbox (see [Procfs Virtualization](#procfs-virtualization)).
 
 ### Cgroupfs Mount
 
@@ -435,16 +435,17 @@ The same applies to masked paths.
 Sysbox honors the mounts specified in the system container's `config.json`
 file, with a few exceptions such as:
 
--   Mounts into the system container's `/var/lib/docker` when Sysbox
-    is configured in exclusive userns-remap mode (it's default
-    operating mode).
+-   Mounts over /sys and some of it's sub-directories.
 
--   Mounts into the system container's `/proc` and `/sys`.
+-   Mounts over /proc and some of it's sub-directories.
 
 In addition, Sysbox adds the following mounts to the system container:
 
 -   Read-only bind mount of the host's `/lib/modules/<kernel-release>`
     into a corresponding path within the system container.
+
+-   Read-only bind mount of the host's kernel header files into
+    the corresponding path within the system container.
 
 -   For system containers whose init process is Systemd, Sysbox mounts
     tmpfs inside the following directories in the system container:
