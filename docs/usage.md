@@ -583,12 +583,26 @@ reason for using system containers is to use them as a secure
 alternative to privileged containers (i.e., one that can run system
 level workloads but with enhanced isolation from the underlying host).
 
-In addition, within a system container we don't yet support running
-Docker privileged containers. That is, inner Docker containers must
-not be executed with the `docker run --privileged` flag. In the future
-we hope to add support for this, such that the privileged inner
-container is privileged within the context of the system container
-only rather than the underlying host.
+Within a system container however, you can deploy privileged Docker
+containers (e.g., by installing Docker inside the sysstem container
+and deploying inner containers with the `docker run --privileged`
+flag).
+
+Note however that a privileged container inside a system container is
+privileged within the context of the system container only, but *not*
+in the underlying host. In other words, such a privileged container
+can access resources of the parent system container, but not other
+system resources.
+
+For example, when running a privileged container inside a system
+container, the `/proc` mounted inside the privileged container does
+not allow access to all host resources. Rather, it only allows access
+to resources associated with the system container.
+
+The ability to run privileged containers inside a system container is
+useful when using the system container as a Docker sandbox and
+deploying inner containers that require full privileges (typically
+containers containing system level apps).
 
 ## Checkpoint and Restore Support
 
