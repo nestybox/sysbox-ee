@@ -98,7 +98,7 @@ system container itself. It does not mean that the process has full
 capabilities on the host (in fact is has no capabilities on resources
 not assigned to the system container).
 
-A system container's init process configured with a non-zero user-ID
+A system container's init process configured with a non-root user-ID
 starts with the capabilities passed to Sysbox by the container engine.
 
 For example, when deploying system containers with Docker:
@@ -196,6 +196,44 @@ do not work with system containers.
 
 ### Privileged Container Support
 
-System containers are incompatible with the Docker `--privileged`
-flag.  See the [usage guide](usage.md#privileged-container-support)
+System containers must never be launched with the Docker `--privileged`
+flag. See the [usage guide](usage.md#privileged-container-support)
 for info on this.
+
+### No-New-Privileges Flag
+
+Modern versions of the Linux kernel (>= 3.5) support a per-process
+attribute called `no_new_privs`. It's a security feature meant to
+ensure a child process can't gain more privileges than its parent
+process. Once this attribute is set on a process it can't be unset,
+and it's inherited by all child and further descendant processes. The
+details are explained [here](https://www.kernel.org/doc/Documentation/prctl/no_new_privs.txt)
+and [here](http://man7.org/linux/man-pages/man2/prctl.2.html).
+
+The `no_new_privs` attribute may be set on the init process of a
+container, for example, using the `docker run --security-opt no-new-privileges`
+flag (see the [docker run](https://docs.docker.com/engine/reference/run/)
+doc for details).
+
+In a system container, the container's init process is normally owned
+by root, and thus granted full privileges within the system
+container's user namespace (as described [above](#process-capabilities).
+
+In this case setting the `no_new_privs` attribute on the system
+container's init process has no effect as far as limiting the
+privileges it may get (since it already has all privileges
+within the system container), but it does have effect on child processes
+with lesser privileges (those won't be allowed to elevate their
+privileges, preventing them from executing setuid programs for example).
+
+If the system container init process is non-root and the
+`no_new_privs` attribute is set, e.g.,
+
+```
+$ docker run --runtime=sysbox-runc --user 1000:1000 --security-opt no-new-privileges ...
+```
+
+then that init process and its descendands are restricted to the
+default privileges for the selected user-ID, and will be unable to
+elevate privileges thereafter. The default privileges for the selected
+user-ID are chosen by Docker in the example above.
