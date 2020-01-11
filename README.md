@@ -47,6 +47,11 @@ Checkout this [video](https://asciinema.org/a/kkTmOxl8DhEZiM2fLZNFlYzbo?speed=1.
 The [Sysbox Quickstart Guide](docs/quickstart.md) and the [Nestybox Blog Site](https://blog.nestybox.com) have
 many more examples.
 
+## Support
+
+Reach us at our [slack channel][slack-channel] or at `contact@nestybox.com` for any questions.
+See our [contact info](#contact) below for more options.
+
 ## Download
 
 The latest release of Sysbox is [here](https://github.com/nestybox/sysbox-external/releases).
@@ -284,19 +289,11 @@ Sysbox is designed to work with Docker / Containerd.
 
 We don't yet support other container managers (e.g., cri-o, etc).
 
-## Production Readiness
-
-Sysbox is well tested and will work for all use-cases described in our
-documentation.
-
-Having said that, it's early days for Nestybox so the product is not
-production ready yet.
-
-Your feedback regarding issues or improvements is much appreciated!
-
 ## Troubleshooting
 
 Refer to the [Troubleshooting document](docs/troubleshoot.md).
+
+Please [contact us](#contact) is you need any help.
 
 ## Issues
 
@@ -381,8 +378,15 @@ unsecure privileged containers.
 
 ## Contact
 
-Please contact us at `contact@nestybox.com` for any questions. We will
-be happy to help.
+We are happy to help. You can reach us at:
+
+Email: `contact@nestybox.com`
+
+Slack: [Nestybox Slack Workspace][slack]
+
+Phone: 1-800-600-6788
+
+We are there from Monday-Friday, 9am-5pm Pacific Time.
 
 ## Thank You
 
@@ -391,3 +395,6 @@ We thank you **very much** for using Sysbox. We hope you find it useful.
 Your trust in us is very much appreciated.
 
 \-- _The Nestybox Team_
+
+
+[slack]: https://join.slack.com/t/nestybox-support/shared_invite/enQtOTA0NDQwMTkzMjg2LTAxNGJjYTU2ZmJkYTZjNDMwNmM4Y2YxNzZiZGJlZDM4OTc1NGUzZDFiNTM4NzM1ZTA2NDE3NzQ1ODg1YzhmNDQ
