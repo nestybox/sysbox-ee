@@ -49,7 +49,7 @@ many more examples.
 
 ## Support
 
-Reach us at our [slack channel][slack-channel] or at `contact@nestybox.com` for any questions.
+Reach us at our [slack channel][slack] or at `contact@nestybox.com` for any questions.
 See our [contact info](#contact) below for more options.
 
 ## Download
