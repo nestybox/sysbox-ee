@@ -9,7 +9,9 @@
 FROM alpine:latest
 
 # docker
-RUN apk add --update docker && rm  -rf /tmp/* /var/cache/apk/*
+RUN sed -i 's/v3.10/latest-stable/g' /etc/apk/repositories && \
+    apk add --update docker && \
+    rm  -rf /tmp/* /var/cache/apk/*
 
 # supervisord
 RUN apk add --update supervisor && rm  -rf /tmp/* /var/cache/apk/*
