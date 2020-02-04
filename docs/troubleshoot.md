@@ -2,9 +2,6 @@
 
 ## Contents
 
--   [Upgrading the Ubuntu Kernel](#upgrading-the-ubuntu-kernel)
-    -   [Bionic Beaver](#bionic-beaver)
-    -   [Disco Dingo](#disco-dingo)
 -   [Sysbox Installation Problems](#sysbox-installation-problems)
 -   [Ubuntu Shiftfs Module Not Present](#ubuntu-shiftfs-module-not-present)
 -   [Unprivileged User Namespace Creation Error](#unprivileged-user-namespace-creation-error)
@@ -16,31 +13,6 @@
 -   [Sysbox Logs](#sysbox-logs)
     -   [sysbox-mgr and sysbox-fs](#sysbox-mgr-and-sysbox-fs)
     -   [sysbox-runc](#sysbox-runc)
-
-## Upgrading the Ubuntu Kernel
-
-In case you need to upgrade your machine's Linux kernel to meet Sysbox [distro requirements](../README.md#supported-linux-distros),
-here are some suggestions. Refer to the Ubuntu documentation online for further info.
-
-### Bionic Beaver
-
-For Bionic Beaver, we recommend using Ubuntu's [LTS-enablement](https://wiki.ubuntu.com/Kernel/LTSEnablementStack)
-package:
-
-```console
-$ sudo apt-get update && sudo apt install --install-recommends linux-generic-hwe-18.04 -y
-```
-
-### Disco Dingo
-
-For Disco Dingo, we recommend simply upgrading the distro:
-
-```console
-$ sudo apt-get update
-$ sudo apt-get upgrade
-$ sudo apt-get dist-upgrade
-$ reboot
-```
 
 ## Sysbox Installation Problems
 
@@ -120,23 +92,20 @@ docker: Error response from daemon: OCI runtime create failed: container require
 ```
 
 The error likely means you are running Sysbox on an older Ubuntu
-kernel, as newer Ubuntu kernels come with shiftfs.
-
-The Ubuntu shiftfs module is required when Sysbox is configured in
-[exclusive userns-remap mode](usage.md#exclusive-userns-remap-mode)
-(it's default operating mode).
+kernel, as newer Ubuntu kernels come with shiftfs. Or maybe you
+are using a Ubuntu image meant for cloud VM instances, rather
+than Ubuntu Desktop or Server.
 
 You can work-around this error by either:
 
--   Updating your Linux distro. See [here](../README.md#supported-linux-distros)
-    for the list of Linux distros supported by Sysbox, and
-    [here](#upgrading-the-ubuntu-kernel) for recommendations on how to
-    update the distro.
+-   Updating your Linux distro. See the [distro compatibility](distro-compat.md)
+    document for the list of Linux distros supported by Sysbox, and
+    recommendations on how to update the distro.
 
 or
 
--   Configuring Sysbox in docker userns-remap mode, as described
-    [here](usage.md#system-container-isolation-modes). This
+-   Configuring Docker in userns-remap mode, as described
+    [here](distro-compat.md#sysbox-on-older-ubuntu-kernels). This
     mode does not require use of shiftfs.
 
 ## Unprivileged User Namespace Creation Error
