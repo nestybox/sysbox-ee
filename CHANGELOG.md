@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.1.3] - 2020-02-03
+### Added
+  * Added support for Ubuntu Eoan-Ermine release (19.10).
+
 ## [0.1.2] - 2019-11-11
 ### Added
   * Created Sysbox Quick Start Guide document (with several examples on how to use system containers).
