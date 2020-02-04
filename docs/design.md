@@ -183,7 +183,7 @@ kernel is required.
 When Sysbox is configured in exclusive userns-remap mode (it's
 default isolation mode), it makes use of the Ubuntu shiftfs module,
 which is included in recent Ubuntu kernels (see the list of
-[supported Linux distros](../README.md#supported-linux-distros) for more info on this).
+[supported Linux distros](distro-compat.md) for more info on this).
 
 The purpose of this module is to perform filesystem user-ID and
 group-ID "shifting" between the a container's Linux user namespace and
@@ -338,18 +338,6 @@ The main goals for this are:
    increases the types of programs that can run inside the container.
 
 2) Increase isolation between the container and the host.
-
-Currently, Sysbox does virtualization of the following procfs resources:
-
--   `/proc/uptime`
-
-    -   Shows the uptime of the system container, not the host.
-
--   `/proc/sys/net/netfilter/nf_conntrack_max`
-
-    -   Sysbox emulates this resource independently per system
-        container, and sets appropriate values in the host kernel's
-        `nf_conntrack_max`.
 
 Note also that by virtue of enabling the Linux user namespace in all
 system containers, kernel resources under `/proc/sys` that are not

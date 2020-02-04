@@ -3,8 +3,9 @@
 ## Contents
 
 -   [Introduction](#introduction)
+-   [Support](#support)
 -   [Download](#download)
--   [Supported Linux Distros](#supported-linux-distros)
+-   [Supported Distros](#supported-distros)
 -   [Host Requirements](#host-requirements)
 -   [Installation](#installation)
 -   [Usage](#usage)
@@ -15,7 +16,6 @@
     -   [Security and Isolation](#security-and-isolation)
 -   [Documentation](#documentation)
 -   [Integration with Container Managers](#integration-with-container-managers)
--   [Production Readiness](#production-readiness)
 -   [Troubleshooting](#troubleshooting)
 -   [Issues](#issues)
 -   [Roadmap](#roadmap)
@@ -58,47 +58,21 @@ The latest release of Sysbox is [here](https://github.com/nestybox/sysbox-extern
 
 Installation instructions are below.
 
-## Supported Linux Distros
+## Supported Distros
 
-Sysbox relies on functionality that is only present in very recent
-Ubuntu kernels:
+Sysbox relies on functionality that is currently only present in
+Ubuntu.
 
--   Ubuntu 19.04 "Disco" (kernel >= 5.0.0-21.22)
--   Ubuntu 18.04 "Bionic" (with 5.0+ kernel upgrade)
-
-If you need to upgrade your kernel in order to match requirements
-stated above, see [here](docs/troubleshoot.md#upgrading-the-ubuntu-kernel)
-for suggestions on how to do this.
-
-Alternatively it's possible to use Sysbox with slightly older Ubuntu
-kernels, but doing so requires using system containers in [Docker userns-remap isolation mode](docs/usage.md#system-container-isolation-modes).
-In this case you can run Sysbox on the following distros (without
-needing to upgrade the kernel):
-
--   Ubuntu 19.04 "Disco"
--   Ubuntu 18.10 "Cosmic"
--   Ubuntu 18.04 "Bionic"
+See the [distro compatibility doc](docs/distro-compat.md) for
+information on what versions of Ubuntu kernels are supported.
 
 We plan to add support for more distros in the future.
-
-Here is a summary of the distro requirements:
-
-| System Container Isolation Mode  | Required Distro & Kernel            |
-| ---------------------------------| ----------------------------------- |
-| Exclusive userns-remap (default) | Ubuntu 19.04 Disco (>= 5.0.0-21.22) |
-|                                  | Ubuntu 18.04 Bionic (5.0+ kernel)   |
-| Docker userns-remap              | Ubuntu 19.04 Disco                  |
-|                                  | Ubuntu 18.10 Cosmic                 |
-|                                  | Ubuntu 18.04 Bionic                 |
-
-See [here](docs/usage.md#system-container-isolation-modes) for info on
-Sysbox isolation modes and how to configure them.
 
 ## Host Requirements
 
 The Linux host on which Sysbox runs must meet the following requirements:
 
-1) It must have one of the Linux distros listed in the prior section.
+1) It must have one of the supported Linux distros.
 
 2) Systemd must be the system's process-manager (the default in the supported distros).
 
@@ -158,13 +132,19 @@ $ docker run --runtime=sysbox-runc --rm -it --hostname my_cont debian:latest
 root@my_cont:/#
 ```
 
-If you omit the `--runtime` option, Docker will use its default `runc`
-runtime to launch regular application containers (rather than system
-containers).
+If you see an error such as:
 
-It's perfectly fine to run system containers launched with Docker +
-Sysbox along side regular Docker application containers; they won't
-conflict.
+    docker: Error response from daemon: OCI runtime create failed: container requires user-ID shifting but error was found: shiftfs module is not loaded in the kernel. Update your kernel to include shiftfs module or enable Docker with userns-remap. Refer to the Sysbox troubleshooting guide for more info: unknown
+
+it means that your kernel version is a bit older than needed by Sysbox.
+Refer to the [distro compatibility doc](docs/distro-compat.md) for
+more info on how to overcome this problem.
+
+Note that if you omit the `--runtime` option, Docker will use its
+default `runc` runtime to launch regular application containers
+(rather than system containers). It's perfectly fine to run system
+containers launched with Docker + Sysbox alongside regular Docker
+application containers; they won't conflict.
 
 The [Sysbox Quickstart Guide](docs/quickstart.md) and the [Nestybox Blog Site](https://blog.nestybox.com) have
 more usage examples.
@@ -259,6 +239,10 @@ system containers.
 
     -   Provides many examples for using system containers. New users
         should start here.
+
+-   [Sysbox Distro Compatilibity Doc](docs/distro-compat.md)
+
+    -   Distro compatibility requirements.
 
 -   [Sysbox User's Guide](docs/usage.md)
 
@@ -395,6 +379,5 @@ We thank you **very much** for using Sysbox. We hope you find it useful.
 Your trust in us is very much appreciated.
 
 \-- _The Nestybox Team_
-
 
 [slack]: https://join.slack.com/t/nestybox-support/shared_invite/enQtOTA0NDQwMTkzMjg2LTAxNGJjYTU2ZmJkYTZjNDMwNmM4Y2YxNzZiZGJlZDM4OTc1NGUzZDFiNTM4NzM1ZTA2NDE3NzQ1ODg1YzhmNDQ

@@ -33,6 +33,7 @@ information on Sysbox's features, requirements, and restrictions.
 -   [Support for `docker run userns`](#support-for-docker-run-userns)
 -   [Rootless Container Support](#rootless-container-support)
 -   [Privileged Container Support](#privileged-container-support)
+-   [Checkpoint and Restore Support](#checkpoint-and-restore-support)
 -   [Sysbox Reconfiguration](#sysbox-reconfiguration)
 
 ## Running System Containers with Sysbox
@@ -152,8 +153,8 @@ deployed with Docker or directly via the sysbox-runc command). No
 action from the user is required to enable this mode.
 
 Note that this mode requires the presence of the [shiftfs module](design.md#ubuntu-shiftfs-module)
-in the Linux kernel, which in turn restricts the [distros](../README.md#supported-linux-distros)
-on which Sysbox is supported.
+in the Linux kernel, which in turn restricts the
+[distros](distro-compat.md) on which Sysbox is supported.
 
 For further details on Sysbox's usage of the Linux user namespace and
 exclusive user-ID/group-ID mappings, refer to the [Sysbox design document](design.md#linux-namespace-usage).
@@ -172,12 +173,23 @@ honors Docker's selection of user-ID and group-ID mappings.
 Note however that this mode is less secure than the exclusive
 userns-remap mode described previously because Docker currently uses
 the same user-ID and group-ID mappings for all containers, thereby
-decreasing cross-container isolation.
+decreasing cross-container isolation (i.e., root in all containers
+maps to the same user-ID and group-ID in the host).
 
-Having said that, this mode is useful because it's a bit more mature
+Another caveat with Docker userns-remap mode is that it causes Docker
+to enable the user-namespace in all containers, regardless of which
+runtime they are spawned with (e.g., Docker's runc or sysbox-runc).
+This imposes a few limitations on regular Docker containers, as
+described at the end of this [Docker document](https://docs.docker.com/engine/security/userns-remap).
+
+In contrast, in exclusive userns-remap mode only containers spawned
+with sysbox-runc use the user-namespace, while containers spawned with
+Docker's default runc do not.
+
+Having said this, this mode is useful because it's a bit more mature
 than the [Exclusive userns-remap mode](#exclusive-userns-remap-mode)
 and does not require the presence of the shiftfs module in the Linux
-kernel, thereby increasing the [distros](../README.md#supported-linux-distros)
+kernel, thereby increasing the [distros](distro-compat.md)
 on which it's supported.
 
 ## Running Software inside the System Container
