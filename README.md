@@ -86,14 +86,14 @@ The Linux host on which Sysbox runs must meet the following requirements:
    For example:
 
 ```console
-$ sha256sum sysbox_0.1.2-0.ubuntu-disco_amd64.deb
-23b99987bd0c5fb347f0231a47e4dc7c27bd082baaac942055ce6168adf6d9e2  sysbox_0.1.2-0.ubuntu-disco_amd64.deb
+$ sha256sum sysbox_0.1.3-0.ubuntu-disco_amd64.deb
+774aa1442c9142a1e6c6db49f896439b989de3668926bccd91aa0a679fa3df87  sysbox_0.1.3-0.ubuntu-disco_amd64.deb
 ```
 
 3) Install the Sysbox package:
 
 ```console
-$ sudo dpkg -i sysbox_0.1.2-0.ubuntu-disco_amd64.deb
+$ sudo dpkg -i sysbox_0.1.3-0.ubuntu-disco_amd64.deb
 ```
 
 In case you hit an error with missing dependencies, fix this with:
