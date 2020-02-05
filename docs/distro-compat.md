@@ -97,7 +97,7 @@ When Docker is configured this way, Sysbox works in what we call
 "Docker userns-remap mode". It's a mode that offers strong container
 isolation, but not as strong as when using the latest Ubuntu kernels
 with the shiftfs module as described in the prior section (where
-Sysbox works in "Exclusive userns-remap mode". See
+Sysbox works in "Exclusive userns-remap mode"). See
 [here](usage.md#system-container-isolation-modes) for more info on
 Sysbox isolation modes.
 
