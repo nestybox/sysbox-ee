@@ -2,7 +2,8 @@
     "plugins": {
       "remark-toc": {
         "tight": true,
-        "heading": "contents"
+        "heading": "contents",
+        "maxDepth": 2
       },
       "remark-validate-links": {
       },
