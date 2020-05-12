@@ -7,9 +7,9 @@
 
 ## Supported Linux Distros
 
-Sysbox relies on functionality that is currently only present in
-Ubuntu Linux. Thus, Ubuntu is the only distro supported at this
-time. But we are working on adding support for more distros.
+Sysbox relies on functionality that is currently only present in Ubuntu Linux
+and as a result Ubuntu is the only distro supported at this time. We are working
+on adding support for more distros.
 
 ## Ubuntu Support
 
@@ -35,13 +35,13 @@ with "userns-remap" (see the next section).
 
 **NOTES:**
 
-1) Canonical generates flavors of these kernels for desktop, server, and cloud
-VMs. The [cloud images](https://cloud-images.ubuntu.com/) may not always carry
-the the shiftfs module. If you want to use Sysbox on a cloud VM and you hit the
-error shown above, you must either configure Docker with userns-remap as shown
-in the next section, or install the Ubuntu desktop or server edition in the VM.
+1) Canonical generates Ubuntu editions for desktop, server, and cloud VMs. The
+[cloud editions](https://cloud-images.ubuntu.com/) may not carry the the shiftfs
+module. If you want to use Sysbox on a cloud VM and you hit the error shown
+above, you must either configure Docker with userns-remap as shown in the next
+section, or install the Ubuntu desktop or server edition in the VM.
 
-2) If you have a Ubuntu 18.04 (Bionic) and want to upgrade the kernel to >= 5.0,
+2) If you have a Ubuntu 18.04 (Bionic Beaver) and want to upgrade the kernel to >= 5.0,
 we recommend using Ubuntu's [LTS-enablement](https://wiki.ubuntu.com/Kernel/LTSEnablementStack)
 package to do the upgrade:
 
@@ -49,7 +49,7 @@ package to do the upgrade:
 $ sudo apt-get update && sudo apt install --install-recommends linux-generic-hwe-18.04 -y
 ```
 
-### Using Sysbox on systems without the shiftfs module
+### Using Sysbox on kernels without the shiftfs module
 
 If your Ubuntu version does not carry the shiftfs module, using Sysbox requires
 that you configure Docker in "userns-remap" mode.
@@ -71,7 +71,7 @@ This is done by modifying the configuration of the Docker daemon and restarting 
     }
     ```
 
-    This tells Docker to enable the user namespace in all containers
+    This tells Docker to use the Linux user namespace in all containers
     and map the root user in the container to the subid range of
     user `sysbox`, as defined in the `/etc/subuid` and `/etc/subgid` files.
 
@@ -92,4 +92,3 @@ module. But there are a couple of drawbacks:
 
 -   Configuring Docker this way places a few functional limitations on regular Docker containers
     (those launched with Docker's default runc), as described in this [Docker document](https://docs.docker.com/engine/security/userns-remap).
-    These limitations are not present when Sysbox uses the kernel's shiftfs module.
