@@ -4,66 +4,57 @@
 
 -   [Supported Linux Distros](#supported-linux-distros)
 -   [Ubuntu Support](#ubuntu-support)
-    -   [Sysbox on Older Ubuntu Kernels](#sysbox-on-older-ubuntu-kernels)
-    -   [Distro Compatibility Summary](#distro-compatibility-summary)
-    -   [Upgrading the Ubuntu Kernel](#upgrading-the-ubuntu-kernel)
-        -   [Bionic Beaver](#bionic-beaver)
-        -   [Disco Dingo](#disco-dingo)
 
 ## Supported Linux Distros
 
 Sysbox relies on functionality that is currently only present in
-Ubuntu kernels. Thus, Ubuntu is the only distro supported at this
-time.
+Ubuntu Linux. Thus, Ubuntu is the only distro supported at this
+time. But we are working on adding support for more distros.
 
 ## Ubuntu Support
 
-Sysbox requires very recent Ubuntu kernels:
+Sysbox requires very recent Ubuntu versions:
 
--   Ubuntu 19.10 "Eoan"
--   Ubuntu 19.04 "Disco" (kernel upgrade >= 5.0.0-21.22)
--   Ubuntu 18.04 "Bionic" (kernel upgrade >= 5.0)
+-   Ubuntu 20.04 "Focal Fossa"
+-   Ubuntu 19.10 "Eoan Ermine"
+-   Ubuntu 18.04 "Bionic Beaver" (with kernel upgrade >= 5.0)
 
-If your kernel is not one of these, you can still use Sysbox
-using the alternative approach described in the next section.
+These versions carry some new Linux kernel features, including a module called
+"shiftfs", which Sysbox uses to create the system containers.
 
-**NOTES:**
-
-1) Canonical generates flavors of these kernels for desktop, server,
-and cloud. The [cloud images](https://cloud-images.ubuntu.com/) do
-not yet include the kernel functionality required by Sysbox
-(unfortunately). Thus, if you want to use Sysbox on a cloud VM, you
-must install the Ubuntu desktop or server flavors on the VM, or use
-the alternative approach described in the next section.
-
-2) If you have a Ubuntu desktop or server image but need to upgrade
-the kernel in order to meet the requirements listed above, see
-[here](#upgrading-the-ubuntu-kernel) for suggestions on how to do this.
-
-3) If you launch a system container with Docker + Sysbox, and you get
-an error such as
+If your Ubuntu version does not carry the shiftfs module, you'll see this error
+when launching a container:
 
 ```console
 # docker run --runtime=sysbox-runc -it debian:latest
 docker: Error response from daemon: OCI runtime create failed: container requires user-ID shifting but error was found: shiftfs module is not loaded in the kernel. Update your kernel to include shiftfs module or enable Docker with userns-remap. Refer to the Sysbox troubleshooting guide for more info: unknown
 ```
 
-it means that your kernel does not meet the requirements listed above
-(specifically your distro does not have the `shiftfs` module that is
-present in recent Ubuntu desktop and server kernels). In this case you
-must either upgrade your kernel or use the alternative approach
-described in the next section.
+Don't worry: you can still use Sysbox, but it requires that you configure Docker
+with "userns-remap" (see the next section).
 
-### Sysbox on Older Ubuntu Kernels
+**NOTES:**
 
-If your distro is Ubuntu but the kernel version is not as recent as
-those listed in the prior section, it's still possible to use
-Sysbox. However, doing so requires two things:
+1) Canonical generates flavors of these kernels for desktop, server, and cloud
+VMs. The [cloud images](https://cloud-images.ubuntu.com/) may not always carry
+the the shiftfs module. If you want to use Sysbox on a cloud VM and you hit the
+error shown above, you must either configure Docker with userns-remap as shown
+in the next section, or install the Ubuntu desktop or server edition in the VM.
 
-1) You must have Ubuntu Bionic or later (e.g., Ubuntu Bionic, Disco,
-   Cosmic, or Eoan). Any kernel version of these releases will do.
+2) If you have a Ubuntu 18.04 (Bionic) and want to upgrade the kernel to >= 5.0,
+we recommend using Ubuntu's [LTS-enablement](https://wiki.ubuntu.com/Kernel/LTSEnablementStack)
+package to do the upgrade:
 
-2) You must change the configuration of the Docker daemon:
+```console
+$ sudo apt-get update && sudo apt install --install-recommends linux-generic-hwe-18.04 -y
+```
+
+### Using Sysbox on systems without the shiftfs module
+
+If your Ubuntu version does not carry the shiftfs module, using Sysbox requires
+that you configure Docker in "userns-remap" mode.
+
+This is done by modifying the configuration of the Docker daemon and restarting it:
 
 -   After installing Sysbox, add the `userns-remap` line to the
     `/etc/docker/daemon.json` file as shown below:
@@ -84,58 +75,21 @@ Sysbox. However, doing so requires two things:
     and map the root user in the container to the subid range of
     user `sysbox`, as defined in the `/etc/subuid` and `/etc/subgid` files.
 
--   Restart the Docker daemon:
+-   Then restart the Docker daemon (make sure any running containers are stopped):
 
     ```console
+    # sudo docker stop $(docker ps -aq)
     # sudo systemctl restart docker.service
     ```
 
--   Note that both of the actions above require `root` privileges on
-    the host.
+Note that the actions above require `root` privileges on the host.
 
-When Docker is configured this way, Sysbox works in what we call
-"Docker userns-remap mode". It's a mode that offers strong container
-isolation, but not as strong as when using the latest Ubuntu kernels
-with the shiftfs module as described in the prior section (where
-Sysbox works in "Exclusive userns-remap mode"). See
-[here](usage.md#system-container-isolation-modes) for more info on
-Sysbox isolation modes.
+When Docker is configured this way, Sysbox no longer needs the shiftfs
+module. But there are a couple of drawbacks:
 
-### Distro Compatibility Summary
+-   Container isolation, while strong, is reduced compared to using shiftfs (see
+    [here](usage.md#system-container-isolation-modes) for more info on this).
 
-Here is a summary of the distro requirements:
-
-| Distro Name         | Kernel           | Requires Docker in Userns-Remap Mode |
-| ------------------- | ---------------- | ------------------------------------ |
-| Ubuntu 19.10 Eoan   | Any              | No                                   |
-| Ubuntu 19.04 Disco  | >= 5.0.0-21.22   | No                                   |
-|                     | &lt; 5.0.0-21.22 | Yes                                  |
-| Ubuntu 18.10 Cosmic | Any              | Yes                                  |
-| Ubuntu 18.04 Bionic | >= 5.0           | No                                   |
-|                     | &lt; 5.0         | Yes                                  |
-
-### Upgrading the Ubuntu Kernel
-
-In case you need to upgrade your machine's Linux kernel to meet Sysbox
-kernel version requirements, here are some suggestions. Refer to the
-Ubuntu documentation online for further info.
-
-#### Bionic Beaver
-
-For Bionic Beaver, we recommend using Ubuntu's [LTS-enablement](https://wiki.ubuntu.com/Kernel/LTSEnablementStack)
-package:
-
-```console
-$ sudo apt-get update && sudo apt install --install-recommends linux-generic-hwe-18.04 -y
-```
-
-#### Disco Dingo
-
-For Disco Dingo, we recommend simply upgrading the distro:
-
-```console
-$ sudo apt-get update
-$ sudo apt-get upgrade
-$ sudo apt-get dist-upgrade
-$ reboot
-```
+-   Configuring Docker this way places a few functional limitations on regular Docker containers
+    (those launched with Docker's default runc), as described in this [Docker document](https://docs.docker.com/engine/security/userns-remap).
+    These limitations are not present when Sysbox uses the kernel's shiftfs module.

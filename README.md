@@ -29,9 +29,9 @@ Sysbox is a next-generation container runtime, developed by [Nestybox](#about-ne
 that enables deployment of containers that are capable of running not just micro-services,
 but also system software such as Docker, Kubernetes, Systemd, etc., inside the container.
 
-What makes Sysbox unique is that it can run system software **without** requiring
+What makes Sysbox unique is that it can run system software **without requiring
 unsecure privileged containers, complicated container images, custom
-entrypoints, or complex configurations.
+entrypoints, or complex configurations**.
 
 If you need to run Docker-in-Docker, Kubernetes-in-Docker, or Systemd reliant
 apps in Docker, and want to do so securely and avoiding complex images or
@@ -70,14 +70,14 @@ multiple services.
 
 Within the system container you can run the services of your choice (e.g.,
 Systemd, sshd, docker, etc.), and even launch (inner) containers just as you
-would on a physical host of VM. You can think of it as a "virtual host" or a
-"container of containers".
+would on a physical host of VM. You can think of it as a **"virtual host"** or a
+**"container of containers"**.
 
 Of course, you can package a single service (e.g., Docker daemon) if you so
 desire; the choice is yours.
 
 System containers provide an alternative to VMs in many scenarios, but are much more
-flexible, efficient, and portable. They offer strong isolation (in fact stronger than
+**flexible, efficient, and portable**. They offer strong isolation (in fact stronger than
 regular Docker containers) but to a lesser degree than the isolation provided by a VM.
 
 For more info on system containers, see this [blog article](https://blog.nestybox.com/2019/09/13/system-containers.html).
@@ -128,6 +128,7 @@ $ sudo dpkg -i sysbox_0.1.3-0.ubuntu-disco_amd64.deb
 In case you hit an error with missing dependencies, fix this with:
 
 ```console
+$ sudo apt-get update
 $ sudo apt-get install -f -y
 ```
 
@@ -165,9 +166,9 @@ If you see an error such as:
 
     docker: Error response from daemon: OCI runtime create failed: container requires user-ID shifting but error was found: shiftfs module is not loaded in the kernel. Update your kernel to include shiftfs module or enable Docker with userns-remap. Refer to the Sysbox troubleshooting guide for more info: unknown
 
-it means that your kernel version is a bit older than needed by Sysbox. But it's easy to
-work-around this by re-configuring Docker. Refer to the [distro compatibility doc](docs/distro-compat.md)
-for more info.
+it means that your kernel version is a bit older than needed by Sysbox. But it's
+easy to work-around this by enabling the userns-remap mode in Docker. Refer to
+the [distro compatibility doc](docs/distro-compat.md) for more info.
 
 Note that if you omit the `--runtime` option, Docker will use the default `runc` runtime
 to launch regular application containers (rather than system containers). It's perfectly
