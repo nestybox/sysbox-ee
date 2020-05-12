@@ -64,6 +64,7 @@ sysbox
 Install missing package by fixing (-f) system's dependency structures.
 
 ```console
+$ sudo apt-get update
 $ sudo apt-get install -f -y
 ```
 
