@@ -1,4 +1,4 @@
-# Sysbox Troubleshooting
+# Sysbox User Guide: Troubleshooting
 
 ## Contents
 
@@ -178,7 +178,7 @@ the system container's root user maps. Recall that Sysbox containers
 always use the Linux user namespace and thus map the root user in the
 system container to a non-root user on the host.
 
-Refer to [System Container Bind Mount Requirements](usage.md#system-container-bind-mount-requirements) for
+Refer to [System Container Bind Mount Requirements](storage.md#system-container-bind-mount-requirements) for
 info on how to set the correct permissions on the bind mount.
 
 ## Failed to Setup Docker Volume Manager Error
@@ -203,32 +203,7 @@ The same requirement applies to the `/var/lib/docker` directory.
 This is normally the case for vanilla Ubuntu installations, so this
 error is not common.
 
-## Failed to stat mount source at /var/lib/sysboxfs
-
-While creating a system container, Docker may report the following error:
-
-```console
-$ docker run --runtime=sysbox-runc -it alpine
-docker: Error response from daemon: OCI runtime create failed: failed to create lib container mount: failed to stat mount source at /var/lib/sysboxfs/proc/sys: stat /var/lib/sysboxfs/proc/sys: no such file or directory: unknown.
-```
-
-This likely means that the sysbox-fs daemon is not running (for some reason).
-
-Check if the sysbox-fs process is running via `ps`. Ideally it should look like this:
-
-```console
-$ ps -fu root | grep sysbox
-root     23945     1  0 Nov12 pts/0    00:00:00 sysbox-fs --log-level=debug --log /dev/stdout
-root     23946     1  0 Nov12 pts/0    00:00:00 sysbox-mgr --log-level=debug --log /dev/stdout
-```
-
-If sysbox-fs is missing from the `ps` output, stop and restart Sysbox via Systemd:
-
-```console
-$ sudo systemctl restart sysbox
-```
-
-## Failed to register with sysbox-mgr
+## Failed to register with sysbox-mgr or sysbox-fs
 
 While creating a system container, Docker may report the following error:
 
@@ -237,31 +212,68 @@ $ docker run --runtime=sysbox-runc -it alpine
 docker: Error response from daemon: OCI runtime create failed: failed to register with sysbox-mgr: failed to invoke Register via grpc: rpc error: code = Unavailable desc = all SubConns are in TransientFailure, latest connection error: connection error: desc = "transport: Error while dialing dial unix /run/sysbox/sysmgr.sock: connect: connection refused": unknown.
 ```
 
-This likely means that the sysbox-mgr daemon is not running (for some reason).
-
-Check if the sysbox-mgr process is running via `ps`. Ideally it should look like this:
+or
 
 ```console
-$ ps -fu root | grep sysbox
-root     23945     1  0 Nov12 pts/0    00:00:00 sysbox-fs --log-level=debug --log /dev/stdout
-root     23946     1  0 Nov12 pts/0    00:00:00 sysbox-mgr --log-level=debug --log /dev/stdout
+docker run --runtime=sysbox-runc -it alpine
+docker: Error response from daemon: OCI runtime create failed: failed to pre-register with sysbox-fs: failed to register container with sysbox-fs: rpc error: code = Unavailable desc = all SubConns are in TransientFailure, latest connection error: connection error: desc = "transport: Error while dialing dial unix /run/sysbox/sysfs.sock: connect: connection refused": unknown.
 ```
 
-If sysbox-mgr is missing from the `ps` output, stop and restart Sysbox via Systemd:
+This likely means that the sysbox-mgr and/or sysbox-fs daemons are not running (for some reason).
+
+Check that these are running via systemd:
+
+```
+$ systemctl status sysbox-mgr
+$ systemctl status sysbox-fs
+```
+
+If either of these services are not running, use Systemd to restart them:
 
 ```console
 $ sudo systemctl restart sysbox
+```
+
+Normally Systemd ensures these services are running and restarts them automatically if
+for some reason they stop.
+
+## Docker reports failure setting up ptmx
+
+When creating a system container with Docker + Sysbox, if Docker reports an error such as:
+
+```console
+docker: Error response from daemon: OCI runtime create failed: container_linux.go:364: starting container process caused "process_linux.go:533: container init caused \"rootfs_linux.go:67: setting up ptmx caused \\\"remove dev/ptmx: device or resource busy\\\"\"": unknown.
+```
+
+It likely means the system container was launched with the Docker `--privileged`
+flag (and this flag is not compatible with Sysbox as described
+[here](limitations.md)).
+
+## Docker exec fails
+
+You may hit this problem when doing an `docker exec -it my-syscont bash`:
+
+```
+OCI runtime exec failed: exec failed: container_linux.go:364: starting container process caused "process_linux.go:94: executing setns process caused \"exit status 2\"": unknown
+```
+
+This occurs if the `/proc` mount inside the system container is set to "read-only".
+
+For example, if you launched the system container and run the following command in it:
+
+```
+$ mount -o remount,ro /proc
 ```
 
 ## Sysbox Logs
 
 ### sysbox-mgr and sysbox-fs
 
-The Sysbox daemons (i.e. sysbox-fs and sysbox-mgr) will log
-information related to their activities in the
-`/var/log/sysbox-fs.log` and `/var/log/sysbox-mgr.log` files
-respectively. These logs should be useful during troubleshooting
-exercises.
+The Sysbox daemons (i.e. sysbox-fs and sysbox-mgr) will log information related
+to their activities in `/var/log/sysbox-fs.log` and `/var/log/sysbox-mgr.log`
+respectively. These logs should be useful during troubleshooting exercises.
+
+You can modify the log level as described [here](configuration.md#reconfiguration-procedure).
 
 ### sysbox-runc
 
@@ -276,3 +288,66 @@ For sysbox-runc, logging is handled as follows:
 
 -   When running sysbox-runc directly, sysbox-runc will not produce any logs by default.
     Use the `sysbox-runc --log` option to change this.
+
+## The /var/lib/sysbox is not empty even though there are no containers
+
+Sysbox stores some container state under the `/var/lib/sysbox` directory
+(which for security reasons is only accessible to the host's root user).
+
+When no system containers are running, this directory should be clean and
+look like this:
+
+```console
+# tree /var/lib/sysbox
+/var/lib/sysbox
+├── containerd
+├── docker
+│   ├── baseVol
+│   ├── cowVol
+│   └── imgVol
+└── kubelet
+```
+
+When a system container is running, this directory holds state for the container:
+
+```console
+# tree -L 2 /var/lib/sysbox
+/var/lib/sysbox
+├── containerd
+│   └── f29711b54e16ecc1a03cfabb16703565af56382c8f005f78e40d6e8b28b5d7d3
+├── docker
+│   ├── baseVol
+│   │   └── f29711b54e16ecc1a03cfabb16703565af56382c8f005f78e40d6e8b28b5d7d3
+│   ├── cowVol
+│   └── imgVol
+└── kubelet
+    └── f29711b54e16ecc1a03cfabb16703565af56382c8f005f78e40d6e8b28b5d7d3
+```
+
+If the system container is stopped and removed, the directory goes back to it's clean state:
+
+```console
+# tree /var/lib/sysbox
+/var/lib/sysbox
+├── containerd
+├── docker
+│   ├── baseVol
+│   ├── cowVol
+│   └── imgVol
+└── kubelet
+```
+
+If you have no system containers created yet `/var/lib/sysbox` is not clean, it means
+Sysbox is in a bad state. This is very uncommon as Sysbox is well tested.
+
+To overcome this, you'll need to follow this procedure:
+
+1) Stop and remove all system containers (e.g., all Docker containers created with the sysbox-runc runtime).
+
+   - There is a bash script to do this [here](../../scr/rm_all_syscont).
+
+2) Restart Sysbox:
+
+```console
+$ sudo systemctl restart sysbox
+```

@@ -943,14 +943,6 @@ busybox             latest              19485c79a9bb        7 weeks ago         
 It's easy to share storage among multiple system containers by simply
 bind-mounting the shared storage into each system container.
 
-However, it requires that the permissions on the bind mounted
-shared storage be set appropriately, which depends on the system
-container isolation mode as described in the
-[Sysbox User's Guide](usage.md#system-container-bind-mount-requirements).
-
-In this example we assume Sysbox operates in exclusive userns-remap
-mode (it's default isolation mode).
-
 1) Create the shared storage on the host. In this example we use
    a Docker volume.
 
@@ -1018,10 +1010,10 @@ From the first system container:
 /var/lib/docker/volumes/shared-storage/_data on /mnt/shared-storage type shiftfs (rw,relatime)
 ```
 
-Finally, in the example above we used a Docker volume as the shared storage. However,
-we could also use an arbitrary host directory as the shared storage. We need simply
+In the example above we used a Docker volume as the shared storage. However,
+we can also use an arbitrary host directory as the shared storage. We need simply
 bind-mount it to the system containers, though we must follow the requirements
-for bind-mounts described in the [Sysbox User's Guide](usage.md#system-container-bind-mount-requirements).
+for bind-mount ownership described in the [Sysbox User Guide](user-guide/storage.md#system-container-bind-mount-requirements).
 
 ## System Container Isolation Features
 
@@ -1033,9 +1025,6 @@ features by way of example:
 -   Exclusive user-ID and group-ID mappings per system container
 
 -   Linux capabilities
-
-We assume Sysbox is configured in exclusive userns-remap mode (it's
-default operating mode).
 
 First let's deploy a system container:
 
@@ -1117,7 +1106,7 @@ root@syscont2:/# cat /proc/self/gid_map
 Notice how Sysbox chose different user-ID and group-ID mappings for
 this new system container. This provides isolation from the host as
 well as from other system containers. More info on this can be found
-in the [design guide](design.md#exclusive-user-namespace-mappings).
+in the [Sysbox User Guide](user-guide/security.md#user-namespace-id-mapping).
 
 Now, let's check the capabilities of a root processes inside the
 system container:

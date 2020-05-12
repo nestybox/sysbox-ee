@@ -304,9 +304,13 @@ system containers.
 
     -   Distro compatibility requirements.
 
--   [Sysbox User's Guide](docs/usage.md)
+-   [Sysbox User's Guide](docs/user-guide/README.md)
 
     -   Provides more detail information on Sysbox features.
+
+-   [System Container Environment](docs/syscont/intro.md)
+
+    -   Provides information about system containers, the software they support, etc.
 
 -   [Sysbox Design Notes](docs/design.md)
 
