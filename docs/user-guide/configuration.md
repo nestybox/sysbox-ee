@@ -6,6 +6,10 @@ Note that usually you don't need to modify Sysbox's default configuration.
 
 ## Contents
 
+-   [Reconfiguration Procedure](#reconfiguration-procedure)
+-   [Sysbox Configuration Options](#sysbox-configuration-options)
+-   [Sysbox Kernel Parameter Configurations](#sysbox-kernel-parameter-configurations)
+
 ## Reconfiguration Procedure
 
 The Sysbox installer starts the [Sysbox components](design.md#sysbox-components)
@@ -88,9 +92,7 @@ The Sysbox installer performs these changes automatically.
 
 Below is the list of kernel parameters configured by Sysbox (via `sysctl`):
 
-```
-fs.inotify.max_queued_events = 1048576
-fs.inotify.max_user_watches = 1048576
-fs.inotify.max_user_instances = 1048576
-kernel.keys.maxkeys = 20000
-```
+    fs.inotify.max_queued_events = 1048576
+    fs.inotify.max_user_watches = 1048576
+    fs.inotify.max_user_instances = 1048576
+    kernel.keys.maxkeys = 20000

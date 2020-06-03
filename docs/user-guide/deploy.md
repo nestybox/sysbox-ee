@@ -2,6 +2,8 @@
 
 ## Contents
 
+-   [Deploying System Containers](#deploying-system-containers)
+
 ## Deploying System Containers
 
 We currently support two ways of deploying system containers with Sysbox:
@@ -62,21 +64,21 @@ Use `sysbox-runc --help` command for help on all commands supported.
 
 A couple of tips:
 
-- In step (1):
+-   In step (1):
 
-  - If the `config.json` does not specify the Linux user namespace, the
-    container's rootfs should be owned by `root:root`. This also requires that
-    the [shiftfs module](design.md#ubuntu-shiftfs-module) be present in the
-    kernel.
+    -   If the `config.json` does not specify the Linux user namespace, the
+        container's rootfs should be owned by `root:root`. This also requires that
+        the [shiftfs module](design.md#ubuntu-shiftfs-module) be present in the
+        kernel.
 
-  - If the `config.json` does specify the Linux user namespace and associated
-    user-ID and group-ID mappings, the container's rootfs should be owned
-    by the corresponding user-ID and group-ID. In this case, the presence of
-    the shiftfs module is not required.
+    -   If the `config.json` does specify the Linux user namespace and associated
+        user-ID and group-ID mappings, the container's rootfs should be owned
+        by the corresponding user-ID and group-ID. In this case, the presence of
+        the shiftfs module is not required.
 
-- Feel free to modify the system container's `config.json` to your needs. But
-  note that Sysbox ignores a few of the OCI directives in this file (refer to
-  the [Sysbox design document](limitations.md#oci-compatibility) for details).
+-   Feel free to modify the system container's `config.json` to your needs. But
+    note that Sysbox ignores a few of the OCI directives in this file (refer to
+    the [Sysbox design document](design.md#sysbox-oci-compatibility) for details).
 
 ### Using Other [High-Level Container Runtimes](concepts.md#high-level-container-runtime)
 

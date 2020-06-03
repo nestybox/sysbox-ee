@@ -5,6 +5,10 @@ system containers.
 
 ## Contents
 
+-   [Docker Restrictions](#docker-restrictions)
+-   [System Container Limitations](#system-container-limitations)
+-   [Sysbox Functional Limitations](#sysbox-functional-limitations)
+
 ## Docker Restrictions
 
 This section describes restrictions when launching containers with Docker +
@@ -91,14 +95,11 @@ inside the system container and mounting procfs in it.
 That is, executing the following instruction inside a system container
 is not supported:
 
-```
-unshare -U -i -m -n -p -u -f --mount-proc -r bash
-```
+    unshare -U -i -m -n -p -u -f --mount-proc -r bash
 
 The reason this is not yet supported is that Sysbox is not currently
 capable of ensuring that the procfs mounted inside the unshared
 namespace is the proper one. We expect to fix this soon.
-
 
 ## Sysbox Functional Limitations
 

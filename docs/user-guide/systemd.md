@@ -2,6 +2,10 @@
 
 ## Contents
 
+-   [Intro](#intro)
+-   [Systemd-in-Docker](#systemd-in-docker)
+-   [Systemd Alternatives](#systemd-alternatives)
+
 ## Intro
 
 System containers can act as virtual host environments running multiple
@@ -36,7 +40,7 @@ problems.
 The [Nestybox Dockerhub repo](https://hub.docker.com/u/nestybox) has a number of system container images that come
 with systemd inside. The Dockerfiles for them are [here](../../dockerfiles).
 
-The Sysbox Quick Start Guide has a [few examples](quickstart.md#deploy-a-system-container-with-systemd-inside) on
+The Sysbox Quick Start Guide has a [few examples](../quickstart.md#deploy-a-system-container-with-systemd-inside) on
 how to use them.
 
 Of course, the container image will also need to have the systemd service units
@@ -56,4 +60,4 @@ Supervisord.
 The [Nestybox Dockerhub repo](https://hub.docker.com/u/nestybox) has a number of system container images that come
 with Supervisord inside. The Dockerfiles for them are [here](../../dockerfiles).
 
-The Sysbox Quick Start Guide has a [few examples](#deploy-a-system-container-with-supervisord-and-docker-inside).
+The Sysbox Quick Start Guide has a [few examples](../quickstart.md#deploy-a-system-container-with-supervisord-and-docker-inside).

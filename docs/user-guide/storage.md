@@ -4,6 +4,9 @@ This document provides tips on mounting host storage to a system container.
 
 ## Contents
 
+-   [System Container Bind Mount Requirements](#system-container-bind-mount-requirements)
+-   [Storage Sharing Among System Containers](#storage-sharing-among-system-containers)
+
 ## System Container Bind Mount Requirements
 
 Sysbox system containers support all Docker storage mount types:
@@ -23,11 +26,11 @@ the container.
 
 As described [here](security.md#user-namespace-id-mapping), either:
 
-* Sysbox is told the user-ID mapping of the container by a high-level container runtime (aka [Directed userns ID mapping](security.md#directed-userns-id-mapping)
+-   Sysbox is told the user-ID mapping of the container by a high-level container runtime (aka [Directed userns ID mapping](security.md#directed-userns-id-mapping)
 
 or
 
-* Sysbox auto-assigns the user-ID mapping of the container (aka [Auto userns ID mapping](security.md#auto-userns-id-mapping).
+-   Sysbox auto-assigns the user-ID mapping of the container (aka [Auto userns ID mapping](security.md#auto-userns-id-mapping).
 
 ### Directed userns ID mapping
 
@@ -68,9 +71,7 @@ sysbox:165536:268435456
 
 For example, in the following command:
 
-```
-docker run --runtime=sysbox-runc --mount type=bind,source=/some/source,target=/some/target ...
-```
+    docker run --runtime=sysbox-runc --mount type=bind,source=/some/source,target=/some/target ...
 
 if the directory `/some/source` is owned by `100000:100000` on the host, it will
 show up as `root:root` inside the container. If it's owned by `101000:101000`,

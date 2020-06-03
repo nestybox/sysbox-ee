@@ -10,6 +10,20 @@ what security features are currently in place and where more work is needed.
 
 ## Contents
 
+-   [Root Filesystem Jail](#root-filesystem-jail)
+-   [Linux Namespaces](#linux-namespaces)
+-   [User Namespace ID Mapping](#user-namespace-id-mapping)
+-   [Procfs Virtualization](#procfs-virtualization)
+-   [Sysfs Virtualization](#sysfs-virtualization)
+-   [Process Capabilities](#process-capabilities)
+-   [System Calls](#system-calls)
+-   [System Call Interception](#system-call-interception)
+-   [Devices](#devices)
+-   [Resource Limiting & Cgroups](#resource-limiting--cgroups)
+-   [No-New-Privileges Flag](#no-new-privileges-flag)
+-   [Support for Linux Security Modules (LSMs)](#support-for-linux-security-modules-lsms)
+-   [Out-of-Memory Score Adjustment](#out-of-memory-score-adjustment)
+
 ## Root Filesystem Jail
 
 System container processes are confined to the directory hierarchy
@@ -48,11 +62,11 @@ Nestybox system containers and regular Docker containers.
 
 By virtue of using the Linux user namespace, Nestybox system containers get:
 
-* Stronger container isolation (e.g., root in the container maps to an unprivileged
-  user on the host).
+-   Stronger container isolation (e.g., root in the container maps to an unprivileged
+    user on the host).
 
-* The root user inside the container has full privileges (i.e., all
-  capabilities) within the container.
+-   The root user inside the container has full privileges (i.e., all
+    capabilities) within the container.
 
 Refer to the kernel's [user_namespaces][http://man7.org/linux/man-pages/man7/user_namespaces.7.html]
 manual page for more info.
@@ -72,12 +86,12 @@ between the container and the host.
 
 Sysbox performs the mapping as follows:
 
-* If the [high-level container runtime](concepts.md#high-level-container-runtime) (e.g., Docker)
-  tells Sysbox to run the container with the user-namespace enabled, Sysbox
-  honors the user-ID mappings provided by the high-level container runtime.
+-   If the [high-level container runtime](concepts.md#high-level-container-runtime) (e.g., Docker)
+    tells Sysbox to run the container with the user-namespace enabled, Sysbox
+    honors the user-ID mappings provided by the high-level container runtime.
 
-* Otherwise, Sysbox automatically enables the user-namespace in the container
-  and allocates user-ID mappings for it.
+-   Otherwise, Sysbox automatically enables the user-namespace in the container
+    and allocates user-ID mappings for it.
 
 We call these "Directed userns ID mapping" and "Auto userns ID mapping"
 respectively.
@@ -101,9 +115,9 @@ For Docker specifically, this occurs when the Docker daemon is configured with
 
 There is one advantage of Directed userns ID mapping:
 
-- Sysbox does not need the Linux kernel's [shiftfs module](design.md#ubuntu-shiftfs-module).
-  This means Sysbox can run in kernels that don't carry that module (e.g.,
-  Ubuntu cloud images).
+-   Sysbox does not need the Linux kernel's [shiftfs module](design.md#ubuntu-shiftfs-module).
+    This means Sysbox can run in kernels that don't carry that module (e.g.,
+    Ubuntu cloud images).
 
 But there are a couple of drawbacks:
 
@@ -139,19 +153,17 @@ for the containers.
 By way of example: if we launch two containers with Sysbox, notice the ID
 mappings assigned to each:
 
-```
-$ docker run --runtime=sysbox-runc --name=syscont1 --rm -d alpine tail -f /dev/null
-16c1abcc48259a47ef749e2d292ceef6a9f7d6ab815a6a5d12f06efc3c09d0ce
+    $ docker run --runtime=sysbox-runc --name=syscont1 --rm -d alpine tail -f /dev/null
+    16c1abcc48259a47ef749e2d292ceef6a9f7d6ab815a6a5d12f06efc3c09d0ce
 
-$ docker run --runtime=sysbox-runc --name=syscont2 --rm -d alpine tail -f /dev/null
-573843fceac623a93278aafd4d8142bf631bc1b214b1bcfcd183b1be77a00b69
+    $ docker run --runtime=sysbox-runc --name=syscont2 --rm -d alpine tail -f /dev/null
+    573843fceac623a93278aafd4d8142bf631bc1b214b1bcfcd183b1be77a00b69
 
-$ docker exec syscont1 cat /proc/self/uid_map
-0     165536      65536
+    $ docker exec syscont1 cat /proc/self/uid_map
+    0     165536      65536
 
-$ docker exec syscont2 cat /proc/self/uid_map
-0     231072      65536
-```
+    $ docker exec syscont2 cat /proc/self/uid_map
+    0     231072      65536
 
 Each system container gets an **exclusive range of 64K user IDs**. For syscont1,
 user IDs [0, 65536] are mapped to host user IDs [165536, 231071]. And for
@@ -172,15 +184,13 @@ access any other files in the host or in other containers.
 The exclusive host user IDs chosen by Sysbox are obtained from the `/etc/subuid`
 and `/etc/subgid` files:
 
-```
-$ more /etc/subuid
-cesar:100000:65536
-sysbox:165536:268435456
+    $ more /etc/subuid
+    cesar:100000:65536
+    sysbox:165536:268435456
 
-$ more /etc/subgid
-cesar:100000:65536
-sysbox:165536:268435456
-```
+    $ more /etc/subgid
+    cesar:100000:65536
+    sysbox:165536:268435456
 
 These files are automatically configured by Sysbox during installation (or more
 specifically when the `sysbox-mgr` component is started during installation)
