@@ -2,74 +2,87 @@
 
 ## Contents
 
+-   [Intro](#intro)
+-   [Installing Docker inside the Container](#running-docker-inside-the-container)
+-   [Running Docker inside the Container](#running-docker-inside-the-container-1)
+-   [Preloading Inner Container Images](#preloading-inner-container-images)
+-   [Persistence of Inner Docker Images](#persistence-of-inner-docker-images)
+-   [Inner Docker Privileged Containers](#inner-docker-privileged-containers)
+-   [Limitations for the Inner Docker](#limitations-for-the-inner-docker)
 
 ## Intro
 
-Nestybox system containers support running Docker inside the system container
-(aka Docker-in-Docker), **without using privileged containers, complex images,
-or bind-mounting the host's Docker socket into the container**.
+Sysbox has support for running Docker inside system containers (aka Docker-in-Docker).
 
-In other words, you can run Docker inside the container cleanly and securely,
-with **total isolation** between the inner and outer Docker daemons.
+Unlike all other alternatives, Sysbox enables users to do without resorting to
+complex Docker run commands or complex container images, and without resorting
+to privileged containers or bind-mounting the host's Docker socket into the
+container.
+
+In other words, you can run Docker inside the container easily and securely,
+with **total isolation** between it and the Docker daemon on the host.
 
 This is useful for Docker sandboxing, testing, and CI/CD use cases.
 
-And it's fast: Sysbox sets up the system container such that the Docker daemon
-inside the container can use its fast overlay2 storage driver, rather than
-alternative Docker-in-Docker solutions that resort to the slower vfs driver.
+Moreover, it's fast and very efficient: Sysbox sets up the system container such that
+the Docker daemon inside the container can use its fast overlay2 storage driver,
+and has features that significantly reduce the storage overhead of the containers
+by sharing layers of inner container images when possible.
 
 ## Installing Docker inside the Container
 
-To install Docker inside a system container, the easiest way is to use a system
-container image that has Docker pre-installed in it.
+The easiest way is to use a system container image that has Docker pre-installed
+in it.
 
 You can find a few such images in the [Nestybox DockerHub repo](https://hub.docker.com/r/nestybox). The
 Dockefiles for the images are [here](../../dockerfiles).
 
 Alternatively, you can always deploy a baseline system container image (e.g.,
 ubuntu or alpine) and install Docker in it just as you would on a physical host
-or VM. In fact, the system container images that come with Docker preinstalled
-are created with a Dockerfile that does just that.
+or VM.
+
+In fact, the system container images that come with Docker preinstalled are
+created with a Dockerfile that does just that.
 
 ## Running Docker inside the Container
 
-You do this just as you would on a physical host or VM (e.g., `docker run -it alpine`).
+You do this just as you would on a physical host or VM (e.g., by executing
+`docker run -it alpine` inside the container).
 
 The [Sysbox Quickstart Guide](../quickstart.md) has several examples showing how
 to run Docker inside a system container.
 
-## Pre-Installing Inner Container Images
+## Preloading Inner Container Images
 
-In a system container image not only can you pre-install Docker, you can also
-easily pre-install inner Docker container images.
+Sysbox enables you to easily create system container images that come preloaded
+with inner Docker container images.
 
-This way, when you deploy the system container, you get Docker plus whatever
-inner container images you desire. Yo avoid the need to download those inner
-images from the network when the system container is running.
+This way, when you deploy the system container, the inner Docker images are
+already present, and void the need to pull them from the network.
 
 There are two ways to do this:
 
-1) Via a simple Dockerfile: see the Quickstart guide [here](../quickstart.md#building-a-system-container-that-includes-inner-container-images) for an example.
+1) Using `docker build`: see the Quickstart guide [here](../quickstart.md#building-a-system-container-that-includes-inner-container-images) for an example.
 
-2) Using Docker commit: see the Quickstart guide [here](../quickstart.md#committing-a-system-container-that-includes-inner-container-images) for an example.
-
+2) Using `docker commit`: see the Quickstart guide [here](../quickstart.md#committing-a-system-container-that-includes-inner-container-images) for an example.
 
 Note that system container images that include inner container images can
-quickly grow in size. This is turn causes a slight delay (few seconds) when
+quickly grow in size. This may in turn cause a slight delay (few seconds) when
 deploying the container.
 
 ## Persistence of Inner Docker Images
 
-Inner container images that are preloaded within the system container image are
-persistent: they are present every time a new system container is created.
+Inner container images that are [preloaded](#preloading-inner-container-images)
+within the system container image are persistent: they are present every time a
+new system container is created.
 
-However, inner container images that are downloaded into the system container at
+However, inner container images that are pulled into the system container at
 runtime are not by default persistent: they get destroyed when the system
-container is removed (not just stopped, but actually removed via `docker rm`).
+container is removed (e.g., via `docker rm`).
 
 But it's easy to make these runtime inner container images persistent too.
 
-This is done by simply mounting a host directory into the system container's
+You do this by simply mounting a host directory into the system container's
 `/var/lib/docker` directory (i.e., where the inner Docker stores its container
 images).
 
@@ -87,28 +100,31 @@ A warning though:
 
 ## Inner Docker Privileged Containers
 
-Inside a system container you *can* deploy privileged Docker containers (e.g.,
-by issued the following command to the inner Docker: `docker run --privileged ...`).
+Inside a system container you _can_ deploy privileged Docker containers (e.g.,
+by issuing the following command to the inner Docker: `docker run --privileged ...`).
 
 The ability to run privileged containers inside a system container is useful
 when deploying inner containers that require full privileges (typically
-containers containing system services such as Kubernetes control-plane pods).
+containers for system services such as Kubernetes control-plane pods).
 
-Note however that a privileged container inside a system container is privileged
-within the context of the system container only, but has **no privileges on the
-underlying host**.
+Note however that a privileged container inside a system container is only
+privileged within the context of the system container, but has **no
+privileges on the underlying host**.
 
 For example, when running a privileged container inside a system container, the
-`/proc` mounted inside the privileged container only allows access to resources
-associated with the system container. It does **not** allow access to all host
-resources.
+procfs (i.e., `/proc`) mounted inside the privileged container only allows
+access to resources associated with the system container. It does **not** allow
+access to all host resources.
 
 This is a key security feature of Sysbox: it allows you to run privileged
 containers inside a system container without risking host security.
 
 ## Limitations for the Inner Docker
 
-This section describes limitations for the inner Docker.
+Most Docker functionality works perfectly inside the system container.
+
+However, there are some limitations at this time. This section describes these
+limitations.
 
 ### Inner Docker Data-Root
 
@@ -124,16 +140,12 @@ inner Docker won't work).
 
 The inner Docker must not be configured with [userns-remap](https://docs.docker.com/engine/security/userns-remap/).
 
-Enabling userns-remap in Docker is sometimes done in order to improve isolation
-of containers (by leveraging the isolation provided by the Linux user-namespace
-on them).
+Enabling userns-remap on the inner Docker would cause the Linux user-namespace
+to be used on the inner containers, further isolating them from the rest of the
+software in the system container.
 
-In this case, enabling userns-remap on the inner Docker would cause the Linux
-user-namespace to be used on the inner containers, further isolating them from
-the rest of the software in the system container.
+This is useful and we plan to support it in the future.
 
-This is useful and we plan to support in the future.
-
-But note the following: even without the inner Docker userns remap, inner
-containers are already well isolated from the host by the system container
-(which does use the Linux user namespace).
+Note however that even without the inner Docker userns remap, inner containers are
+already well isolated from the host by the system container itself, since the
+system container uses the Linux user namespace.

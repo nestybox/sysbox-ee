@@ -166,11 +166,11 @@ If you see an error such as:
 
     docker: Error response from daemon: OCI runtime create failed: container requires user-ID shifting but error was found: shiftfs module is not loaded in the kernel. Update your kernel to include shiftfs module or enable Docker with userns-remap. Refer to the Sysbox troubleshooting guide for more info: unknown
 
-it means that your kernel version is a bit older than needed by Sysbox. But it's
-easy to work-around this by enabling the userns-remap mode in Docker. Refer to
+it means that your kernel version is a bit older than needed by Sysbox. You
+can work-around this by enabling the userns-remap mode in Docker. Refer to
 the [distro compatibility doc](docs/distro-compat.md) for more info.
 
-Note that if you omit the `--runtime` option, Docker will use the default `runc` runtime
+Note that if you omit the `--runtime` option, Docker will use its default `runc` runtime
 to launch regular application containers (rather than system containers). It's perfectly
 fine to run system containers launched with Docker + Sysbox alongside regular Docker
 application containers; they won't conflict and can co-exist side-by-side.
@@ -210,7 +210,7 @@ Below are some sample use-cases, but by no means the only ones.
 
 -   This avoids [several problems](https://blog.nestybox.com/2019/09/29/jenkins.html).
 
-### Deploying Systemd reliant apps in containers
+### Deploying Systemd-reliant apps in containers
 
 -   Some applications require Systemd to function properly.
 
@@ -238,13 +238,13 @@ more usage examples.
 
 ### Secure Kubernetes-in-Docker
 
--   Enables deployment of Kubernetes clusters in minutes, with high efficiency.
+-   Enables deployment of Kubernetes clusters in minutes, with high speed and efficiency.
 
-    -   E.g., deploy a 15-node containerized Kubernetes cluster in &lt; 2 minutes, with only 3GB
-        of storage overhead!
+    -   E.g., deploy a 15 node containerized Kubernetes cluster in less than
+        2 minutes, with only 1GB of storage overhead!
 
--   The Kubernetes cluster can be provisioned with Docker or with the Kubernetes.io KinD
-    tool.
+-   The Kubernetes cluster can be provisioned directly with Docker or via a
+    higher level tools (e.g., K8s.io "kind" or Nestybox's "kindbox").
 
 ### Secure Systemd-in-Docker
 
@@ -292,7 +292,7 @@ See our [contact info](#contact) below for more options.
 
 ## Documentation
 
-We have several documents to help you use and get the best out of
+We have several documents to help you get started and get the best out of
 system containers.
 
 -   [Sysbox Quick Start Guide](docs/quickstart.md)
@@ -306,29 +306,13 @@ system containers.
 
 -   [Sysbox User's Guide](docs/user-guide/README.md)
 
-    -   Provides more detail information on Sysbox features.
-
--   [System Container Environment](docs/syscont/intro.md)
-
-    -   Provides information about system containers, the software they support, etc.
-
--   [Sysbox Design Notes](docs/design.md)
-
-    -   Provides information on Sysbox's design.
-
--   [Sysbox Security Guide](docs/security.md)
-
-    -   Provides information on system container security.
-
--   [Troubleshooting Guide](docs/troubleshoot.md)
-
-    -   Refer to this document if you hit problems.
+    -   Provides more detailed information on Sysbox features.
 
 -   [Issue Guidelines](docs/issue-guidelines.md)
 
     -   Guidelines for filing issues in the Sysbox GitHub project site.
 
-Also, the [Nestybox blog site](https://blog.nestybox.com) has articles
+In addition, the [Nestybox blog site](https://blog.nestybox.com) has articles
 on how to use system containers.
 
 ## Integration with Container Managers
@@ -336,6 +320,8 @@ on how to use system containers.
 Sysbox is designed to work with Docker.
 
 We don't yet support other container managers (e.g., cri-o, etc).
+
+We don't yet support Kubernetes deploying system containers with Sysbox.
 
 ## Troubleshooting
 

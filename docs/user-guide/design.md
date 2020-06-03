@@ -4,6 +4,9 @@ This document briefly describes some aspects of Sysbox's design.
 
 ## Contents
 
+-   [Sysbox Components](#sysbox-components)
+-   [Ubuntu Shiftfs Module](#ubuntu-shiftfs-module)
+-   [Sysbox OCI compatibility](#sysbox-oci-compatibility)
 
 ## Sysbox Components
 
@@ -20,7 +23,7 @@ level kernel setup for execution of system containers. It's the
 "front-end" of Sysbox: higher layers (e.g., Docker & containerd)
 invoke sysbox-runc to launch system containers. It's mostly (but not
 100%) compatible with the OCI runtime specification (more on this
-[here](#oci-compatibility)).
+[here](design.md#sysbox-oci-compatibility)).
 
 sysbox-fs is a file-system-in-user-space (FUSE) daemon that emulates portions of
 the system container's filesystem, in particular portions of procfs and sysfs

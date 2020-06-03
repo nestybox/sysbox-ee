@@ -8,16 +8,16 @@
 -   [Docker reports Unknown Runtime error](#docker-reports-unknown-runtime-error)
 -   [Bind Mount Permissions Error](#bind-mount-permissions-error)
 -   [Failed to Setup Docker Volume Manager Error](#failed-to-setup-docker-volume-manager-error)
--   [Failed to stat mount source at /var/lib/sysboxfs](#failed-to-stat-mount-source-at-varlibsysboxfs)
--   [Failed to register with sysbox-mgr](#failed-to-register-with-sysbox-mgr)
+-   [Failed to register with sysbox-mgr or sysbox-fs](#failed-to-register-with-sysbox-mgr-or-sysbox-fs)
+-   [Docker reports failure setting up ptmx](#docker-reports-failure-setting-up-ptmx)
+-   [Docker exec fails](#docker-exec-fails)
 -   [Sysbox Logs](#sysbox-logs)
-    -   [sysbox-mgr and sysbox-fs](#sysbox-mgr-and-sysbox-fs)
-    -   [sysbox-runc](#sysbox-runc)
+-   [The /var/lib/sysbox is not empty even though there are no containers](#the-varlibsysbox-is-not-empty-even-though-there-are-no-containers)
 
 ## Sysbox Installation Problems
 
 When installing the Sysbox package with the `dpkg` command
-(see the [Installation instructions](../README.md#installation)), the expected output is:
+(see the [Installation instructions](../../README.md#installation)), the expected output is:
 
 ```console
 Selecting previously unselected package sysbox.
@@ -99,14 +99,14 @@ than Ubuntu Desktop or Server.
 
 You can work-around this error by either:
 
--   Updating your Linux distro. See the [distro compatibility](distro-compat.md)
+-   Updating your Linux distro. See the [distro compatibility](../distro-compat.md)
     document for the list of Linux distros supported by Sysbox, and
     recommendations on how to update the distro.
 
 or
 
 -   Configuring Docker in userns-remap mode, as described
-    [here](distro-compat.md#sysbox-on-older-ubuntu-kernels). This
+    [here](../distro-compat.md#using-sysbox-on-kernels-without-the-shiftfs-module). This
     mode does not require use of shiftfs.
 
 ## Unprivileged User Namespace Creation Error
@@ -223,10 +223,8 @@ This likely means that the sysbox-mgr and/or sysbox-fs daemons are not running (
 
 Check that these are running via systemd:
 
-```
-$ systemctl status sysbox-mgr
-$ systemctl status sysbox-fs
-```
+    $ systemctl status sysbox-mgr
+    $ systemctl status sysbox-fs
 
 If either of these services are not running, use Systemd to restart them:
 
@@ -253,17 +251,13 @@ flag (and this flag is not compatible with Sysbox as described
 
 You may hit this problem when doing an `docker exec -it my-syscont bash`:
 
-```
-OCI runtime exec failed: exec failed: container_linux.go:364: starting container process caused "process_linux.go:94: executing setns process caused \"exit status 2\"": unknown
-```
+    OCI runtime exec failed: exec failed: container_linux.go:364: starting container process caused "process_linux.go:94: executing setns process caused \"exit status 2\"": unknown
 
 This occurs if the `/proc` mount inside the system container is set to "read-only".
 
 For example, if you launched the system container and run the following command in it:
 
-```
-$ mount -o remount,ro /proc
-```
+    $ mount -o remount,ro /proc
 
 ## Sysbox Logs
 
@@ -344,10 +338,46 @@ To overcome this, you'll need to follow this procedure:
 
 1) Stop and remove all system containers (e.g., all Docker containers created with the sysbox-runc runtime).
 
-   - There is a bash script to do this [here](../../scr/rm_all_syscont).
+-   There is a bash script to do this [here](../../scr/rm_all_syscont).
 
 2) Restart Sysbox:
 
 ```console
 $ sudo systemctl restart sysbox
 ```
+
+3) Verify that `/var/lib/sysbox` is back to a clean state:
+
+```console
+# tree /var/lib/sysbox
+/var/lib/sysbox
+├── containerd
+├── docker
+│   ├── baseVol
+│   ├── cowVol
+│   └── imgVol
+└── kubelet
+```
+
+## Kubernetes-in-Docker fails to create pods
+
+When running [K8s-in-Docker](kind.md), if you see pods failing to deploy, we suggest starting
+by inspecting the kubelet log inside the K8s node where the failure occurs.
+
+```
+$ docker exec -it <k8s-node> bash
+
+# journalctl -u kubelet
+```
+
+This log often has useful information on why the failure occurred.
+
+One common reason for failure is that the host is lacking sufficient storage. In
+this case you'll see a message like this one in the kubelet log:
+
+```
+Disk usage on image filesystem is at 85% which is over the high threshold (85%). Trying to free 1284963532 bytes down to the low threshold (80%).
+```
+
+To overcome this, make some more storage room in your host and redeploy the
+pods.
