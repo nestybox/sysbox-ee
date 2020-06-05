@@ -1,6 +1,6 @@
-# System Container Storage Mounts
+# Sysbox User Guide: Mounting and Sharing Host Storage
 
-This document provides tips on mounting host storage to a system container.
+This document provides tips on mounting host storage into one or more system containers.
 
 ## Contents
 
@@ -26,19 +26,20 @@ the container.
 
 As described [here](security.md#user-namespace-id-mapping), either:
 
--   Sysbox is told the user-ID mapping of the container by a high-level container runtime (aka [Directed userns ID mapping](security.md#directed-userns-id-mapping)
+-   Sysbox is told the user-ID mapping of the container by a container manager such as Docker (aka [Directed userns ID mapping](security.md#directed-userns-id-mapping))
 
 or
 
--   Sysbox auto-assigns the user-ID mapping of the container (aka [Auto userns ID mapping](security.md#auto-userns-id-mapping).
+-   Sysbox auto-assigns the user-ID mapping of the container (aka [Auto userns ID mapping](security.md#auto-userns-id-mapping))
 
 ### Directed userns ID mapping
 
-When Sysbox is told the user-ID mapping of the container (Directed userns ID
-mapping), the high-level container runtime chooses the user-ID mapping.
+When Sysbox is told the user-ID mapping of the container, the container manager
+chooses the user-ID mapping.
 
-For example, when Docker is configured with [userns-remap](https://docs.docker.com/engine/security/userns-remap/),
-it chooses the user-ID mapping of the container and instructs Sysbox to use it.
+For example, when Docker is configured with
+[userns-remap](https://docs.docker.com/engine/security/userns-remap/), it
+chooses the user-ID mapping of the container and instructs Sysbox to use it.
 
 In this case, you can find the user-ID to assign to the bind mount source as
 follows:
@@ -79,8 +80,9 @@ it will show up as user `1000:1000` inside the container. And so on.
 
 ### Auto userns ID mapping
 
-When Sysbox is not told the user-ID mapping of the container by a high-level
-container runtime, it automatically assigns the container's user-ID mappings.
+When Sysbox is not told the user-ID mapping of the container by a container
+manager (e.g., Docker), it automatically assigns the container's user-ID
+mappings.
 
 For example, by default Docker is configured without [userns-remap](https://docs.docker.com/engine/security/userns-remap/),
 causing Sysbox to auto assign the container user-ID mappings.
@@ -130,6 +132,11 @@ possible, mount it read-only:
 $ docker run --runtime=sysbox-runc --mount type=bind,source=/some/source,target=/some/target,readonly ...
 ```
 
+The reason for these precautions is that when the processes inside the system
+container write to the bind-mounted directories, they will be doing so
+`root:root` privileges on the host. Thus, you want to avoid any non-root user on
+the host having access to those directories.
+
 The above security precautions are optional. Sysbox won't check for them (i.e.,
 if they aren't met the system container will still work).
 
@@ -155,7 +162,7 @@ In order to share storage between multiple system containers, simply run the
 system containers and bind mount the storage into them.
 
 When performing the bind-mount, make sure to follow the requirements described in
-the [prior section](#system-container-bind-mount-requirements) apply.
+the [prior section](#system-container-bind-mount-requirements).
 
 The Sysbox Quick Start Guide has an example of multiple system containers
 sharing storage [here](../quickstart.md#sharing-storage-among-system-containers).

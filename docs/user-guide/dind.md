@@ -3,8 +3,8 @@
 ## Contents
 
 -   [Intro](#intro)
--   [Installing Docker inside the Container](#running-docker-inside-the-container)
--   [Running Docker inside the Container](#running-docker-inside-the-container-1)
+-   [Installing Docker inside the Container](#installing-docker-inside-the-container)
+-   [Running Docker inside the Container](#running-docker-inside-the-container)
 -   [Preloading Inner Container Images](#preloading-inner-container-images)
 -   [Persistence of Inner Docker Images](#persistence-of-inner-docker-images)
 -   [Inner Docker Privileged Containers](#inner-docker-privileged-containers)
@@ -12,30 +12,27 @@
 
 ## Intro
 
-Sysbox has support for running Docker inside system containers (aka Docker-in-Docker).
+Sysbox has support for running Docker inside containers (aka Docker-in-Docker).
 
-Unlike all other alternatives, Sysbox enables users to do without resorting to
-complex Docker run commands or complex container images, and without resorting
-to privileged containers or bind-mounting the host's Docker socket into the
-container.
-
-In other words, you can run Docker inside the container easily and securely,
-with **total isolation** between it and the Docker daemon on the host.
+Unlike all other alternatives, Sysbox enables users to do this **easily and
+securely**, without resorting to complex Docker run commands and container
+images, and without using privileged containers or bind-mounting the host's
+Docker socket into the container. The inner Docker is **totally isolated** from
+the Docker on the host.
 
 This is useful for Docker sandboxing, testing, and CI/CD use cases.
 
-Moreover, it's fast and very efficient: Sysbox sets up the system container such that
-the Docker daemon inside the container can use its fast overlay2 storage driver,
-and has features that significantly reduce the storage overhead of the containers
-by sharing layers of inner container images when possible.
+Moreover, it's fast and very efficient: the inner Docker uses its fast overlay2
+storage driver, and Sysbox has a [feature](images.md#inner-docker-image-sharing)
+that significantly reduces the storage overhead of the inner containers.
 
 ## Installing Docker inside the Container
 
-The easiest way is to use a system container image that has Docker pre-installed
+The easiest way is to use a system container image that has Docker preinstalled
 in it.
 
 You can find a few such images in the [Nestybox DockerHub repo](https://hub.docker.com/r/nestybox). The
-Dockefiles for the images are [here](../../dockerfiles).
+Dockerfiles for the images are [here](../../dockerfiles).
 
 Alternatively, you can always deploy a baseline system container image (e.g.,
 ubuntu or alpine) and install Docker in it just as you would on a physical host
@@ -54,7 +51,7 @@ to run Docker inside a system container.
 
 ## Preloading Inner Container Images
 
-Sysbox enables you to easily create system container images that come preloaded
+Sysbox enables you to **easily** create system container images that come preloaded
 with inner Docker container images.
 
 This way, when you deploy the system container, the inner Docker images are
@@ -62,18 +59,17 @@ already present, and void the need to pull them from the network.
 
 There are two ways to do this:
 
-1) Using `docker build`: see the Quickstart guide [here](../quickstart.md#building-a-system-container-that-includes-inner-container-images) for an example.
+1) Using `docker build`
 
-2) Using `docker commit`: see the Quickstart guide [here](../quickstart.md#committing-a-system-container-that-includes-inner-container-images) for an example.
+2) Using `docker commit`
 
-Note that system container images that include inner container images can
-quickly grow in size. This may in turn cause a slight delay (few seconds) when
-deploying the container.
+See the [User-Guide System Container Images document](images.md#preloading-inner-container-images-into-a-system-container)
+for a full explanation on how to do this.
 
 ## Persistence of Inner Docker Images
 
 Inner container images that are [preloaded](#preloading-inner-container-images)
-within the system container image are persistent: they are present every time a
+inside the system container image are persistent: they are present every time a
 new system container is created.
 
 However, inner container images that are pulled into the system container at
@@ -116,7 +112,7 @@ procfs (i.e., `/proc`) mounted inside the privileged container only allows
 access to resources associated with the system container. It does **not** allow
 access to all host resources.
 
-This is a key security feature of Sysbox: it allows you to run privileged
+This is a unique and key security feature of Sysbox: it allows you to run privileged
 containers inside a system container without risking host security.
 
 ## Limitations for the Inner Docker

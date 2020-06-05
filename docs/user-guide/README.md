@@ -31,8 +31,6 @@ description of functionality.
 
 [Mounting and Sharing Host Storage](storage.md)
 
-[Performance & Efficiency](performance.md)
-
 [System Container Limitations](limitations.md)
 
 [Sysbox Configuration](configuration.md)

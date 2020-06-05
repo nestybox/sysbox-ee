@@ -1,4 +1,4 @@
-# Sysbox User Guide: Functional Restrictionns & Limitations
+# Sysbox User Guide: Functional Limitations
 
 This document describes functional restrictions and limitations of Sysbox and
 system containers.
@@ -14,7 +14,7 @@ system containers.
 This section describes restrictions when launching containers with Docker +
 Sysbox.
 
-### Support for Docker's --privileged Option
+### Support for Docker's `--privileged` Option
 
 Sysbox system containers are incompatible with the Docker `--privileged` flag.
 
@@ -29,7 +29,7 @@ docker: Error response from daemon: OCI runtime create failed: container_linux.g
 ERRO[0000] error waiting for container: context canceled
 ```
 
-### Support for Docker's --userns=host Option
+### Support for Docker's `--userns=host` Option
 
 When Docker is configured in userns-remap mode, Docker offers the ability
 to disable that mode on a per container basis via the `--userns=host`
@@ -41,7 +41,7 @@ This option **does not work** with Sysbox (i.e., don't use
 Note that usage of this option is rare as it can lead to the problems as
 described [in this Docker article](https://docs.docker.com/engine/security/userns-remap/#disable-namespace-remapping-for-a-container).
 
-### Support for Docker's --pid=host and --network=host Options
+### Support for Docker's `--pid=host` and `--network=host` Options
 
 System containers do not support sharing the pid or network namespaces
 with the host (as this is not secure and it's incompatible with the
@@ -51,7 +51,7 @@ For example, when using Docker to launch system containers, the
 `docker run --pid=host` and `docker run --network=host` options
 do not work with system containers.
 
-### Support for Docker's --read-only Option
+### Support for Docker's `--read-only` Option
 
 Sysbox does not support system containers configured with a read-only rootfile
 system (e.g., those created with the `docker run --read-only` flag):

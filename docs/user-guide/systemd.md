@@ -11,8 +11,9 @@
 System containers can act as virtual host environments running multiple
 services.
 
-As such, running a process manager such as Systemd is useful (e.g., to start and
-stop services in the appropriate sequence, perform zombie process reaping, etc.)
+As such, including a process manager inside the container such as Systemd is
+useful (e.g., to start and stop services in the appropriate sequence, perform
+zombie process reaping, etc.)
 
 Moreover, many applications rely on Systemd in order to function properly (in
 particular legacy (non-cloud) applications, but also cloud-native software such
@@ -25,13 +26,9 @@ Nestybox has preliminary support for running Systemd inside a system
 container, meaning that Systemd works but there are still some minor
 issues that need resolution.
 
-Deploying Systemd inside a system container is useful when you plan to
-run multiple services inside the system container, or when you want to
-use it as a virtual host environment.
-
-Unlike other solutions, Nestybox system containers run Systemd securely and
-easily, without resorting to privileged Docker containers and without the need
-to create complex Docker run commands or specialized image entrypoints.
+Unlike other solutions, Nestybox system containers run Systemd easily and
+securely, without the need to create complex Docker run commands or specialized
+image entrypoints, and without resorting to privileged Docker containers and
 
 Simply launch a system container image that has Systemd as its entry point and
 Sysbox will ensure the system container is setup to run Systemd without
@@ -55,7 +52,7 @@ starts Docker.
 Systemd is great but may be a bit too heavy for your use case.
 
 In that case you can use lighter-weight process managers such as
-Supervisord.
+[Supervisord](http://supervisord.org/).
 
 The [Nestybox Dockerhub repo](https://hub.docker.com/u/nestybox) has a number of system container images that come
 with Supervisord inside. The Dockerfiles for them are [here](../../dockerfiles).
