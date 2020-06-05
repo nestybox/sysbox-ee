@@ -41,8 +41,8 @@ module. If you want to use Sysbox on a cloud VM and you hit the error shown
 above, you must either configure Docker with userns-remap as shown in the next
 section, or install the Ubuntu desktop or server edition in the VM.
 
-2) If you have a Ubuntu 18.04 (Bionic Beaver) and want to upgrade the kernel to >= 5.0,
-we recommend using Ubuntu's [LTS-enablement](https://wiki.ubuntu.com/Kernel/LTSEnablementStack)
+2) If you have a Ubuntu 18.04 (Bionic Beaver), you need to upgrade the kernel to >= 5.0.
+We recommend using Ubuntu's [LTS-enablement](https://wiki.ubuntu.com/Kernel/LTSEnablementStack)
 package to do the upgrade:
 
 ```console
@@ -87,8 +87,9 @@ Note that the actions above require `root` privileges on the host.
 When Docker is configured this way, Sysbox no longer needs the shiftfs
 module. But there are a couple of drawbacks:
 
--   Container isolation, while strong, is reduced compared to using shiftfs (see
-    [here](usage.md#system-container-isolation-modes) for more info on this).
-
 -   Configuring Docker this way places a few functional limitations on regular Docker containers
     (those launched with Docker's default runc), as described in this [Docker document](https://docs.docker.com/engine/security/userns-remap).
+
+-   System container isolation, while strong, is reduced compared to using shiftfs.
+    That's because userns-remap causes Docker to put Sysbox into "Directed Userns ID Mapping" mode.
+    See [here](docs/user-guide/security.md#user-namespace-id-mapping) for more info on this.
