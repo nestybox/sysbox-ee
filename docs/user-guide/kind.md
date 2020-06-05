@@ -4,16 +4,14 @@
 
 -   [Intro](#intro)
 -   [Use Cases](#use-cases)
--   [Why use Sysbox for Kubernetes-in-Docker?](#why-use-sysbox-for-kubernetes-in-docker)
 -   [Deploying a K8s Cluster with Sysbox](#deploying-a-k8s-cluster-with-sysbox)
--   [K8s.io KinD + Sysbox](#k8sio-kind--sysbox)
--   [Kindbox](#kindbox)
+-   [Using K8s.io KinD + Sysbox](#using-k8sio-kind--sysbox)
+-   [Using Kindbox](#using-kindbox)
 -   [K8s Cluster Deployment with Docker + Sysbox](#k8s-cluster-deployment-with-docker--sysbox)
--   [The "nestybox/k8s-node" Image](#the-nestyboxk8s-node-image)
+-   [The `nestybox/k8s-node` Image](#the-nestyboxk8s-node-image)
 -   [Preloading Inner Pod Images into K8s Node Images](#preloading-inner-pod-images-into-k8s-node-images)
 -   [Performance & Efficiency](#performance--efficiency)
 -   [Preliminary Support & Known Limitations](#preliminary-support--known-limitations)
--   [TODO](#todo)
 
 ## Intro
 
@@ -49,84 +47,52 @@ Some sample use cases for Kubernetes-in-Docker are:
 
 -   Deploy Kubernetes clusters quickly and efficiently:
 
-    -   A 10-node K8s cluster can be deployed in 1->2 minutes on a small laptop,
-        with < 1GB overhead!
+    -   A 10-node K8s cluster can be deployed in under 2 minutes on a small laptop,
+        with &lt; 1GB overhead.
+
+-   Testing and CI/CD:
+
+    -   Use it local testing or in a CI/CD pipeline.
 
 -   Infrastructure-as-code:
 
     -   The K8s cluster is itself containerized, bringing the power of containers
         from applications down to infrastructure.
 
--   Testing and CI/CD:
-
-    -   Deploy containerized K8s clusters into your CI/CD pipeline.
-
 -   Increased host utilization:
 
     -   Run multiple K8s clusters on a single host, with strong isolation and
         without resorting to heavier VMs.
 
-## Why use Sysbox for Kubernetes-in-Docker?
-
-Using Sysbox for K8s-in-Docker gives you:
-
--   Flexible cluster deployment options (K8s.io KinD, Nestybox's Kindbox, or
-    simple Docker commands).
-
--   Simple container images for the K8s nodes (i.e., no need for complex
-    container images or entrypoints).
-
--   Full control of the container images and deployment process.
-
--   Speed (a 10 node cluster can be deployed in < 2 minutes on a laptop!).
-
--   Efficiency (Sysbox has features to __significantly__ reduce the storage
-    overhead of the cluster).
-
--   Strong isolation (K8s node containers are fully unprivileged, and in fact
-    strongly isolated by the Linux user-namespace).
-
--   The ability to easily embed inner pod images inside K8s node images with
-    a Dockerfile or Docker commit.
-
-And also: the Sysbox runtime is not just a Kubernetes-in-Docker solution. It's a
-__"any software in containers"__ solution, meaning that you can use it to deploy
-other apps or system level software (e.g., Docker-in-Docker) in containers
-easily and securely.
-
-The following sections describe how to deploy K8s in system containers and get
-these benefits.
-
 ## Deploying a K8s Cluster with Sysbox
 
-Deploying a K8s cluster with Docker + Sysbox is as simple as deploying one or
-more system containers, each with Systemd, Docker, and Kubeadm, and
-running `kubeadm init` for the master node and `kubeadm join` on the worker
-node(s).
+Deploying a K8s cluster is as simple as using Docker + Sysbox to deploy one or
+more system containers, each with Systemd, Docker, and Kubeadm, and running
+`kubeadm init` for the master node and `kubeadm join` on the worker node(s).
 
 However, there are higher level tools that make it even easier. We support
 two such tools currently:
 
--   [K8s.io KinD](https://kind.sigs.k8s.io) (slightly modified)
+-   [K8s.io KinD](https://kind.sigs.k8s.io) (slightly modified version)
 
 -   Nestybox's `kindbox`.
 
 Both of these are good choices, but there are some pros / cons between them.
 
 K8s.io KinD offers a more standard way of doing the deployment, but relies on
-complex container images and Docker commands, making it harder for you to
-control the configuration and deployment of the cluster.
+complex container images and complex Docker commands, making it harder for you
+to control the configuration and deployment of the cluster.
 
-On the other hand, `kindbox` is a much simpler tool which Nestybox provides as a
-reference example. It uses simple container images and Docker commands, giving
-you __full control__ over the configuration and deployment of the cluster. Kindbox
-is also the the quickest and most efficient method to deploy the K8s cluster
-with Sysbox.
+On the other hand, `kindbox` is a much simpler, open-source tool which Nestybox
+provides as a reference example. It uses simple container images and Docker
+commands, giving you **full control** over the configuration and deployment of
+the cluster. Kindbox is also the the quickest and most efficient method to
+deploy the K8s cluster with Sysbox.
 
 The sections below we show how to deploy a K8s cluster with these tools, as well
 as without them (through simple `docker run` commands).
 
-## K8s.io KinD + Sysbox
+## Using K8s.io KinD + Sysbox
 
 The [K8s.io KinD](https://kind.sigs.k8s.io) project produces a CLI tool called
 "kind" that enables deployment of Kubernetes clusters inside Docker containers.
@@ -157,7 +123,7 @@ community to add this support.
 In the meantime, we forked the K8s.io kind tool [here](https://github.com/nestybox/kind)
 and made a few changes that enable it to work with Sysbox.
 
-The changes are very simple: we just modify the way the K8s.io kind tool invokes
+The changes are **very simple**: we just modify the way the K8s.io kind tool invokes
 Docker to deploy the K8s node containers. For example, we add
 `--runtime=sysbox-runc` to the Docker run command, and remove the `--privileged`
 flag. The diffs are [here](https://github.com/nestybox/kind/commit/9708a130b7c0a539f2f3b5aa187137e71f747347).
@@ -199,7 +165,7 @@ The only difference is that you need to explicitly tell the tool to use the
 
 When the kind tool deploys the K8s cluster, the fact that the K8s.io kind tool
 is using Docker + Sysbox will not be obvious, except that you'll be able to
-deploy K8s nodes with __much higher efficiency and security__..
+deploy K8s nodes with **much higher efficiency and security**.
 
 For example, to deploy a 10-node K8s cluster, create a cluster config file:
 
@@ -303,7 +269,7 @@ Deleting cluster "kind" ...
 
 The [K8s.io KinD website](https://kind.sigs.k8s.io/) for more info on how to use KinD.
 
-## Kindbox
+## Using Kindbox
 
 [Kindbox](../../scr/kindbox) is a simple, open-source tool created by Nestybox
 to easily create K8s clusters with Docker + Sysbox.
@@ -312,11 +278,15 @@ It does some of the same things that the K8s.io KinD tool does (e.g., cluster
 creation, destruction, etc.) but it's much simpler, does not require
 specialized and complex container images, and it's even more efficient.
 
+Kindbox also has a feature that allows you to resize the cluster dynamically,
+and mix-and-match images for the K8s nodes.
+
+Kindbox is a simple wrapper around Docker commands. It's open-source, so you
+can copy it and modify it to your needs.
+
 Kindbox is not meant to compete with the K8s.io KinD tool. Rather, it's meant to
 provide a reference example of how easy it is to deploy a K8s cluster inside
 containers when using the Sysbox container runtime.
-
-Kindbox is MIT-licensed, so you can copy it and modify it to your needs.
 
 By default, Kindbox uses a Docker image called `nestybox/k8s-node` for the K8s node
 containers. It's a simple image that includes systemd, Docker, the K8s `kubeadm`
@@ -524,11 +494,11 @@ destroys the containers.
 The reason the tool is so simple: the Sysbox container runtime creates the
 containers such that they can run K8s seamlessly inside. Thus, Kindbox
 need only deploy the containers with Docker and run `kubeadm` within them to set
-them up. It's that easy.
+them up. **It's that easy**.
 
 For this same reason, no specialized Docker images are needed for the containers
-that act as K8s nodes. That is, the image does not use complex entrypoints or
-require complex Docker commands for its deployment.
+that act as K8s nodes. In other words, the K8s node image does not require
+complex entrypoints or complex Docker commands for its deployment.
 
 This is important because it enables you to fully control the contents of the
 image and easily change it to your needs.
@@ -540,9 +510,8 @@ More on the image [here](#the-nestyboxk8s-node-image).
 It's also possible to deploy a K8s cluster directly with Docker + Sysbox,
 without using the K8s.io `kind` or Nestybox's `kindbox` tools.
 
-The drawback compared to using these tools, it's a bit more cumbersome because
-you need to manage the K8s cluster creation sequence. But it's pretty easy as
-you'll see.
+The drawback compared to using these tools is that you need to manage the K8s
+cluster creation sequence. But it's pretty easy as you'll see.
 
 Below is sample procedure to deploy a two-node K8s cluster. You can easily
 extend it for larger clusters.
@@ -834,56 +803,17 @@ $ docker run --runtime=sysbox-runc -d --rm --name=k8s-worker-2 --hostname=k8s-wo
 Follow the steps shown in the prior section for initializing the K8s master node
 and joining the worker nodes to the cluster.
 
-## The "nestybox/k8s-node" Image
+## The `nestybox/k8s-node` Image
 
-In the above examples, the K8s node containers used the `nestybox/k8s-node:v1.18.2` image.
+In the above examples, the K8s node containers used the `nestybox/k8s-node` image.
 
 It's a sample image that Nestybox provides for reference.
 
-It contains systemd, Docker, kubeadm, and inner K8s control plane images. Feel
-free to copy it and customize it per your needs. The Dockerfile is
-[here](../../dockerfiles/k8s-node). There are no custom entrypoints
-or special configurations in the image.
+There is nothing special or complex about this image. It simply contains
+systemd, Docker, kubeadm, and inner K8s control plane images [preloaded](#preloading-inner-pod-images-into-k8s-node-images).
 
-The Dockerfile for this image makes use of a key feature of Sysbox: the ability
-to __easily__ preload inner images into the container when building the image.
-
-This significantly speeds up deployment, since the `kubeadm` instance inside the
-K8s node need not download those inner pod images at runtime.
-
-The method used by the Dockerfile to preload the inner pod images into the
-container is simple: during the Docker build, as intermediate containers are
-spawned to create the image layers, one of those containers invokes `kubeadm`
-and commands it to pull the inner pod images.
-
-The result is a K8s system container image that includes the inner pods
-images. See the `kube-pull.sh` script in the directory where the Dockerfile is.
-
-The only wrinkle is that you must configure Sysbox as the Docker "default
-runtime" when building the image:
-
-```console
-# more /etc/docker/daemon.json
-{
-    "runtimes": {
-        "sysbox-runc": {
-            "path": "/usr/local/sbin/sysbox-runc"
-        }
-    },
-    "default-runtime": "sysbox-runc"
-}
-
-# systemctl restart docker.service
-```
-
-This is needed because otherwise `kubeadm` won't run properly inside the
-intermediate container (i.e., those intermediate containers must be
-system containers spawned by Docker + Sysbox).
-
-You can use this same method to easily preload your own inner pod images. For
-example, you could add `docker pull nginx:latest` to the kube-pull.sh script to
-preload the nginx pod image. It's that simple (as it should be!). The next
-section has more on this.
+Feel free to copy it and customize it per your needs. The Dockerfile is
+[here](../../dockerfiles/k8s-node).
 
 ## Preloading Inner Pod Images into K8s Node Images
 
@@ -892,6 +822,9 @@ images that come preloaded with inner container images.
 
 You can use this to create K8s node images that come preloaded with inner pod
 images.
+
+This can significantly speed up deployment of the K8s cluster, since K8s node
+need not download those inner pod images at runtime.
 
 There are two ways to do this:
 
@@ -958,7 +891,7 @@ The script simply starts `containerd` and directs it to pull the inner
 images. The script is then removed (we don't need it in the final resulting
 image).
 
-Note that the script must be placed in the same directory as the Dockefile:
+Note that the script must be placed in the same directory as the Dockerfile:
 
 ```console
 $ ls -l
@@ -1031,7 +964,7 @@ docker.io/library/nginx:latest
 
 There it is!
 
-This is cool because you've just used a simple Dockefile to preload inner pod images
+This is cool because you've just used a simple Dockerfile to preload inner pod images
 into your K8s nodes.
 
 When you deploy pods using the nginx image, the image won't need
@@ -1042,11 +975,24 @@ size of your K8s node image.
 
 A couple of important things to keep in mind:
 
+-   In the example above we used containerd to pull the images, since that's
+    the container manager inside the `nestybox/kindestnode` image.
+
 -   The inner containerd must pull images into the "k8s.io" namespace since that's
     the one used by K8s inside the container.
 
--   The inner nginx image is preloaded into all K8s nodes of the cluster that
-    use this same container image. This is as it should be.
+-   If you wanted to preload inner pods into the `nestybox/k8s-node` image, the
+    procedure is similar, except that the `inner-image-pull.sh` script would
+    need to invoke Docker instead of containerd (since Docker is the container
+    manager in that image).
+
+    -   In fact, the [Dockerfile](../../dockerfiles/k8s-node) for the
+        `nestybox/k8s-node` image does something even more clever: it invokes
+        `kubeadm` inside the K8s node container to preload the inner images for the
+        K8s control pods. Kubeadm in turn invokes the inner Docker, which pulls
+        the pod images. The result is that the `nestybox/k8s-node` image has the
+        K8s control-plane pods embedded in it, making deployment of the K8s
+        cluster **much faster**.
 
 ### Using Docker Commit
 
@@ -1130,7 +1076,7 @@ Data is for a 10 node cluster, collected on a small laptop with 4 CPUs and 8GB R
 As shown, the storage overhead reduction when using Sysbox is significant (> 70%).
 
 This reduction is possible because Sysbox has features that maximize
-[sharing of container image layers](performance.md#inner-docker-image-sharing) between
+[sharing of container image layers](images.md#inner-docker-image-sharing) between
 the containers that make up the K8s cluster.
 
 That sharing is even larger when Docker is running inside the container, which

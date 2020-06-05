@@ -14,6 +14,9 @@ We currently support two ways of deploying system containers with Sysbox:
 
 Both of these are explained below.
 
+Note that higher level tools that use Docker to deploy containers will
+most likely work with Sysbox without problem.
+
 ### Using Docker
 
 Simply add the `--runtime=sysbox-runc` flag in the `docker run` command:
@@ -25,7 +28,7 @@ root@my_cont:/#
 
 If you wish, you can configure Sysbox as the default runtime for Docker. This
 way you don't have to use the `--runtime` flag every time. To do this,
-refer to this [Docker article](https://docs.docker.com/engine/reference/commandline/dockerd/).
+refer to this [Docker doc](https://docs.docker.com/engine/reference/commandline/dockerd/).
 
 Almost all Docker functionality works with Sysbox, but there are a few
 exceptions. See the [Sysbox limitations doc](limitations.md) for further info.
@@ -80,9 +83,9 @@ A couple of tips:
     note that Sysbox ignores a few of the OCI directives in this file (refer to
     the [Sysbox design document](design.md#sysbox-oci-compatibility) for details).
 
-### Using Other [High-Level Container Runtimes](concepts.md#high-level-container-runtime)
+### Using Other Container Managers
 
 We officially only support the above methods to run Sysbox.
 
-However, we plan to add support for other OCI-compatible high-level container
-runtimes soon (e.g., [cri-o](https://cri-o.io/)).
+However, we plan to add support for other OCI-compatible [container managers](concepts.md#container-manager) soon
+(e.g., [cri-o](https://cri-o.io/)).

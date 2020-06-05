@@ -68,7 +68,7 @@ By virtue of using the Linux user namespace, Nestybox system containers get:
 -   The root user inside the container has full privileges (i.e., all
     capabilities) within the container.
 
-Refer to the kernel's [user_namespaces][http://man7.org/linux/man-pages/man7/user_namespaces.7.html]
+Refer to the kernel's [user_namespaces](http://man7.org/linux/man-pages/man7/user_namespaces.7.html)
 manual page for more info.
 
 ### Cgroup Namespace
@@ -76,7 +76,7 @@ manual page for more info.
 The Linux cgroup namespace helps isolation by hiding host paths in cgroup
 information exposed inside the system container via `/proc`.
 
-Refer to the kernel's [cgroup_namespaces][http://man7.org/linux/man-pages/man7/cgroup_namespaces.7.html]
+Refer to the kernel's [cgroup_namespaces](http://man7.org/linux/man-pages/man7/cgroup_namespaces.7.html)
 manual page for more info.
 
 ## User Namespace ID Mapping
@@ -86,9 +86,9 @@ between the container and the host.
 
 Sysbox performs the mapping as follows:
 
--   If the [high-level container runtime](concepts.md#high-level-container-runtime) (e.g., Docker)
+-   If the [container manager](concepts.md#container-manager) (e.g., Docker)
     tells Sysbox to run the container with the user-namespace enabled, Sysbox
-    honors the user-ID mappings provided by the high-level container runtime.
+    honors the user-ID mappings provided by the container manager.
 
 -   Otherwise, Sysbox automatically enables the user-namespace in the container
     and allocates user-ID mappings for it.
@@ -100,13 +100,13 @@ The following sub-sections describe these in further detail.
 
 **Recommendation**:
 
-If your kernel has the `shiftfs` module (confirm by running `lsmod | grep shiftfs`), then
-Auto Userns ID Mapping is preferred. Otherwise, you must use Directed Iserns ID
+If your kernel has the `shiftfs` module (you can check by running `lsmod | grep shiftfs`), then
+Auto Userns ID Mapping is preferred. Otherwise, you must use Directed Userns ID
 Mapping (e.g., by configuring Docker with userns-remap).
 
 ### Directed userns ID mapping
 
-When the high-level container runtime (e.g., Docker) tells Sysbox to enable
+When the container manager (e.g., Docker) tells Sysbox to enable
 the user-namespace in containers, Sysbox honors the user-ID mappings provided by
 the higher layer.
 
@@ -130,7 +130,7 @@ But there are a couple of drawbacks:
 
 ### Auto userns ID mapping
 
-When the high-level container runtime does not specify the user-namespace for
+When the container manager does not specify the user-namespace for
 a container, Sysbox automatically enables it and allocates user-ID mappings for
 the container.
 
@@ -139,13 +139,13 @@ userns-remap (by default, Docker is not configured with userns-remap).
 
 This has a couple of advantages over Directed userns ID mapping:
 
-1) No change in the configuration of the high-level container runtime (e.g.,
+1) No change in the configuration of the container manager (e.g.,
    Docker) is required.
 
 2) Sysbox allocates exclusive user-IDs to each container, which results in
    enhanced cross-container isolation.
 
-The rest of this section describes how Sysbox allocates user-ID mappigns
+The rest of this section describes how Sysbox allocates user-ID mappings
 for the containers.
 
 #### Userns ID mapping allocation
@@ -195,7 +195,7 @@ and `/etc/subgid` files:
 These files are automatically configured by Sysbox during installation (or more
 specifically when the `sysbox-mgr` component is started during installation)
 
-By default, Sysbox reserves a range of 268435456 user IDs (enough to accomodate
+By default, Sysbox reserves a range of 268435456 user IDs (enough to accommodate
 4K system containers, each with 64K user IDs).
 
 If more than 4K containers are running at the same time, Sysbox will by default
@@ -406,11 +406,11 @@ setuid programs for example).
 Sysbox does not yet support AppArmor profiles to apply mandatory
 access control (MAC) to containers.
 
-If the high-level container runtime (e.g., Docker) instructs Sysbox to apply
+If the container manager (e.g., Docker) instructs Sysbox to apply
 an AppArmor profile on a container, Sysbox currently ignores this.
 
-The rationale behind this is that typical AppArmor profiles from high-level container
-runtimes such as Docker are too restrictive for system containers, and don't
+The rationale behind this is that typical AppArmor profiles from container
+managers such as Docker are too restrictive for system containers, and don't
 give you much benefit given that Sysbox gets equivalent protection by enabling the
 Linux user namespaces in its containers.
 

@@ -12,7 +12,8 @@
 -   [Docker reports failure setting up ptmx](#docker-reports-failure-setting-up-ptmx)
 -   [Docker exec fails](#docker-exec-fails)
 -   [Sysbox Logs](#sysbox-logs)
--   [The /var/lib/sysbox is not empty even though there are no containers](#the-varlibsysbox-is-not-empty-even-though-there-are-no-containers)
+-   [The `/var/lib/sysbox` is not empty even though there are no containers](#the-varlibsysbox-is-not-empty-even-though-there-are-no-containers)
+-   [Kubernetes-in-Docker fails to create pods](#kubernetes-in-docker-fails-to-create-pods)
 
 ## Sysbox Installation Problems
 
@@ -283,7 +284,7 @@ For sysbox-runc, logging is handled as follows:
 -   When running sysbox-runc directly, sysbox-runc will not produce any logs by default.
     Use the `sysbox-runc --log` option to change this.
 
-## The /var/lib/sysbox is not empty even though there are no containers
+## The `/var/lib/sysbox` is not empty even though there are no containers
 
 Sysbox stores some container state under the `/var/lib/sysbox` directory
 (which for security reasons is only accessible to the host's root user).
@@ -364,20 +365,16 @@ $ sudo systemctl restart sysbox
 When running [K8s-in-Docker](kind.md), if you see pods failing to deploy, we suggest starting
 by inspecting the kubelet log inside the K8s node where the failure occurs.
 
-```
-$ docker exec -it <k8s-node> bash
+    $ docker exec -it <k8s-node> bash
 
-# journalctl -u kubelet
-```
+    # journalctl -u kubelet
 
 This log often has useful information on why the failure occurred.
 
 One common reason for failure is that the host is lacking sufficient storage. In
 this case you'll see a message like this one in the kubelet log:
 
-```
-Disk usage on image filesystem is at 85% which is over the high threshold (85%). Trying to free 1284963532 bytes down to the low threshold (80%).
-```
+    Disk usage on image filesystem is at 85% which is over the high threshold (85%). Trying to free 1284963532 bytes down to the low threshold (80%).
 
 To overcome this, make some more storage room in your host and redeploy the
 pods.
