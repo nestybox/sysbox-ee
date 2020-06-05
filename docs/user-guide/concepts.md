@@ -22,10 +22,10 @@ Sysbox and the [OCI runc](https://github.com/opencontainers/runc) are examples
 of low-level container runtimes.
 
 The entity that provides the container's configuration and root filesystem to
-the low-level container runtime is typically (but not necessarily) a high-level
-container runtime (e.g., Docker, containerd).
+the low-level container runtime is typically a high-level container runtime
+(e.g., Docker, containerd).
 
-## High-level Container Runtime
+## High-level Container Runtime (aka Container Manager)
 
 The high-level container runtime manages the container's lifecycle, from image
 transfer and storage to container execution (by interacting with the low-level
@@ -40,20 +40,32 @@ container runtime.
 ## System Container
 
 A container that is capable of executing system-level software such as Docker,
-Kubernetes, Systemd, etc., in addition to application level software, with
-proper isolation (i.e., without privileged containers) and without using
-complex container entrypoints.
+Kubernetes, Systemd, etc., with proper isolation (i.e., without privileged
+containers) and without using complex container images or entrypoints.
 
-A system container typically (but not necessarily) packages multiple
-services in it and is used like a "virtual host" environment, in
-many ways similar to a virtual machine (VM).
+Traditionally, containers package a single application / micro-service. This
+makes sense for application containers, where multiple such containers form the
+application and separation of concerns is important.
 
-You can deploy application containers within the system container, just
-as you would on a physical host or VM.
+However, system containers deviate from this a bit: they are meant to be used as
+light-weight, super-efficient "virtual hosts", and thus typically bundle
+multiple services.
 
-See <https://blog.nestybox.com/2019/09/13/system-containers.html> for more info.
+Within the system container you can run the services of your choice (e.g.,
+Systemd, sshd, Docker, etc.), and even launch (inner) containers just as you
+would on a physical host of VM. You can think of it as a **"virtual host"** or a
+**"container of containers"**.
 
-Sysbox is a low-level container runtime capable of creating system containers.
+Of course, you can package a single service (e.g., Docker daemon) if you so
+desire; the choice is yours.
+
+System containers provide an alternative to VMs in many scenarios, but are much more
+**flexible, efficient, and portable**. They offer strong isolation (in fact stronger than
+regular Docker containers) but to a lesser degree than the isolation provided by a VM.
+
+For more info on system containers, see this [blog article](https://blog.nestybox.com/2019/09/13/system-containers.html).
+
+Sysbox is a low-level container runtime that creates system containers.
 
 ## Inner and Outer Containers
 

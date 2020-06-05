@@ -100,9 +100,9 @@ The following sub-sections describe these in further detail.
 
 **Recommendation**:
 
-If your kernel has the `shiftfs` module (run `lsmod | grep shiftfs`), Auto
-userns ID mapping is preferred. Otherwise, you must use Directed userns ID
-mapping (e.g., by configuring Docker with userns-remap).
+If your kernel has the `shiftfs` module (confirm by running `lsmod | grep shiftfs`), then
+Auto Userns ID Mapping is preferred. Otherwise, you must use Directed Iserns ID
+Mapping (e.g., by configuring Docker with userns-remap).
 
 ### Directed userns ID mapping
 
