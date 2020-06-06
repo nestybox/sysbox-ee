@@ -165,4 +165,4 @@ When performing the bind-mount, make sure to follow the requirements described i
 the [prior section](#system-container-bind-mount-requirements).
 
 The Sysbox Quick Start Guide has an example of multiple system containers
-sharing storage [here](../quickstart.md#sharing-storage-among-system-containers).
+sharing storage [here](../quickstart/storage.md#sharing-storage-among-system-containers).

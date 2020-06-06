@@ -92,4 +92,4 @@ module. But there are a couple of drawbacks:
 
 -   System container isolation, while strong, is reduced compared to using shiftfs.
     That's because userns-remap causes Docker to put Sysbox into "Directed Userns ID Mapping" mode.
-    See [here](docs/user-guide/security.md#user-namespace-id-mapping) for more info on this.
+    See [here](user-guide/security.md#user-namespace-id-mapping) for more info on this.
