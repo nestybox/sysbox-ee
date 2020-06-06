@@ -91,7 +91,8 @@ Conceptually, the process is simple: the Dockerfile for the system container
 image has an instruction that requests the container manager inside the system
 container (e.g., inner Docker) to pull the inner container images. That's it.
 
-There is a step-by-step example in the Sysbox [Quick-Start Guide](../quickstart/images.md#building-a-system-container-that-includes-inner-container-images).
+There is a [step-by-step example](../quickstart/images.md#building-a-system-container-that-includes-inner-container-images)
+in the Sysbox Quick-Start Guide.
 
 This process also works if the system container image has containerd inside
 (rather than Docker). In this case, the Dockerfile must request containerd
@@ -116,7 +117,8 @@ Docker, use the inner Docker to pull the inner images, and then commit the
 system container with the outer Docker. The committed image will include
 the inner Docker images.
 
-There is a step-by-step example in the [Quick-Start Guide](../quickstart/images.md#committing-a-system-container-that-includes-inner-container-images).
+There is a [step-by-step example](../quickstart/images.md#committing-a-system-container-that-includes-inner-container-images)
+in the Quick-Start Guide.
 
 This approach is helpful as a way of saving work or exporting a working system
 container for deployment in another machine (i.e., commit the system container
