@@ -34,18 +34,19 @@ Simply launch a system container image that has Systemd as its entry point and
 Sysbox will ensure the system container is setup to run Systemd without
 problems.
 
-The [Nestybox Dockerhub repo](https://hub.docker.com/u/nestybox) has a number of system container images that come
-with systemd inside. The Dockerfiles for them are [here](../../dockerfiles).
+The [Nestybox Dockerhub repo](https://hub.docker.com/u/nestybox) has a number of
+system container images that come with systemd inside. The Dockerfiles for them
+are [here](../../dockerfiles).
 
-The Sysbox Quick Start Guide has a [few examples](../quickstart.md#deploy-a-system-container-with-systemd-inside) on
-how to use them.
+The Sysbox Quick Start Guide has a [few examples](../quickstart/systemd.md#deploy-a-system-container-with-systemd-inside)
+on how to use them.
 
 Of course, the container image will also need to have the systemd service units
-that you need. These service units are typically added to the image during
-the image build process. For example, the [Dockerfile](../../dockerfiles/ubuntu-bionic-systemd-docker/Dockerfile) for the
-`nestybox/ubuntu-bionic-systemd-docker` image includes Docker's systemd service unit by simply
-installing Docker in the container. As a result, when you launch that container, Systemd automatically
-starts Docker.
+that you need. These service units are typically added to the image during the
+image build process. For example, the [Dockerfile](../../dockerfiles/ubuntu-bionic-systemd-docker/Dockerfile)
+for the `nestybox/ubuntu-bionic-systemd-docker` image includes Docker's systemd
+service unit by simply installing Docker in the container. As a result, when you
+launch that container, Systemd automatically starts Docker.
 
 ## Systemd Alternatives
 
@@ -57,4 +58,4 @@ In that case you can use lighter-weight process managers such as
 The [Nestybox Dockerhub repo](https://hub.docker.com/u/nestybox) has a number of system container images that come
 with Supervisord inside. The Dockerfiles for them are [here](../../dockerfiles).
 
-The Sysbox Quick Start Guide has a [few examples](../quickstart.md#deploy-a-system-container-with-supervisord-and-docker-inside).
+The Sysbox Quick Start Guide has a [few examples](../quickstart/dind.md#deploy-a-system-container-with-supervisord-and-docker-inside).

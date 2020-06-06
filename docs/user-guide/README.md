@@ -3,13 +3,11 @@
 This document describes Sysbox's features, usage, configuration, and
 limitations.
 
-This document complements the [Sysbox Quick Start Guide](../quickstart.md),
-which shows many examples of how deploy system containers with Docker,
-Kubernetes, etc.
+This document complements the [Sysbox Quick Start Guide](../quickstart/README.md).
 
-Refer to the Quick Start guide for a fast introduction to deploying system
-containers with Sysbox. Come back to this document for a more comprehensive
-description of functionality.
+Refer to that document for a quick introduction to running containers with
+Sysbox. Come back to this document for a more comprehensive description of
+functionality.
 
 ## Table of Contents
 

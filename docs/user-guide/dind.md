@@ -46,7 +46,7 @@ created with a Dockerfile that does just that.
 You do this just as you would on a physical host or VM (e.g., by executing
 `docker run -it alpine` inside the container).
 
-The [Sysbox Quickstart Guide](../quickstart.md) has several examples showing how
+The [Sysbox Quickstart Guide](../quickstart/README.md) has several examples showing how
 to run Docker inside a system container.
 
 ## Preloading Inner Container Images
@@ -82,8 +82,8 @@ You do this by simply mounting a host directory into the system container's
 `/var/lib/docker` directory (i.e., where the inner Docker stores its container
 images).
 
-The Sysbox Quick Start Guide has examples [here](../quickstart.md#persistence-of-inner-container-images-with-docker-volumes)
-and [here](../quickstart.md#persistence-of-inner-container-images-with-bind-mounts).
+The Sysbox Quick Start Guide has examples [here](../quickstart/dind.md#persistence-of-inner-container-images-using-docker-volumes)
+and [here](../quickstart/dind.md#persistence-of-inner-container-images-using-bind-mounts).
 
 A warning though:
 

@@ -153,7 +153,7 @@ runtime to launch regular containers (rather than system containers). It's
 perfectly fine to run system containers launched with Docker + Sysbox alongside
 regular Docker containers; they won't conflict and can co-exist side-by-side.
 
-The [Sysbox Quickstart Guide](docs/quickstart.md) and the [Nestybox Blog Site](https://blog.nestybox.com) have
+The [Sysbox Quickstart Guide](docs/quickstart/README.md) and the [Nestybox Blog Site](https://blog.nestybox.com) have
 many usage examples.
 
 ## Shiftfs
@@ -234,7 +234,7 @@ Please see our [Roadmap](#roadmap) for a list of features we are working on.
 We have several documents to help you get started and get the best out of
 system containers.
 
--   [Sysbox Quick Start Guide](docs/quickstart.md)
+-   [Sysbox Quick Start Guide](docs/quickstart/README.md)
 
     -   Provides many examples for using system containers. New users
         should start here.

@@ -5,8 +5,8 @@
 -   [Intro](#intro)
 -   [Nestybox Dockerhub Repo](#nestybox-dockerhub-repo)
 -   [Preloading Inner Container Images into a System Container](#preloading-inner-container-images-into-a-system-container)
--   [Preloading Inner Container Image with Docker Build](#preloading-inner-container-image-with-docker-build)
--   [Preloading Inner Container Image with Docker Commit](#preloading-inner-container-image-with-docker-commit)
+-   [Preloading Inner Container Images with Docker Build](#preloading-inner-container-images-with-docker-build)
+-   [Preloading Inner Container Images with Docker Commit](#preloading-inner-container-images-with-docker-commit)
 -   [Inner Docker Image Sharing](#inner-docker-image-sharing)
 
 ## Intro
@@ -35,7 +35,7 @@ how to do this.
 The [Nestybox Dockerhub repo](https://hub.docker.com/u/nestybox) has several images that
 we provide as reference for users.
 
-We often use these in the examples we provide in this User-Guide, [Quickstart guide](../quickstart.md), and
+We often use these in the examples we provide in this User-Guide, [Quickstart guide](../quickstart/README.md), and
 Blog (<https://blog.nestybox.com>).
 
 The Dockerfiles are [here](../../dockerfiles). Feel free to copy them and adapt them to
@@ -82,7 +82,7 @@ There are two ways preload inner container into a system container image:
 
 Both of these are described in the sections below.
 
-## Preloading Inner Container Image with Docker Build
+## Preloading Inner Container Images with Docker Build
 
 You can use a simple Dockerfile to preload inner container images into a system
 container image.
@@ -91,16 +91,7 @@ Conceptually, the process is simple: the Dockerfile for the system container
 image has an instruction that requests the container manager inside the system
 container (e.g., inner Docker) to pull the inner container images. That's it.
 
-There is a step-by-step example in the Sysbox [Quick-Start Guide](../quickstart.md#building-a-system-container-that-includes-inner-container-images).
-
-The only wrinkle is that you must configure Sysbox as the Docker "default
-runtime" when building the image (the example in the Quick-Start Guide shows
-how to do this).
-
-This is needed because during the build process, Docker is creating intermediate
-containers for each Dockerfile instruction. Those intermediate containers must
-be system containers deployed by Sysbox, since otherwise the inner Docker won't
-run properly.
+There is a step-by-step example in the Sysbox [Quick-Start Guide](../quickstart/images.md#building-a-system-container-that-includes-inner-container-images).
 
 This process also works if the system container image has containerd inside
 (rather than Docker). In this case, the Dockerfile must request containerd
@@ -111,17 +102,21 @@ Nestybox uses this feature often. For example, the
 for running Kubernetes-in-Docker) preloads the Kubernetes pod images using this
 same approach.
 
-## Preloading Inner Container Image with Docker Commit
+## Preloading Inner Container Images with Docker Commit
 
 You can also use `docker commit` to preload inner container images into
 a system container image.
+
+It's helpful as a way of saving work or exporting a working system container for
+deployment in another machine (i.e., commit the image, docker push to a repo,
+and docker pull from another machine).
 
 The approach is also very simple: launch a system container that has an inner
 Docker, use the inner Docker to pull the inner images, and then commit the
 system container with the outer Docker. The committed image will include
 the inner Docker images.
 
-There is a step-by-step example in the [Quick-Start Guide](../quickstart.md#committing-a-system-container-that-includes-inner-container-images).
+There is a step-by-step example in the [Quick-Start Guide](../quickstart/images.md#committing-a-system-container-that-includes-inner-container-images).
 
 This approach is helpful as a way of saving work or exporting a working system
 container for deployment in another machine (i.e., commit the system container
