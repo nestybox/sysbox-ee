@@ -12,6 +12,8 @@
 
 ## Intro
 
+<p align="center"><img alt="sysbox" src="../figures/dind.png" width="800x" /></p>
+
 Sysbox has support for running Docker inside containers (aka Docker-in-Docker).
 
 Unlike all other alternatives, Sysbox enables users to do this **easily and

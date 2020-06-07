@@ -44,33 +44,38 @@ The sections below show examples of this.
 
 ## Using K8s.io KinD + Sysbox
 
+<p align="center"><img alt="sysbox" src="../figures/kind-sysbox.png" width="800x" /></p>
+
 The [K8s.io KinD](https://kind.sigs.k8s.io) project produces a CLI tool called
-"kind" that enables deployment of Kubernetes clusters inside Docker containers.
+`kind` that enables deployment of Kubernetes clusters inside Docker containers.
 
-It's an excellent tool that makes deployment of K8s cluster in containers fast &
-easy.
+It's an excellent tool that makes deployment of the K8s cluster fast & easy.
 
-The [K8s.io KinD](https://kind.sigs.k8s.io/) tool can be used with Sysbox to
-deploy a Cluster.
+`kind` can be used with Sysbox to deploy a containerized K8s cluster. That is,
+`kind` tool talks to Docker, Docker talks to Sysbox, and Sysbox creates the
+containers that make up the cluster.
 
-That is, the KinD tool talks to Docker, Docker talks to Sysbox, and Sysbox
-creates the containers that make up the K8s cluster.
+When used with Sysbox, the capabilities of `kind` are enhanced:
 
-By combining KinD + Sysbox, so you get the benefits described in the prior
-section: significantly less host storage overhead, easy preloading of inner pod
-images, and strong isolation (no privileged containers!).
+-   A containerized K8s cluster consumes **significantly** less host
+    storage (70% reduction for a 10-node cluster!).
 
-However, you currently need a slightly modified version of the tool, as KinD
+-   The cluster is much more secure (does not require risky privileged
+    containers).
+
+-   You can use Sysbox to **easily** embed inner pod images into the K8s nodes.
+
+Unfortunately, you currently need a slightly modified version of the tool, as `kind`
 does not yet formally support Sysbox. We will be working with the community to
 add this support.
 
-In the meantime, we forked the K8s.io kind tool [here](https://github.com/nestybox/kind)
+In the meantime, we forked the KinD tool [here](https://github.com/nestybox/kind)
 and made [tiny changes](https://github.com/nestybox/kind/commit/9708a130b7c0a539f2f3b5aa187137e71f747347)
 that enable it to work with Sysbox.
 
 Here are the steps to use KinD + Sysbox:
 
-1) Download and build the modified KinD tool:
+1) Download and build the modified KinD binary:
 
 ```console
 $ git clone https://github.com/nestybox/kind.git
@@ -86,8 +91,9 @@ The resulting binary is under `bin/kind`. Put that in your PATH.
 $ docker pull nestybox/kindestnode:v1.18.2
 ```
 
-It's based on the official `kindest/node` image, but contains a fix for a bug in
-the inner `runc` that prevents it from working in unprivileged containers.
+This image is based on the official `kindest/node` image, but contains a fix for
+a bug in the inner `runc` that prevents it from working in unprivileged
+containers.
 
 The Dockerfile is [here](../../dockerfiles/kindestnode).
 
@@ -198,6 +204,8 @@ Deleting cluster "kind" ...
 The [K8s.io KinD website](https://kind.sigs.k8s.io/) for more info on how to use KinD.
 
 ## Using Kindbox
+
+<p align="center"><img alt="sysbox" src="../figures/kindbox.png" width="800x" /></p>
 
 [Kindbox](../../scr/kindbox) is a simple open-source tool created by Nestybox
 to easily create K8s clusters with Docker + Sysbox.
