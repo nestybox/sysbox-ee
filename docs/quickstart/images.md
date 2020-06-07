@@ -6,7 +6,7 @@ images.
 This way, you can deploy the system container image and run inner containers
 without having to pull the inner container images from the network.
 
-A complete list of advantages is described [here](../user-guide/images.md#preloading-inner-container-images-with-docker-build).
+A complete list of advantages is described [here](../user-guide/images.md#preloading-inner-container-images-into-a-system-container).
 
 There are two ways to do this:
 

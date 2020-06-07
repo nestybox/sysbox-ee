@@ -14,12 +14,14 @@
 
 ## Intro
 
-Sysbox has preliminary support for running Kubernetes (K8s) inside system
-containers. This is known as Kubernetes-in-Docker or "KinD".
+<p align="center"><img alt="sysbox" src="../figures/k8s-in-docker.png" width="800x" /></p>
 
-TODO: Image showing Docker + Sysbox + k8s cluster inside containers
+Sysbox has preliminary support for running Kubernetes (K8s) inside system
+containers. This is known as **Kubernetes-in-Docker** or **"KinD"**.
 
 There are several [use-cases](#use-cases) for running Kubernetes-in-Docker.
+
+The [Sysbox QuickStart guide](../quickstart/README.md) has step-by-step examples.
 
 While it's possible to run Kubernetes-in-Docker without Sysbox, doing so
 requires complex Docker images, complex Docker run commands, and very unsecure
@@ -93,6 +95,8 @@ as without them (through simple `docker run` commands).
 
 ## Using K8s.io KinD + Sysbox
 
+<p align="center"><img alt="sysbox" src="../figures/kind-sysbox.png" width="800x" /></p>
+
 The [K8s.io KinD](https://kind.sigs.k8s.io) project produces a CLI tool called
 "kind" that enables deployment of Kubernetes clusters inside Docker containers.
 
@@ -111,13 +115,8 @@ When used with Sysbox, the capabilities of the K8s.io kind tool are enhanced:
     (via a Dockerfile or Docker commit). This way, when you deploy the cluster,
     pod images of your choice are already embedded in the K8s nodes.
 
-The figure below shows how K8s.io kind interacts with Sysbox.
-
-TODO: image showing kind + docker + sysbox + k8s cluster
-
-There is a wrinkle at this time however: the K8s.io kind tool does not yet
-formally support the Sysbox runtime. Nestybox will be working with the
-community to add this support.
+Unfortunately, the K8s.io kind tool does not yet formally support the Sysbox
+runtime. Nestybox will be working with the community to add this support.
 
 In the meantime, we forked the K8s.io kind tool [here](https://github.com/nestybox/kind)
 and made a few changes that enable it to work with Sysbox.
@@ -170,6 +169,8 @@ See [this example](../quickstart/kind.md#using-k8sio-kind--sysbox) in the Quick
 Start Guide for step-by-step instructions.
 
 ## Using Kindbox
+
+<p align="center"><img alt="sysbox" src="../figures/kindbox.png" width="800x" /></p>
 
 [Kindbox](../../scr/kindbox) is a simple open-source tool created by Nestybox
 to easily create K8s clusters with Docker + Sysbox.

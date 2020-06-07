@@ -1,4 +1,4 @@
-# Sysbox: System Container Runtime
+<p align="center"><img alt="sysbox" src="./docs/figures/sysbox.png" width="800x" /></p>
 
 ## Contents
 
@@ -43,8 +43,6 @@ use these well known tools to deploy the containers. No need to learn new tools!
 If you want to run Docker, Kubernetes, or Systemd-reliant apps inside Docker
 containers, and want to do so easily, with unmatched efficiency, and securely,
 **Sysbox is right for you**.
-
-<p align="center"><img alt="sysbox" src="./images/sysbox.png" width="800x" /></p>
 
 The complete list of features is [here](#sysbox-features).
 
