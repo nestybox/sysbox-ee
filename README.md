@@ -27,7 +27,7 @@
 
 ## Introduction
 
-Sysbox is a next-generation container runtime, developed by [Nestybox](#about-nestybox),
+**Sysbox** is a next-generation container runtime, developed by [Nestybox](#about-nestybox),
 that enables deployment of containers that are capable of running not just micro-services,
 but also system software such as Docker, Kubernetes, Systemd, etc., inside the container,
 **easily and securely**.
@@ -54,7 +54,7 @@ And here are a couple of videos showing how it works:
 
 ## System Containers
 
-We call the containers deployed by Sysbox "system containers", to highlight the
+We call the containers deployed by Sysbox **system containers**, to highlight the
 fact that they can run not just micro-services (as regular containers do), but
 also system software such as Docker, Kubernetes, Systemd, inner containers, etc.
 
