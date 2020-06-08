@@ -42,40 +42,48 @@ FROM nestybox/ubuntu-bionic-systemd:latest
 
 ARG k8s_version=v1.18.2
 
-# Docker install
-RUN apt-get update && apt-get install --no-install-recommends -y \
-       apt-transport-https \
-       ca-certificates \
-       curl \
-       gnupg-agent \
-       software-properties-common
-RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-RUN apt-key fingerprint 0EBFCD88
+# Install Docker.
+RUN apt-get update && apt-get install --no-install-recommends -y                        \
+       apt-transport-https                                                              \
+       ca-certificates                                                                  \
+       curl                                                                             \
+       gnupg-agent                                                                      \
+       software-properties-common                                                       \
+    && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -          \
+    && apt-key fingerprint 0EBFCD88                                                     \
+    && add-apt-repository                                                               \
+       "deb [arch=amd64] https://download.docker.com/linux/ubuntu                       \
+       $(lsb_release -cs)                                                               \
+       stable"                                                                          \
+    && apt-get update                                                                   \
+    && apt-get install --no-install-recommends -y docker-ce docker-ce-cli containerd.io \
+    && rm -rf /var/lib/apt/lists/*                                                      \
+    # Add user "admin" to the Docker group                                              \
+    && usermod -a -G docker admin
 
-RUN add-apt-repository \
-       "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-       $(lsb_release -cs) \
-       stable"
-RUN apt-get update && apt-get install --no-install-recommends -y docker-ce docker-ce-cli containerd.io
 
-# Add user "admin" to the Docker group
-RUN usermod -a -G docker admin
-
-# Install kubeadm
+# Install Kubeadm.
 #
 # Note: we use kubeadm for Ubuntu Xenial because a version for Bionic is not available;
 # see https://packages.cloud.google.com/apt/dists/
-RUN curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add
-RUN apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
-RUN apt-get update && apt-get install --no-install-recommends -y kubeadm
+RUN curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add    \
+    && apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"        \
+    && apt-get update && apt-get install --no-install-recommends -y kubeadm             \
+    && rm -rf /var/lib/apt/lists/*
 
-# Preload k8s control plane container images into the sys container image
+# Preload k8s control plane container images into the sys container image.
 COPY kube-pull.sh /usr/bin/
 RUN chmod +x /usr/bin/kube-pull.sh && kube-pull.sh $k8s_version && rm /usr/bin/kube-pull.sh
 
-# Docker daemon config
+# Docker daemon config.
 COPY daemon.json /etc/docker/
 
 # bash completion
-RUN apt-get update && apt-get install bash-completion && echo ". /etc/bash_completion" >> /etc/bash.bashrc
-RUN echo "source <(kubectl completion bash)" >> /root/.bashrc
+RUN apt-get update                                                             \
+    && mkdir -p /etc/bash_completion.d                                         \
+    && apt-get install bash-completion                                         \
+    && rm -rf /var/lib/apt/lists/*                                             \
+    && echo "source /etc/profile.d/bash_completion.sh" >> /root/.bashrc        \
+    && echo "source <(kubectl completion bash)" >> /root/.bashrc               \
+    && echo "source /etc/profile.d/bash_completion.sh" >> /home/admin/.bashrc  \
+    && echo "source <(kubectl completion bash)" >> /home/admin/.bashrc
