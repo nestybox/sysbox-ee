@@ -101,6 +101,8 @@ A warning though:
 Inside a system container you _can_ deploy privileged Docker containers (e.g.,
 by issuing the following command to the inner Docker: `docker run --privileged ...`).
 
+    NOTE: due to a bug in Docker, this requires the inner Docker to be version 19.03 or newer.
+
 The ability to run privileged containers inside a system container is useful
 when deploying inner containers that require full privileges (typically
 containers for system services such as Kubernetes control-plane pods).
