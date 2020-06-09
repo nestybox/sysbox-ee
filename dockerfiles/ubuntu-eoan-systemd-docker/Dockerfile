@@ -59,4 +59,4 @@ RUN apt-get update && apt-get install --no-install-recommends -y      \
 EXPOSE 22
 
 # Set systemd as entrypoint.
-ENTRYPOINT [ "/sbin/init" ]
+ENTRYPOINT [ "/sbin/init", "--log-level=err" ]

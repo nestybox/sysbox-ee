@@ -46,4 +46,4 @@ RUN mkdir /home/admin/.ssh
 EXPOSE 22
 
 # Set systemd as entrypoint.
-ENTRYPOINT [ "/sbin/init" ]
+ENTRYPOINT [ "/sbin/init", "--log-level=err" ]
