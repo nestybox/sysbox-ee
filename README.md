@@ -32,7 +32,7 @@ that enables deployment of containers that are capable of running not just micro
 but also system software such as Docker, Kubernetes, Systemd, etc., inside the container,
 **easily and securely**.
 
-What makes Sysbox unique is that the containers it creates can seamlessly run
+What makes Sysbox unique is that the containers it creates can **seamlessly** run
 system software. It voids the need for unsecure privileged containers,
 complicated container images, custom entrypoints, or complex configurations. And
 it's very fast and efficient.
