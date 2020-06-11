@@ -210,7 +210,9 @@ The [K8s.io KinD website](https://kind.sigs.k8s.io/) for more info on how to use
 [Kindbox](../../scr/kindbox) is a simple open-source tool created by Nestybox
 to easily create K8s clusters with Docker + Sysbox.
 
-It does some of the same things that the K8s.io KinD tool does (e.g., cluster
+**Check out this [video](https://asciinema.org/a/VCgF094wb4CuVeI8h3iDKhh5m?speed=2).**
+
+Kindbox does some of the same things that the K8s.io KinD tool does (e.g., cluster
 creation, destruction, etc.) but it's much simpler, more flexible, does not
 require complex container images, and it's even more efficient.
 
@@ -459,6 +461,8 @@ If you need added functionality, please file an
 
 It's also possible to deploy a K8s cluster directly with Docker + Sysbox,
 without using the K8s.io `kind` or Nestybox's `kindbox` tools.
+
+**Check out this [video](https://asciinema.org/a/bTN4oykrDRZGDIkDg7rngyP5b?speed=2).**
 
 The upside is that you get full control of the cluster deployment. The drawback
 is that you need to manage the K8s cluster creation sequence. But it's pretty

@@ -4,6 +4,7 @@
 
 -   [Introduction](#introduction)
 -   [System Containers](#system-containers)
+-   [Videos](#videos)
 -   [Download](#download)
 -   [Supported Distros](#supported-distros)
 -   [Host Requirements](#host-requirements)
@@ -46,12 +47,6 @@ containers, and want to do so easily, with unmatched efficiency, and securely,
 
 The complete list of features is [here](#sysbox-features).
 
-And here are a couple of videos showing how it works:
-
--   [Secure Docker Sandboxing](https://asciinema.org/a/kkTmOxl8DhEZiM2fLZNFlYzbo?speed=1.75)
-
--   [Secure Kubernetes-in-Docker](<>) (TODO: video link)
-
 ## System Containers
 
 We call the containers deployed by Sysbox **system containers**, to highlight the
@@ -59,6 +54,14 @@ fact that they can run not just micro-services (as regular containers do), but
 also system software such as Docker, Kubernetes, Systemd, inner containers, etc.
 
 More on system containers [here](docs/user-guide/concepts.md#system-container).
+
+## Videos
+
+We have some sample videos showing Sysbox in action:
+
+-   [Docker Sandboxing](https://asciinema.org/a/kkTmOxl8DhEZiM2fLZNFlYzbo?speed=2)
+
+-   [Kubernetes-in-Docker](https://asciinema.org/a/VCgF094wb4CuVeI8h3iDKhh5m?speed=2)
 
 ## Download
 
