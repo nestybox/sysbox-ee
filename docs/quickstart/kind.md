@@ -35,9 +35,9 @@ Here is a comparison for deploying a 10-node K8s cluster:
 | Cluster deletion time          | 5 sec                    | 20 sec                    | 13 sec  |
 | Simple Docker images           | No                       | No                        | Yes     |
 | Full control of cluster config | No                       | No                        | Yes     |
-| Easily preload inner images    | No                       | Yes                       | Yes     |
 | Dynamically resize cluster     | No                       | No                        | Yes     |
 | Mixed cluster node images      | No                       | No                        | Yes     |
+| Easily preload inner images    | No                       | Yes                       | Yes     |
 | Strong isolation from host     | No                       | Yes                       | Yes     |
 
 The sections below show examples of this.
@@ -279,8 +279,8 @@ Cluster created successfully!
 Use kubectl to control the cluster.
 
 1) Install kubectl on your host
-2) mkdir -p /home/cesar/.kube
-3) docker cp mycluster-master:/etc/kubernetes/admin.conf /home/cesar/.kube/config
+2) export KUBECONFIG=${KUBECONFIG}:${HOME}/.kube/mycluster-config
+3) kubectl config use-context kubernetes-admin@mycluster
 4) kubectl get nodes
 
 Alternatively, use "docker exec" to control the cluster:
@@ -302,7 +302,10 @@ your machine quickly and without eating up your disk space.
 (This assumes you've [installed kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) on your host).
 
 ```console
-$ docker cp mycluster-master:/etc/kubernetes/admin.conf /home/cesar/.kube/config
+$ export KUBECONFIG=${KUBECONFIG}:${HOME}/.kube/mycluster-config
+
+$ kubectl config use-context kubernetes-admin@mycluster
+Switched to context "kubernetes-admin@mycluster".
 ```
 
 3) Use kubectl to verify all is good:
@@ -418,7 +421,10 @@ is useful if you need some specialized K8s nodes.
 ### Multiple Clusters
 
 You can easily create multiple K8s clusters on the host by repeating the
-`kindbox create` command.
+`kindbox create` command (step (1) above).
+
+And you can use `kubectl config use-context` to point to the cluster you wish to
+manage (see step (2) above).
 
 On my laptop (4 CPU & 8GB RAM), I am able to create three small clusters without
 problem:
@@ -431,7 +437,7 @@ cluster2               5               cluster2-net         nestybox/k8s-node:v1
 mycluster              4               mycluster-net        nestybox/k8s-node:v1.18.2      v1.18.2
 ```
 
-Note that the clusters are well isolated from each other: the K8s nodes are in
+With Sysbox, the clusters are well isolated from each other: the K8s nodes are in
 containers strongly secured via the Linux user namespace, and each cluster is in
 a dedicated Docker network (for traffic isolation).
 
@@ -447,14 +453,18 @@ Destroying K8s cluster "mycluster" ...
   - Destroying node mycluster-worker-2
   - Destroying node mycluster-worker-3
   - Destroying node mycluster-master
-Done.
+
+Cluster destroyed. Remove stale entry from $KUBECONFIG env-var by doing ...
+
+  export KUBECONFIG=`echo ${KUBECONFIG} | sed "s|:${HOME}/.kube/mycluster-config||"`
 ```
 
-To see what else you can do with Kindbox, type `kindbox --help`. But remember,
-it should be fairly easy to add functionality to Kindbox, as it's just a bash
-wrapper around Docker commands that manage the cluster.
+To see what else you can do with Kindbox, type `kindbox help`.
 
-If you need added functionality, please file an
+And remember, it should be fairly easy to add functionality to Kindbox, as it's
+just a bash wrapper around Docker commands that manage the cluster.
+
+If you would like Nestybox to add more functionality, please file an
 [issue](../issue-guidelines.md) in the Sysbox Github repo, or [contact us](../../README.md#support).
 
 ## Using Docker to Deploy a K8s Cluster
