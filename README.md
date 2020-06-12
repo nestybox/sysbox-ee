@@ -286,15 +286,18 @@ user-namespace for isolation, but do so in different ways.
 The [K8s.io KinD](https://kind.sigs.k8s.io) project produces a CLI tool called
 "kind" that enables deployment of Kubernetes clusters inside Docker containers.
 
+It's an excellent tool that makes deployment of K8s cluster in containers fast &
+easy.
+
 When used with the Sysbox container runtime, the capabilities of the "kind" tool
 are enhanced:
 
--   The containerized K8s clusters consume **significantly** less host
-    storage (70% reduction for a 10-node cluster!).
+-   The containerized K8s clusters consume ***significantly less host
+    storage** (70% reduction for a 10-node cluster!).
 
--   The cluster is much more secure (does not require risky privileged containers).
+-   The cluster is much more **secure** (does not require risky privileged containers).
 
--   You can use Sysbox to easily embed inner pod images into the K8s nodes.
+-   You can use Sysbox to **easily** embed inner pod images into the K8s nodes.
 
 Moreover, with Sysbox, you can easily create a containerized K8s cluster without
 using the K8s.io kind tool, by using very simple Docker images and Docker run
