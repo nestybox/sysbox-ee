@@ -372,9 +372,10 @@ by inspecting the kubelet log inside the K8s node where the failure occurs.
 This log often has useful information on why the failure occurred.
 
 One common reason for failure is that the host is lacking sufficient storage. In
-this case you'll see a message like this one in the kubelet log:
+this case you'll see messages like these ones in the kubelet log:
 
     Disk usage on image filesystem is at 85% which is over the high threshold (85%). Trying to free 1284963532 bytes down to the low threshold (80%).
+    eviction_manager.go:168] Failed to admit pod kube-flannel-ds-amd64-6wkdk_kube-system(e3f4c428-ab15-48af-92eb-f07ce06aa4af) - node has conditions: [DiskPressure]
 
 To overcome this, make some more storage room in your host and redeploy the
 pods.
