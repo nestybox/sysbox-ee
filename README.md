@@ -292,7 +292,7 @@ easy.
 When used with the Sysbox container runtime, the capabilities of the "kind" tool
 are enhanced:
 
--   The containerized K8s clusters consume ***significantly less host
+-   The containerized K8s clusters consume **significantly less host
     storage** (70% reduction for a 10-node cluster!).
 
 -   The cluster is much more **secure** (does not require risky privileged containers).
