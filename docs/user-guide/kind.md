@@ -199,10 +199,10 @@ that create, destroy, and resize a Kubernetes-in-Docker cluster.
 That is, Kindbox talks to Docker, Docker talks to Sysbox, and Sysbox creates or
 destroys the containers.
 
-The reason the tool is so simple: the Sysbox container runtime creates the
-containers such that they can run K8s seamlessly inside. Thus, Kindbox
-need only deploy the containers with Docker and run `kubeadm` within them to set
-them up. **It's that easy**.
+The reason the tool is so simple is that the Sysbox container runtime creates
+the containers such that they can run K8s seamlessly inside. Thus, Kindbox need
+only deploy the containers with Docker and run `kubeadm` within them to set them
+up. **It's that easy**.
 
 For this same reason, no specialized Docker images are needed for the containers
 that act as K8s nodes. In other words, the K8s node image does not require
