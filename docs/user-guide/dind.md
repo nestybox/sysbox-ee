@@ -78,7 +78,8 @@ However, inner container images that are pulled into the system container at
 runtime are not by default persistent: they get destroyed when the system
 container is removed (e.g., via `docker rm`).
 
-But it's easy to make these runtime inner container images persistent too.
+But it's easy to make these runtime inner container images (and even inner
+containers) persistent too.
 
 You do this by simply mounting a host directory into the system container's
 `/var/lib/docker` directory (i.e., where the inner Docker stores its container

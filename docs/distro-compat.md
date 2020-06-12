@@ -7,8 +7,8 @@
 
 ## Supported Linux Distros
 
-Sysbox relies on functionality that is currently only present in Ubuntu Linux
-and as a result Ubuntu is the only distro supported at this time. We are working
+Sysbox relies on functionality that is currently only present in Ubuntu Linux.
+As a result Ubuntu is the only distro supported at this time. We are working
 on adding support for more distros.
 
 ## Ubuntu Support

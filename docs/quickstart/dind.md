@@ -299,25 +299,28 @@ It's possible to override this behavior by mounting host storage into
 the system container's `/var/lib/docker` in order to persist the
 inner Docker's image cache across system container life-cycles.
 
-To do this, follow these steps:
+In fact, not only do inner Docker images persist; inner containers will also
+persist (thought they will need to be restarted).
+
+Here is an example:
 
 1) Create a Docker volume on the host to serve as the persistent image cache for
    the Docker daemon inside the system container.
 
 ```console
-$ docker volume create my-image-cache
-my-image-cache
+$ docker volume create myvol
+myvol
 
 $ docker volume list
 DRIVER              VOLUME NAME
-local               my-image-cache
+local               myvol
 ```
 
 2) Launch the system container and mount the volume into the system
    container's `/var/lib/docker` directory.
 
 ```console
-$ docker run --runtime=sysbox-runc -it --rm --hostname syscont --mount source=my-image-cache,target=/var/lib/docker nestybox/alpine-docker
+$ docker run --runtime=sysbox-runc -it --rm --hostname syscont --mount source=myvol,target=/var/lib/docker nestybox/alpine-docker
 / #
 ```
 
@@ -342,45 +345,93 @@ REPOSITORY          TAG                 IMAGE ID            CREATED             
 busybox             latest              19485c79a9bb        7 weeks ago         1.22MB
 ```
 
-5) Exit the system container. Since it was started with the `--rm`
-   option, Docker will remove the system container from the system.
-   However, the contents of the system container's `/var/lib/docker`
-   will persist since they are stored in volume `my-image-cache`.
-
-6) Start a new system container and mount the `my-image-cache` volume:
+5) Create an inner container:
 
 ```console
-$ docker run --runtime=sysbox-runc -it --rm --hostname syscont --mount source=my-image-cache,target=/var/lib/docker nestybox/alpine-docker
+/ # docker run -d --name inner-container busybox tail -f /dev/null
+56ccb4bb33280f3f670956f6f06afde08e8219eb56c9d79a8b0e5d925ecee96d
 
+/ # docker ps
+CONTAINER ID        IMAGE               COMMAND               CREATED             STATUS              PORTS               NAMES
+56ccb4bb3328        busybox             "tail -f /dev/null"   4 seconds ago       Up 2 seconds                            inner-container
+```
+
+6) Exit the system container.
+
+This causes the inner container to be automatically stopped.
+
+The contents of the system container's `/var/lib/docker` will persist since they
+are stored in volume `myvol`.
+
+7) Start a new system container and mount `myvol` into it:
+
+```console
+$ docker run --runtime=sysbox-runc -it --rm --hostname syscont --mount source=myvol,target=/var/lib/docker nestybox/alpine-docker
+```
+
+8) Start Docker inside:
+
+```console
 / # dockerd > /var/log/dockerd.log 2>&1 &
+```
 
+9) Verify that the inner Docker images persisted:
+
+```console
 / # docker image ls
 REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
 busybox             latest              19485c79a9bb        7 weeks ago         1.22MB
 ```
 
-As shown, the inner container images persist across the life-cycle of
-the system container.
+There they are!
+
+10) Verify that the inner Docker container persisted:
+
+```console
+/ # docker ps -a
+
+CONTAINER ID        IMAGE               COMMAND               CREATED             STATUS                       PORTS               NAMES
+56ccb4bb3328        busybox             "tail -f /dev/null"   32 seconds ago      Exited (255) 3 seconds ago                       inner-container
+
+/ # docker start inner-container
+inner-container
+/ # docker ps -a
+CONTAINER ID        IMAGE               COMMAND               CREATED             STATUS              PORTS               NAMES
+56ccb4bb3328        busybox             "tail -f /dev/null"   42 seconds ago      Up 1 second                             inner-container
+```
+
+There is it is!
+
+As shown, the inner container images and even inner containers persisted across
+the life-cycle of the system container.
 
 This is cool because it means that a system container can leverage an existing
 Docker image cache stored somewhere on the host, thus avoiding having to pull
 those inner Docker images from the network each time a new system container is
 started.
 
-There are a couple of caveats to keep in mind:
+There is a couple of important caveat to keep in mind:
 
--   A persistent Docker image cache must only be mounted on a **single
-    system container at any given time**. This is a restriction imposed
-    by the Docker daemon, which does not allow its image cache to be
-    shared concurrently among multiple daemon instances.  Sysbox will
-    check for violations of this rule and report an appropriate error
-    during system container creation.
+-   A Docker volume mounted into the system container's `/var/lib/docker` must
+    only be mounted on a **single system container at any given time**. This is
+    a restriction imposed by the Docker daemon, which does not allow its image
+    cache to be shared concurrently among multiple daemon instances. Sysbox will
+    check for violations of this rule and report an appropriate error during
+    system container creation.
 
--   A persistent Docker image cache mounted into the system container's
-    `/var/lib/docker` directory will "mask" any files present in that same
-    directory as part of the system container's image. Such files would be
-    present when using system containers that have preloaded inner container
-    images.
+-   A Docker volume mounted into the system container's `/var/lib/docker`
+    will **inherit** any files present in that same directory as part of the system
+    container's image. Such files would be present when using system containers
+    that have preloaded inner container images.
+
+    -   In other words, if the system container comes preloaded with inner images,
+        those will be automatically transferred to the Docker volume when the
+        system container starts, and will persist across the system container
+        life-cycle.
+
+    -   Note that this behavior is different than when bind-mounting host
+        directories into the system container `/var/lib/docker` (see next
+        section).
 
 ## Persistence of Inner Container Images using Bind Mounts
 
@@ -455,6 +506,19 @@ REPOSITORY          TAG                 IMAGE ID            CREATED             
 busybox             latest              19485c79a9bb        7 weeks ago         1.22MB
 ```
 
-```
+There are a couple of caveats to keep in mind here:
 
-```
+-   A host directory bind-mounted into the system container's `/var/lib/docker` must
+    only be mounted on a **single system container at any given time**. This is
+    a restriction imposed by the Docker daemon, which does not allow its image
+    cache to be shared concurrently among multiple daemon instances. Sysbox will
+    check for violations of this rule and report an appropriate error during
+    system container creation.
+
+-   A host directory bind-mounted into the system container's `/var/lib/docker`
+    will "mask" any files present in that same directory as part of the system
+    container's image. Such files would be present when using system containers
+    that have preloaded inner container images.
+
+    -   This behavior differs from when Docker volume mounts are mounted into
+        the system container's `/var/lib/docker` (see prior section).
