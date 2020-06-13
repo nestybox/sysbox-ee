@@ -410,14 +410,17 @@ Docker image cache stored somewhere on the host, thus avoiding having to pull
 those inner Docker images from the network each time a new system container is
 started.
 
-There is a couple of important caveat to keep in mind:
+There are a couple of important caveats to keep in mind:
 
 -   A Docker volume mounted into the system container's `/var/lib/docker` must
-    only be mounted on a **single system container at any given time**. This is
-    a restriction imposed by the Docker daemon, which does not allow its image
-    cache to be shared concurrently among multiple daemon instances. Sysbox will
-    check for violations of this rule and report an appropriate error during
-    system container creation.
+    only be mounted on a **single system container at any given time**.
+
+    - This is a restriction imposed by the Docker daemon, which does not allow
+      its image cache to be shared concurrently among multiple daemon
+      instances.
+
+    - Sysbox will check for violations of this rule and report an
+      appropriate error during system container creation.
 
 -   A Docker volume mounted into the system container's `/var/lib/docker`
     will **inherit** any files present in that same directory as part of the system
