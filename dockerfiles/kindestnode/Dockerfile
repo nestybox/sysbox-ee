@@ -10,7 +10,7 @@
 #
 # Deploy with the K8s.io KinD tool:
 #
-# $ kind create cluster --image nestybox/kindestnode:v1.18.2
+# $ kind-sysbox create cluster --image nestybox/kindestnode:v1.18.2
 #
 
 FROM kindest/node:v1.18.2

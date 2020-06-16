@@ -118,24 +118,24 @@ When used with Sysbox, the capabilities of the K8s.io kind tool are enhanced:
 Unfortunately, the K8s.io kind tool does not yet formally support the Sysbox
 runtime. Nestybox will be working with the community to add this support.
 
-In the meantime, we forked the K8s.io kind tool [here](https://github.com/nestybox/kind)
+In the meantime, we forked the K8s.io kind tool [here](https://github.com/nestybox/kind-sysbox)
 and made a few changes that enable it to work with Sysbox.
 
 The changes are **very simple**: we just modify the way the K8s.io kind tool invokes
 Docker to deploy the K8s node containers. For example, we add
 `--runtime=sysbox-runc` to the Docker run command, and remove the `--privileged`
-flag. The diffs are [here](https://github.com/nestybox/kind/commit/9708a130b7c0a539f2f3b5aa187137e71f747347).
+flag. The diffs are [here](https://github.com/nestybox/kind-sysbox/commit/9708a130b7c0a539f2f3b5aa187137e71f747347).
 
 ### Modified K8s.io KinD Tool
 
 Here is the process to download and build the forked version of the K8s.io kind
 tool:
 
-    $ git clone https://github.com/nestybox/kind.git
-    $ cd kind
-    $ make kind
+    $ git clone https://github.com/nestybox/kind-sysbox.git
+    $ cd kind-sysbox
+    $ make kind-sysbox
 
-The resulting binary is under `bin/kind`.
+The resulting binary is under `bin/kind-sysbox`.
 
 ### Modified K8s node image
 
