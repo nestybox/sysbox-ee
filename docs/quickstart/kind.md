@@ -42,7 +42,7 @@ Here is a comparison for deploying a 10-node K8s cluster:
 
 The sections below show examples of this.
 
-## Using K8s.io KinD + Sysbox
+## Using K8s.io KinD + Sysbox (kind-sysbox)
 
 <p align="center"><img alt="sysbox" src="../figures/kind-sysbox.png" width="800x" /></p>
 
@@ -69,21 +69,22 @@ Unfortunately, you currently need a slightly modified version of the tool, as `k
 does not yet formally support Sysbox. We will be working with the community to
 add this support.
 
-In the meantime, we forked the KinD tool [here](https://github.com/nestybox/kind)
-and made [tiny changes](https://github.com/nestybox/kind/commit/9708a130b7c0a539f2f3b5aa187137e71f747347)
-that enable it to work with Sysbox.
+In the meantime, we forked the KinD tool [here](https://github.com/nestybox/kind-sysbox)
+and made [tiny changes](https://github.com/nestybox/kind-sysbox/commit/9708a130b7c0a539f2f3b5aa187137e71f747347)
+that enable it to work with Sysbox. To avoid any confusion, we will refer to this modified
+version as 'kind-sysbox'.
 
 Here are the steps to use KinD + Sysbox:
 
 1) Download and build the modified KinD binary:
 
 ```console
-$ git clone https://github.com/nestybox/kind.git
-$ cd kind
-$ make kind
+$ git clone https://github.com/nestybox/kind-sysbox.git
+$ cd kind-sysbox
+$ make kind-sysbox
 ```
 
-The resulting binary is under `bin/kind`. Put that in your PATH.
+The resulting binary is under `bin/kind-sysbox`. Put that in your PATH.
 
 2) Pull the `nestybox/kindestnode:v1.18.2` image.
 
@@ -97,7 +98,7 @@ containers.
 
 The Dockerfile is [here](../../dockerfiles/kindestnode).
 
-3) Now simply tell `kind` to create the cluster.
+3) Now simply tell `kind-sysbox` to create the cluster.
 
 ```console
 $ more config.yaml
@@ -117,7 +118,7 @@ nodes:
 ```
 
 ```console
-$ kind create cluster --image=nestybox/kindestnode:v1.18.2 --config=config.yaml
+$ kind-sysbox create cluster --image=nestybox/kindestnode:v1.18.2 --config=config.yaml
 
 Creating cluster "kind" ...
 ✓ Ensuring node image (nestybox/kindestnode:v1.18.2) 🖼
@@ -196,7 +197,7 @@ for a list of K8s functionality that works and doesn't when using Sysbox.
 To bring down the cluster, use:
 
 ```console
-$ kind delete cluster
+$ kind-sysbox delete cluster
 
 Deleting cluster "kind" ...
 ```
@@ -904,7 +905,7 @@ build process.
 5) Now deploy the K8s cluster using the newly created image:
 
 ```console
-$ kind create cluster --image kindestnode-with-inner-nginx
+$ kind-sysbox create cluster --image kindestnode-with-inner-nginx
 ```
 
 6) Verify the K8s cluster nodes have the inner nginx image in them:
@@ -980,7 +981,7 @@ $ docker stop k8s-node
 5) Launch the K8s cluster with KinD + Sysbox, using the newly committed image:
 
 ```console
-$ kind create cluster --image=kindestnode-with-inner-nginx:latest
+$ kind-sysbox create cluster --image=kindestnode-with-inner-nginx:latest
 ```
 
 6) Verify the K8s cluster nodes have the inner nginx image in them:
@@ -997,7 +998,7 @@ pod images into your K8s nodes.
 
 One caveat however:
 
-Doing a Docker commit of a running K8s node deployed via `kind create cluster`
+Doing a Docker commit of a running K8s node deployed via `kind-sysbox create cluster`
 won't work. The commit itself will complete, but the resulting image can't be
 used in a new KinD cluster. The reason is that the committed image contains the
 runtime configuration of the K8s node that is specific to the original cluster,
