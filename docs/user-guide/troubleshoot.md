@@ -85,7 +85,7 @@ so the `active exited` status above is expected.
 ## Ubuntu Shiftfs Module Not Present
 
 When creating a system container, the following error indicates that
-the Ubuntu shiftfs module is required by Sysbox but is not loaded
+the Ubuntu `shiftfs` module is required by Sysbox but it's not loaded
 in the Linux kernel:
 
 ```console
@@ -93,22 +93,34 @@ in the Linux kernel:
 docker: Error response from daemon: OCI runtime create failed: container requires user-ID shifting but error was found: shiftfs module is not loaded in the kernel. Update your kernel to include shiftfs module or enable Docker with userns-remap. Refer to the Sysbox troubleshooting guide for more info: unknown
 ```
 
-The error likely means you are running Sysbox on an older Ubuntu
-kernel, as newer Ubuntu kernels come with shiftfs. Or maybe you
-are using a Ubuntu image meant for cloud VM instances, rather
-than Ubuntu Desktop or Server.
+In general, this error should not occur as the Sysbox installer checks
+for the presence of `shiftfs` during installation, and if not present
+configures Docker in such a way that the module is no longer needed
+(see [the Sysbox distro compat doc](../distro-compat.md#ubuntu-support)).
 
-You can work-around this error by either:
+But if you still see this error, you can work-around it by configuring Docker in
+userns-remap mode:
 
--   Updating your Linux distro. See the [distro compatibility](../distro-compat.md)
-    document for the list of Linux distros supported by Sysbox, and
-    recommendations on how to update the distro.
+1) Add the userns-remap line to the `/etc/docker/daemon.json` file as shown below:
 
-or
+```console
+# cat /etc/docker/daemon.json
+{
+   "userns-remap": "sysbox",
+   "runtimes": {
+      "sysbox-runc": {
+         "path": "/usr/local/sbin/sysbox-runc"
+      }
+   }
+}
+```
 
--   Configuring Docker in userns-remap mode, as described
-    [here](../distro-compat.md#using-sysbox-on-kernels-without-the-shiftfs-module). This
-    mode does not require use of shiftfs.
+2) Restart the Docker daemon (make sure any running containers are stopped):
+
+```console
+# sudo docker stop $(docker ps -aq)
+# sudo systemctl restart docker
+```
 
 ## Unprivileged User Namespace Creation Error
 

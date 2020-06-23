@@ -9,6 +9,14 @@ This section shows several examples on how to do this.
 The [User Guide](../user-guide/kind.md) describes this functionality in more
 detail.
 
+## Contents
+
+-   [Why Sysbox for K8s-in-Docker?](#why-sysbox-for-k8s-in-docker)
+-   [Using K8s.io KinD + Sysbox (kind-sysbox)](#using-k8sio-kind--sysbox-kind-sysbox)
+-   [Using Kindbox](#using-kindbox)
+-   [Using Docker to Deploy a K8s Cluster](#using-docker-to-deploy-a-k8s-cluster)
+-   [Preloading Inner Pod Images into the K8s Node Image](#preloading-inner-pod-images-into-the-k8s-node-image)
+
 ## Why Sysbox for K8s-in-Docker?
 
 Sysbox is the first container runtime capable of creating containers that can
@@ -30,15 +38,15 @@ Here is a comparison for deploying a 10-node K8s cluster:
 
 | Criteria                       | K8s.io KinD (w/o Sysbox) | K8s.io KinD (with Sysbox) | Kindbox |
 | ------------------------------ | :----------------------: | :-----------------------: | :-----: |
-| Host storage overhead          | 10 GB                    | 3 GB                      | 1 GB    |
-| Cluster creation time          | 2 min                    | 2 min                     | 2 min   |
-| Cluster deletion time          | 5 sec                    | 20 sec                    | 13 sec  |
-| Simple Docker images           | No                       | No                        | Yes     |
-| Full control of cluster config | No                       | No                        | Yes     |
-| Dynamically resize cluster     | No                       | No                        | Yes     |
-| Mixed cluster node images      | No                       | No                        | Yes     |
-| Easily preload inner images    | No                       | Yes                       | Yes     |
-| Strong isolation from host     | No                       | Yes                       | Yes     |
+| Host storage overhead          |           10 GB          |            3 GB           |   1 GB  |
+| Cluster creation time          |           2 min          |           2 min           |  2 min  |
+| Cluster deletion time          |           5 sec          |           20 sec          |  13 sec |
+| Simple Docker images           |            No            |             No            |   Yes   |
+| Full control of cluster config |            No            |             No            |   Yes   |
+| Dynamically resize cluster     |            No            |             No            |   Yes   |
+| Mixed cluster node images      |            No            |             No            |   Yes   |
+| Easily preload inner images    |            No            |            Yes            |   Yes   |
+| Strong isolation from host     |            No            |            Yes            |   Yes   |
 
 The sections below show examples of this.
 
