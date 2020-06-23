@@ -10,7 +10,6 @@
 -   [Host Requirements](#host-requirements)
 -   [Installation](#installation)
 -   [Launching a System Container](#launching-a-system-container)
--   [Shiftfs](#shiftfs)
 -   [Sysbox Features](#sysbox-features)
 -   [Documentation](#documentation)
 -   [Integration with Container Managers](#integration-with-container-managers)
@@ -102,7 +101,9 @@ $ sha256sum sysbox_0.1.3-0.ubuntu-disco_amd64.deb
 774aa1442c9142a1e6c6db49f896439b989de3668926bccd91aa0a679fa3df87  sysbox_0.1.3-0.ubuntu-disco_amd64.deb
 ```
 
-3) Install the Sysbox package:
+3) Stop all running Docker containers (as the installer may need to restart Docker).
+
+4) Install the Sysbox package and follow the installer instructions:
 
 ```console
 $ sudo dpkg -i sysbox_0.1.3-0.ubuntu-disco_amd64.deb
@@ -118,7 +119,7 @@ $ sudo apt-get install -f -y
 This will install the missing dependencies and automatically re-launch
 the Sysbox installation process.
 
-4) Verify that Sysbox's Systemd units have been properly installed, and
+5) Verify that Sysbox's Systemd units have been properly installed, and
    associated daemons are properly running:
 
 ```console
@@ -131,9 +132,7 @@ sysbox.service                     loaded    active   exited  Sysbox General Ser
 Note: the sysbox.service is ephemeral (it exits once it launches the other sysbox services; that's why
 you see `sysbox.service   loaded  active  exited` above).
 
-If you are curious on what the other Sysbox services are, refer to the [Sysbox User Guide](docs/user-guide/design.md).
-
-If you hit problems during installation, see the [Troubleshooting doc](docs/user-guide/troubleshoot.md).
+See [here](docs/user-guide/install.md) for more info.
 
 ## Launching a System Container
 
@@ -156,20 +155,6 @@ regular Docker containers; they won't conflict and can co-exist side-by-side.
 
 The [Sysbox Quickstart Guide](docs/quickstart/README.md) and the [Nestybox Blog Site](https://blog.nestybox.com) have
 many usage examples.
-
-## Shiftfs
-
-Recent Ubuntu kernels carry a module called "shiftfs" that Sysbox uses to create
-the system containers.
-
-When launching the system container, if you see an error such as:
-
-    docker: Error response from daemon: OCI runtime create failed: container requires user-ID shifting but error was found: shiftfs module is not loaded in the kernel. Update your kernel to include shiftfs module or enable Docker with userns-remap. Refer to the Sysbox troubleshooting guide for more info: unknown
-
-it means that your kernel version is a bit older than needed by Sysbox.
-
-You can work-around this by enabling the "userns-remap mode" in Docker. Refer to
-the [distro compatibility doc](docs/distro-compat.md) for more info.
 
 ## Sysbox Features
 

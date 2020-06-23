@@ -5,6 +5,14 @@ This section shows examples for running Docker inside system containers.
 The [User Guide](../user-guide/dind.md) describes this functionality in
 deeper detail.
 
+## Contents
+
+-   [Deploy a System Container with Docker inside](#deploy-a-system-container-with-docker-inside)
+-   [Deploy a System Container with Systemd, sshd, and Docker inside](#deploy-a-system-container-with-systemd-sshd-and-docker-inside)
+-   [Deploy a System Container with Supervisord and Docker inside](#deploy-a-system-container-with-supervisord-and-docker-inside)
+-   [Persistence of Inner Container Images using Docker Volumes](#persistence-of-inner-container-images-using-docker-volumes)
+-   [Persistence of Inner Container Images using Bind Mounts](#persistence-of-inner-container-images-using-bind-mounts)
+
 ## Deploy a System Container with Docker inside
 
 We will use a system container image that has Alpine + Docker inside. It's called
@@ -415,12 +423,12 @@ There are a couple of important caveats to keep in mind:
 -   A Docker volume mounted into the system container's `/var/lib/docker` must
     only be mounted on a **single system container at any given time**.
 
-    - This is a restriction imposed by the Docker daemon, which does not allow
-      its image cache to be shared concurrently among multiple daemon
-      instances.
+    -   This is a restriction imposed by the Docker daemon, which does not allow
+        its image cache to be shared concurrently among multiple daemon
+        instances.
 
-    - Sysbox will check for violations of this rule and report an
-      appropriate error during system container creation.
+    -   Sysbox will check for violations of this rule and report an
+        appropriate error during system container creation.
 
 -   A Docker volume mounted into the system container's `/var/lib/docker`
     will **inherit** any files present in that same directory as part of the system

@@ -165,7 +165,7 @@ When the kind tool deploys the K8s cluster, the fact that the K8s.io kind tool
 is using Docker + Sysbox will not be obvious, except that you'll be able to
 deploy K8s nodes with **much higher efficiency and security**.
 
-See [this example](../quickstart/kind.md#using-k8sio-kind--sysbox) in the Quick
+See [this example](../quickstart/kind.md#using-k8sio-kind--sysbox-kind-sysbox) in the Quick
 Start Guide for step-by-step instructions.
 
 ## Using Kindbox
