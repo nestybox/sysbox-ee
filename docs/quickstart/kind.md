@@ -803,6 +803,11 @@ K8s.io KinD + Sysbox).
    required during the image build process (i.e, you can revert the config
    once the build completes if you wish).
 
+NOTE: if using the Ubuntu Docker snap package, edit the
+`/var/snap/docker/current/etc/docker/daemon.json` file instead of
+`/etc/docker/daemon.json` below. You can tell if you are using the Docker
+snap package if `which docker` yields `/snap/bin/docker`.
+
 ```console
 # more /etc/docker/daemon.json
 {
@@ -816,6 +821,9 @@ K8s.io KinD + Sysbox).
 ```
 
 2) Stop all containers and restart the Docker service:
+
+NOTE: if using the Ubuntu Docker snap package, do `$ sudo snap restart docker`
+instead of `systemctl restart docker.service` below.
 
 ```console
 $ docker stop $(docker ps -aq)

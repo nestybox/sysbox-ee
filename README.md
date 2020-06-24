@@ -85,7 +85,7 @@ The Linux host on which Sysbox runs must meet the following requirements:
 
 2) Systemd must be the system's process-manager (the default in the supported distros).
 
-3) Docker must be installed.
+3) Docker must be [installed natively](docs/user-guide/install.md#docker-installation) (**not** with the Docker snap package).
 
 ## Installation
 
@@ -274,8 +274,8 @@ The [K8s.io KinD](https://kind.sigs.k8s.io) project produces a CLI tool called
 It's an excellent tool that makes deployment of K8s cluster in containers fast &
 easy.
 
-When used with the Sysbox container runtime, the capabilities of the "kind" tool
-are enhanced:
+Sysbox complements this tool. When used with the Sysbox container runtime, the
+capabilities of the "kind" tool are enhanced:
 
 -   The containerized K8s clusters consume **significantly less host
     storage** (70% reduction for a 10-node cluster!).
@@ -285,7 +285,7 @@ are enhanced:
 -   You can use Sysbox to **easily** embed inner pod images into the K8s nodes.
 
 Moreover, with Sysbox, you can easily create a containerized K8s cluster without
-using the K8s.io kind tool, by using very simple Docker images and Docker run
+using the K8s.io KinD tool, by using very simple Docker images and Docker run
 commands.
 
 We've created a tool called "kindbox" that is a simple wrapper around Docker
@@ -295,7 +295,7 @@ This results in simple images and gives you full control of the
 cluster configuration. The Sysbox runtime does the heavy lifting of ensuring
 that K8s runs seamlessly inside the containers.
 
-The Sysbox [user-guide](docs/user-guide/kind.md) has more on this.
+The Sysbox [quickstart-guide](docs/quickstart/kind.md) and [user-guide](docs/user-guide/kind.md) have more on this.
 
 ## Troubleshooting
 

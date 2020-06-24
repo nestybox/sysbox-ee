@@ -2,12 +2,12 @@
 
 ## Contents
 
+-   [Host Requirements](#host-requirements)
 -   [Installing Sysbox](#installing-sysbox)
 -   [Uninstalling Sysbox](#uninstalling-sysbox)
+-   [Docker Installation](#docker-installation)
 
-## Installing Sysbox
-
-### Host Requirements
+## Host Requirements
 
 The Linux host on which Sysbox runs must meet the following requirements:
 
@@ -15,9 +15,12 @@ The Linux host on which Sysbox runs must meet the following requirements:
 
 2) Systemd must be the system's process-manager (the default in the supported distros).
 
-3) Docker must be installed.
+3) Docker must be installed natively (i.e., **not** with the Docker snap package).
 
-### Installation Steps
+-   See [below](#docker-installation) if you have a Docker snap installation and
+    need to change it to a native installation.
+
+## Installing Sysbox
 
 1) Download the latest Sysbox package from the [release](https://github.com/nestybox/sysbox-external/releases) page.
 
@@ -64,7 +67,7 @@ If you are curious on what the other Sysbox services are, refer to the [design s
 
 If you hit problems during installation, see the [Troubleshooting doc](troubleshoot.md).
 
-### Docker Configuration
+### Docker Runtime Configuration
 
 During installation, the Sysbox installer will reconfigure the Docker daemon such
 that it detects the Sysbox runtime. It does this by adding the following
@@ -78,6 +81,15 @@ configuration to `/etc/docker/daemon.json` and sending a signal (SIGHUP) to Dock
       }
    }
 }
+```
+
+If all is well, Docker will recognize the Sysbox runtime:
+
+```console
+$ docker info | grep -i runtime
+WARNING: No swap limit support
+ Runtimes: runc sysbox-runc
+  Default Runtime: runc
 ```
 
 ### Docker Userns-Remap
@@ -114,16 +126,16 @@ Otherwise, the Sysbox installer will add the following `userns-remap` entry to t
 }
 ```
 
-The installer will then ask the user if Docker should be restarted. If
-the user responds affirmatively, the installer will restart Docker. Otherwise,
-the user will need to restart Docker manually (e.g., `systemctl restart docker`)
-before using Sysbox.
+The installer will then ask the user if Docker should be restarted. If the user
+responds affirmatively, the installer will restart Docker
+automatically. Otherwise, the user will need to restart Docker manually (e.g.,
+`systemctl restart docker`) before using Sysbox.
 
 When Docker is placed in userns-remap mode, there are a couple of caveats to
 keep in mind:
 
 -   Configuring Docker this way places a few functional limitations on regular
-    Docker containers (those launched with Docker's default runc), as described
+    Docker containers (those launched with Docker's default `runc`), as described
     in this [Docker document](https://docs.docker.com/engine/security/userns-remap).
 
 -   System container isolation, while strong, is reduced compared to using
@@ -153,4 +165,90 @@ $ sudo dpkg --purge sysbox
 
 ```console
 $ sudo userdel sysbox
+```
+
+## Docker Installation
+
+Ubuntu offers two methods for installing Docker:
+
+1) Via `apt get` (aka native installation)
+
+2) Via `snap install` (aka snappy installation)
+
+In recent versions of Ubuntu, (2) is the default approach. For example, while installing
+Ubuntu Focal on a VM, the installer will ask if you want to install Docker. If you answer
+"yes", it will use the snappy installation method.
+
+You can tell if Docker is installed via a snap by doing:
+
+```console
+$ which docker
+/snap/bin/docker
+```
+
+Unfortunately, Sysbox **does not currently support** working with Docker when the latter is
+installed via a snap package. We are working on resolving this.
+
+In the meantime, you **must install Docker natively** (method (1) above).
+
+These are the steps to do so:
+
+1) If Docker is installed via a snap, remove the snap:
+
+```console
+$ sudo snap remove docker
+docker removed
+```
+
+2) Install Docker natively.
+
+Follow the instructions in this [Docker doc](https://docs.docker.com/engine/install/ubuntu/).
+
+3) Confirm Docker is installed natively:
+
+```console
+$ which docker
+/usr/bin/docker
+```
+
+4) Make sure you are in the `docker` group:
+
+```console
+$ sudo usermod -a -G docker $(whoami)
+```
+
+You may need to log-out and log-in for the group setting to take effect.
+
+If you are not in the `docker` group (or have no sudo privileges), you'll see an error such as:
+
+```console
+$ docker run -it alpine
+Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: ... connect: permission denied
+```
+
+5) Verify Docker works:
+
+```console
+$ docker run -it alpine
+Unable to find image 'alpine:latest' locally
+latest: Pulling from library/alpine
+df20fa9351a1: Pull complete
+Digest: sha256:185518070891758909c9f839cf4ca393ee977ac378609f700f60a771a2dfe321
+Status: Downloaded newer image for alpine:latest
+/ #
+```
+
+At this point you have Docker working, and can now [install Sysbox](#installing-sysbox).
+
+If you want to revert back to the Docker snap, the steps are below, but keep in
+mind that Sysbox **won't work**.
+
+1) Uninstall the native Docker
+
+See [here](https://docs.docker.com/engine/install/ubuntu/#uninstall-old-versions).
+
+2) Re-install the Docker snap:
+
+```console
+$ sudo snap install docker
 ```
