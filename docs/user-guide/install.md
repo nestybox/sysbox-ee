@@ -63,6 +63,10 @@ sysbox.service                     loaded    active   exited  Sysbox General Ser
 Note: the sysbox.service is ephemeral (it exits once it launches the other sysbox services; that's why
 you see `sysbox.service   loaded  active  exited` above).
 
+After you've installed Sysbox, you can now use it to deploy containers that can
+run systemd, Docker, and Kubernetes inside of them seamlessly. See the
+[Quickstart Guide](../quickstart/README.md) for examples.
+
 If you are curious on what the other Sysbox services are, refer to the [design section](design.md).
 
 If you hit problems during installation, see the [Troubleshooting doc](troubleshoot.md).

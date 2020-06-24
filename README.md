@@ -145,16 +145,16 @@ root@my_cont:/#
 
 This launches a system container. Looks very much like a regular container,
 except that within it you can now run system software such as Docker,
-Kubernetes, etc.  without any special configurations or complexity, and securely
-(no privileged containers!).
+Kubernetes, etc.  seamlessly, without complicated Docker run commands or complex
+images, and securely (no privileged containers!).
+
+The [Sysbox Quickstart Guide](docs/quickstart/README.md) and the [Nestybox Blog Site](https://blog.nestybox.com) have
+many usage examples.
 
 Note that if you omit the `--runtime` option, Docker will use its default `runc`
 runtime to launch regular containers (rather than system containers). It's
 perfectly fine to run system containers launched with Docker + Sysbox alongside
 regular Docker containers; they won't conflict and can co-exist side-by-side.
-
-The [Sysbox Quickstart Guide](docs/quickstart/README.md) and the [Nestybox Blog Site](https://blog.nestybox.com) have
-many usage examples.
 
 ## Sysbox Features
 
