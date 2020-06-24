@@ -26,6 +26,10 @@ $ docker run --runtime=sysbox-runc --rm -it --hostname my_cont debian:latest
 root@my_cont:/#
 ```
 
+The resulting container is one in which you can seamlessly run run systemd,
+Docker, and Kubernetes inside (without complex images, entrypoints, etc). See
+the [Quickstart Guide](../quickstart/README.md) for examples.
+
 If you wish, you can configure Sysbox as the default runtime for Docker. This
 way you don't have to use the `--runtime` flag every time. To do this,
 refer to this [Docker doc](https://docs.docker.com/engine/reference/commandline/dockerd/).
