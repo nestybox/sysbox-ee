@@ -132,7 +132,9 @@ sysbox.service                     loaded    active   exited  Sysbox General Ser
 Note: the sysbox.service is ephemeral (it exits once it launches the other sysbox services; that's why
 you see `sysbox.service   loaded  active  exited` above).
 
-See [here](docs/user-guide/install.md) for more info.
+More info on the installation process can be found [here](docs/user-guide/install.md).
+
+If you run into problems during install, see the [troubleshooting doc](docs/user-guide/troubleshoot.md).
 
 ## Launching a System Container
 
