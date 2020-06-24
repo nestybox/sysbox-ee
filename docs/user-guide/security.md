@@ -220,8 +220,8 @@ Sysbox will check for this. If the module is required but not present in the
 Linux kernel, Sysbox will fail to launch containers and issue an error such as
 [this one](troubleshoot.md#ubuntu-shiftfs-module-not-present).
 
-Note that shiftfs is not present in all Ubuntu kernels. See
-[here](../distro-compat.md) for more info.
+Note that shiftfs is present in Ubuntu Desktop and Server editions, but likely
+not present in Ubuntu cloud editions.
 
 ## Procfs Virtualization
 

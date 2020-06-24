@@ -3,9 +3,9 @@
 ## Contents
 
 -   [Sysbox Installation Problems](#sysbox-installation-problems)
+-   [Docker reports Unknown Runtime error](#docker-reports-unknown-runtime-error)
 -   [Ubuntu Shiftfs Module Not Present](#ubuntu-shiftfs-module-not-present)
 -   [Unprivileged User Namespace Creation Error](#unprivileged-user-namespace-creation-error)
--   [Docker reports Unknown Runtime error](#docker-reports-unknown-runtime-error)
 -   [Bind Mount Permissions Error](#bind-mount-permissions-error)
 -   [Failed to Setup Docker Volume Manager Error](#failed-to-setup-docker-volume-manager-error)
 -   [Failed to register with sysbox-mgr or sysbox-fs](#failed-to-register-with-sysbox-mgr-or-sysbox-fs)
@@ -21,32 +21,21 @@ When installing the Sysbox package with the `dpkg` command
 (see the [Installation instructions](../../README.md#installation)), the expected output is:
 
 ```console
+$ sudo dpkg -i sysbox_0.2.0-0.ubuntu-eoan_amd64.deb
 Selecting previously unselected package sysbox.
-(Reading database ... 150254 files and directories currently installed.)
-Preparing to unpack .../sysbox_0.0.1-0~ubuntu-bionic_amd64.deb ...
-Unpacking sysbox (1:0.0.1-0~ubuntu-bionic) ...
-Setting up sysbox (1:0.0.1-0~ubuntu-bionic) ...
-
-Non-disruptive changes made to docker configuration. Sending SIGHUP signal to docker daemon...
-
+(Reading database ... 155191 files and directories currently installed.)
+Preparing to unpack sysbox_0.2.0-0.ubuntu-eoan_amd64.deb ...
+Unpacking sysbox (0.1.2-0.ubuntu-eoan) ...
+Setting up sysbox (0.1.2-0.ubuntu-eoan) ...
 Created symlink /etc/systemd/system/sysbox.service.wants/sysbox-fs.service → /lib/systemd/system/sysbox-fs.service.
 Created symlink /etc/systemd/system/sysbox.service.wants/sysbox-mgr.service → /lib/systemd/system/sysbox-mgr.service.
 Created symlink /etc/systemd/system/multi-user.target.wants/sysbox.service → /lib/systemd/system/sysbox.service.
 ```
 
-If your Docker daemon is configured with userns-remap enabled, you may also see the following:
-
-```console
-Disruptive changes made to docker configuration. Restarting docker service...
-```
-
-Both mean that the installation completed successfully.
-
-In case an error occurs during installation as a consequence of a
-missing software dependency, proceed to download and install the
-missing package(s) as indicated below. Once this requirement is
-satisfied, Sysbox's installation process will be automatically
-re-launched to conclude this task.
+In case an error occurs during installation as a consequence of a missing
+software dependency, proceed to download and install the missing package(s) as
+indicated below. Once this requirement is satisfied, Sysbox's installation
+process will be automatically re-launched to conclude this task.
 
 Missing dependency output:
 
@@ -82,6 +71,54 @@ sysbox.service                     loaded    active   exited  Sysbox General Ser
 The sysbox.service is ephemeral (it exits once it launches the other sysbox services),
 so the `active exited` status above is expected.
 
+## Docker reports Unknown Runtime error
+
+When creating a system container, Docker may report the following error:
+
+```console
+$ docker run --runtime=sysbox-runc -it ubuntu:latest
+docker: Error response from daemon: Unknown runtime specified sysbox-runc.
+```
+
+This indicates that the Docker daemon is not aware of the Sysbox
+runtime.
+
+This is likely due to one of the following reasons:
+
+1) Docker is installed via a Ubuntu snap package.
+
+2) Docker is installed natively, but it's daemon configuration file
+   (`/etc/docker/daemon.json`) has an error.
+
+For (1):
+
+At this time, Sysbox does not support Docker installations via snap.
+See [host requirements](install.md#host-requirements) for more info
+and how to overcome this.
+
+For (2):
+
+The `/etc/docker/daemon.json` file should have an entry for `sysbox-runc` as follows:
+
+```console
+{
+    "runtimes": {
+        "sysbox-runc": {
+            "path": "/usr/local/sbin/sysbox-runc"
+        }
+    }
+}
+```
+
+Double check that this is the case. If not, change the file and restart Docker:
+
+```console
+$ sudo systemctl restart docker.service
+```
+
+**NOTE:** The Sysbox installer automatically does this configuration and
+restarts Docker. Thus this error is uncommon.
+
 ## Ubuntu Shiftfs Module Not Present
 
 When creating a system container, the following error indicates that
@@ -96,10 +133,10 @@ docker: Error response from daemon: OCI runtime create failed: container require
 In general, this error should not occur as the Sysbox installer checks
 for the presence of `shiftfs` during installation, and if not present
 configures Docker in such a way that the module is no longer needed
-(see [the Sysbox distro compat doc](../distro-compat.md#ubuntu-support)).
+(see [the Sysbox installation doc](install.md#docker-userns-remap)).
 
-But if you still see this error, you can work-around it by configuring Docker in
-userns-remap mode:
+But if you still see this error, you can work-around it by placing Docker in
+userns-remap mode as follows:
 
 1) Add the userns-remap line to the `/etc/docker/daemon.json` file as shown below:
 
@@ -143,41 +180,6 @@ sudo sh -c "echo 1 > /proc/sys/kernel/unprivileged_userns_clone"
 **Note:** The Sysbox package installer automatically executes this
 instruction, so normally there is no need to do this configuration
 manually.
-
-## Docker reports Unknown Runtime error
-
-When creating a system container, Docker may report the following error:
-
-```console
-$ docker run --runtime=sysbox-runc -it ubuntu:latest
-docker: Error response from daemon: Unknown runtime specified sysbox-runc.
-```
-
-This indicates that the Docker daemon is not aware of the sysbox-runc
-runtime. This is likely caused by a misconfiguration of the
-`/etc/docker/daemon.json` file. That file should have an entry for
-sysbox-runc as follows:
-
-```console
-# cat /etc/docker/daemon.json
-{
-   "runtimes": {
-        "sysbox-runc": {
-            "path": "/usr/local/sbin/sysbox-runc"
-        }
-    }
-}
-```
-
-If this file is changed, the Docker daemon needs to be restarted:
-
-```console
-# systemctl restart docker.service
-```
-
-**Note:** The sysbox installer automatically configures the `/etc/docker/daemon.json`
-file to add the `sysbox-runc` runtime to it, and restarts the Docker daemon. Thus
-this error is uncommon.
 
 ## Bind Mount Permissions Error
 
