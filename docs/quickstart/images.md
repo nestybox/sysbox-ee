@@ -225,7 +225,12 @@ busybox             latest              19485c79a9bb        7 weeks ago         
 
 There they are!
 
-A couple of restrictions apply here:
+A few restrictions apply here:
+
+-   Committing a system container with **running** inner containers does not
+    currently work. That is, the system container being committed can have inner
+    container images, but not running inner containers. This is a limitation
+    that we will work to remove soon.
 
 -   The `docker commit` instruction takes a `--pause` option which
     is set to `true` by default. Do not set it to `false`; it won't work.
