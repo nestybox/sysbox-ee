@@ -76,7 +76,8 @@ in the [next section](#shiftfs-security-precautions).
 To verify the Ubuntu shiftfs module is loaded in your host, type:
 
 ```console
-# lsmod | grep shiftfs
+$ sudo modprobe shiftfs
+$ lsmod | grep shiftfs
 shiftfs           24576  0
 ```
 
