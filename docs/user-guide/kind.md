@@ -191,10 +191,10 @@ modify it to fit your needs.
 See [this example](../quickstart/kind.md#using-kindbox) in the Quick Start
 Guide for step-by-step instructions.
 
-### Kindbox Simplicity
+### Kindbox Simplicity & Flexibility
 
-Kindbox is a very simple tool: it's a bash script wrapper around Docker commands
-that create, destroy, and resize a Kubernetes-in-Docker cluster.
+Kindbox is a very simple and flexible tool: it's a bash script wrapper around
+Docker commands that create, destroy, and resize a Kubernetes-in-Docker cluster.
 
 That is, Kindbox talks to Docker, Docker talks to Sysbox, and Sysbox creates or
 destroys the containers.
@@ -208,8 +208,8 @@ For this same reason, no specialized Docker images are needed for the containers
 that act as K8s nodes. In other words, the K8s node image does not require
 complex entrypoints or complex Docker commands for its deployment.
 
-This is important because it enables you to fully control the contents of the
-image and easily change it to your needs.
+This in turn enables you to fully control the contents of the images that make
+up the k8s nodes, as well as the process for launching the K8s cluster.
 
 ## K8s Cluster Deployment with Docker + Sysbox
 
@@ -261,9 +261,11 @@ Data is for a 10 node cluster, collected on a small laptop with 4 CPUs and 8GB R
 | --------------------- | :---------: | :------------------: | :-----: |
 | Storage overhead      |    10 GB    |         3 GB         |   1 GB  |
 | Cluster creation time |    2 min    |         2 min        |  2 min  |
-| Cluster deletion time |    5 sec    |        20 sec        |  13 sec |
 
-As shown, the storage overhead reduction when using Sysbox is significant (> 70%).
+Latency-wise, the cluster creation time is similar (~2 minutes for a 10 node
+cluster; not bad!).
+
+But notice the storage overhead reduction when using Sysbox. It's significant (> 70%).
 
 This reduction is possible because Sysbox has features that maximize
 [sharing of container image layers](images.md#inner-docker-image-sharing) between
@@ -272,14 +274,6 @@ the containers that make up the K8s cluster.
 That sharing is even larger when Docker is running inside the container, which
 is why the kindbox column shows the lowest overhead (by default kindbox uses the
 `nestybox/k8s-node` image which comes with Docker inside).
-
-Latency-wise, the cluster creation time is similar (~2 minutes for a 10 node
-cluster, not bad!)
-
-The cluster deletion time however is higher with Sysbox. The reason is that some
-Sysbox features rely on data movement between the container's root filesystem
-and Sysbox-managed directories on the host, and this data movement occurs both
-at cluster creation and cluster deletion.
 
 ## Preliminary Support & Known Limitations
 
