@@ -34,13 +34,12 @@ There are currently 3 ways you can deploy the cluster:
 With Sysbox, you are able to deploy K8s-in-Docker with **unmatched ease,
 efficiency, and security**.
 
-Here is a comparison for deploying a 10-node K8s cluster:
+Here is a comparison between these (for deploying a 10-node K8s cluster):
 
 | Criteria                       | K8s.io KinD (w/o Sysbox) | K8s.io KinD (with Sysbox) | Kindbox |
 | ------------------------------ | :----------------------: | :-----------------------: | :-----: |
 | Host storage overhead          |           10 GB          |            3 GB           |   1 GB  |
 | Cluster creation time          |           2 min          |           2 min           |  2 min  |
-| Cluster deletion time          |           5 sec          |           20 sec          |  13 sec |
 | Simple Docker images           |            No            |             No            |   Yes   |
 | Full control of cluster config |            No            |             No            |   Yes   |
 | Dynamically resize cluster     |            No            |             No            |   Yes   |
@@ -68,7 +67,7 @@ When used with Sysbox, the capabilities of `kind` are enhanced:
 -   A containerized K8s cluster consumes **significantly** less host
     storage (70% reduction for a 10-node cluster!).
 
--   The cluster is much more secure (does not require risky privileged
+-   The cluster is much more secure (does not use risky privileged
     containers).
 
 -   You can use Sysbox to **easily** embed inner pod images into the K8s nodes.
