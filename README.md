@@ -97,42 +97,28 @@ It's very easy:
    For example:
 
 ```console
-$ sha256sum sysbox_0.1.3-0.ubuntu-disco_amd64.deb
-774aa1442c9142a1e6c6db49f896439b989de3668926bccd91aa0a679fa3df87  sysbox_0.1.3-0.ubuntu-disco_amd64.deb
+$ sha256sum sysbox_0.2.0-0.ubuntu-focal_amd64.deb
+1e171a58f21ad8bd427af3186f5f331a466350f02ce6a66c7e8b723c2764e33c  sysbox_0.2.0-0.ubuntu-focal_amd64.deb
 ```
 
-3) Stop all running Docker containers (as the installer may need to restart Docker).
+3) Stop and eliminate all running Docker containers. Refer to the
+[detailed](docs/user-guide/install.md) installation process for information
+on how to avoid impacting existing containers.
+
+```
+$ docker stop $(docker ps -a -q) && docker container prune -f
+```
+
+If an error is returned, it simply indicates that no existing containers were
+found.
 
 4) Install the Sysbox package and follow the installer instructions:
 
 ```console
-$ sudo dpkg -i sysbox_0.1.3-0.ubuntu-disco_amd64.deb
+$ sudo apt-get install ./sysbox_0.2.0-0.ubuntu-focal_amd64.deb -y
 ```
 
-In case you hit an error with missing dependencies, fix this with:
-
-```console
-$ sudo apt-get update
-$ sudo apt-get install -f -y
-```
-
-This will install the missing dependencies and automatically re-launch
-the Sysbox installation process.
-
-5) Verify that Sysbox's Systemd units have been properly installed, and
-   associated daemons are properly running:
-
-```console
-$ systemctl list-units -t service --all | grep sysbox
-sysbox-fs.service                   loaded    active   running sysbox-fs component
-sysbox-mgr.service                  loaded    active   running sysbox-mgr component
-sysbox.service                     loaded    active   exited  Sysbox General Service
-```
-
-Note: the sysbox.service is ephemeral (it exits once it launches the other sysbox services; that's why
-you see `sysbox.service   loaded  active  exited` above).
-
-More info on the installation process can be found [here](docs/user-guide/install.md).
+More information on the installation process can be found [here](docs/user-guide/install.md).
 
 If you run into problems during install, see the [troubleshooting doc](docs/user-guide/troubleshoot.md).
 
@@ -358,17 +344,11 @@ answer the following survey:
 Prior to uninstalling Sysbox, make sure all system containers are removed.
 There is a simple shell script to do this [here](scr/rm_all_syscont).
 
-1) Uninstall Sysbox binaries:
+1) Uninstall Sysbox binaries plus all the associated configuration and Systemd
+files:
 
 ```console
-$ sudo dpkg --remove sysbox
-```
-
-Alternatively, remove the above items plus all the associated
-configuration and Systemd files (recommended):
-
-```console
-$ sudo dpkg --purge sysbox
+$ sudo apt-get purge sysbox -y
 ```
 
 2) Remove the `sysbox` user from the system:
