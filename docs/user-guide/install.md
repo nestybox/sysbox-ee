@@ -28,27 +28,31 @@ The Linux host on which Sysbox runs must meet the following requirements:
    For example:
 
 ```console
-$ sha256sum sysbox_0.1.3-0.ubuntu-disco_amd64.deb
-774aa1442c9142a1e6c6db49f896439b989de3668926bccd91aa0a679fa3df87  sysbox_0.1.3-0.ubuntu-disco_amd64.deb
+$ sha256sum sysbox_0.2.0-0.ubuntu-focal_amd64.deb
+1e171a58f21ad8bd427af3186f5f331a466350f02ce6a66c7e8b723c2764e33c  sysbox_0.2.0-0.ubuntu-focal_amd64.deb
 ```
 
-3) Stop all running Docker containers.
+3) In scenarios where kernel carries `shiftfs` module, there is no need to stop
+and eliminate existing containers prior to Sysbox installation. Sysbox's installer
+will seamlessly complete the installation process without service disruption.
+
+   On the other hand, if `shiftfs` module is missing, Sysbox installer may require
+   a Docker Service restart. In this scenario (see [userns-remap](#docker-userns-remap) mode), if Docker is not already operating in
+   `userns-remap` mode, we encourage users to stop and remove existing containers
+   before launching the Sysbox installer:
+
+```
+$ docker stop $(docker ps -a -q) && docker container prune -f
+```
+
+   If an error is returned, it simply indicates that no existing containers were
+   found.
 
 4) Install the Sysbox package and follow the installer instructions:
 
 ```console
-$ sudo dpkg -i sysbox_0.1.3-0.ubuntu-disco_amd64.deb
+$ sudo apt-get install ./sysbox_0.2.0-0.ubuntu-focal_amd64.deb -y
 ```
-
-In case you hit an error with missing dependencies, fix this with:
-
-```console
-$ sudo apt-get update
-$ sudo apt-get install -f -y
-```
-
-This will install the missing dependencies and automatically re-launch
-the Sysbox installation process.
 
 5) Verify that Sysbox's Systemd units have been properly installed, and
    associated daemons are properly running:
@@ -114,7 +118,7 @@ The installer uses the following logic:
 
 If Docker needs to be placed in userns-remap, the Sysbox installer will check if
 Docker is already in this mode (by looking for `userns-remap` in
-`/etc/docker/daemon.json`). If so, no further action is required.
+`/etc/docker/daemon.json` and `userns` entry in `docker info` output). If so, no further action is required.
 
 Otherwise, the Sysbox installer will add the following `userns-remap` entry to the
 `/etc/docker/daemon.json` file:
@@ -152,17 +156,11 @@ keep in mind:
 Prior to uninstalling Sysbox, make sure all system containers are removed.
 There is a simple shell script to do this [here](../../scr/rm_all_syscont).
 
-1) Uninstall Sysbox binaries:
+1) Uninstall Sysbox binaries plus all the associated configuration and Systemd
+files:
 
 ```console
-$ sudo dpkg --remove sysbox
-```
-
-Alternatively, remove the above items plus all the associated
-configuration and Systemd files (recommended):
-
-```console
-$ sudo dpkg --purge sysbox
+$ sudo apt-get purge sysbox -y
 ```
 
 2) Remove the `sysbox` user from the system:
