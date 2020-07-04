@@ -29,7 +29,7 @@ The Linux host on which Sysbox runs must meet the following requirements:
 
 ```console
 $ sha256sum sysbox_0.2.0-0.ubuntu-focal_amd64.deb
-1e171a58f21ad8bd427af3186f5f331a466350f02ce6a66c7e8b723c2764e33c  sysbox_0.2.0-0.ubuntu-focal_amd64.deb
+736dba5645549ac0aabe11f29c6410bdbb76e717431a8a241833f20ce8b58a11  sysbox_0.2.0-0.ubuntu-focal_amd64.deb
 ```
 
 3) In scenarios where kernel carries `shiftfs` module, there is no need to stop
