@@ -17,12 +17,12 @@ Sysbox requires recent Ubuntu versions:
 
 -   Ubuntu 20.04 "Focal Fossa"
 -   Ubuntu 19.10 "Eoan Ermine"
--   Ubuntu 18.04 "Bionic Beaver" (with kernel upgrade >= 5.0)
+-   Ubuntu 18.04 "Bionic Beaver" (point releases older than 18.04.4 require kernel upgrade)
 
 These versions carry some new Linux kernel features that Sysbox relies on to
 create the system containers.
 
-**NOTE:** If you have Ubuntu 18.04 (Bionic Beaver), you need to upgrade the kernel to >= 5.0.
+**NOTE:** If you have a relatively old Ubuntu 18.04 release (e.g. 18.04.3), you need to upgrade the kernel to >= 5.0.
 We recommend using Ubuntu's [LTS-enablement](https://wiki.ubuntu.com/Kernel/LTSEnablementStack)
 package to do the upgrade as follows:
 
