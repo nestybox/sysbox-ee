@@ -215,7 +215,7 @@ The [K8s.io KinD website](https://kind.sigs.k8s.io/) for more info on how to use
 
 <p align="center"><img alt="sysbox" src="../figures/kindbox.png" width="800x" /></p>
 
-[Kindbox](../../scr/kindbox) is a simple open-source tool created by Nestybox
+[Kindbox](https://github.com/nestybox/kindbox) is a simple open-source tool created by Nestybox
 to easily create K8s clusters with Docker + Sysbox.
 
 **Check out this [video](https://asciinema.org/a/VCgF094wb4CuVeI8h3iDKhh5m?speed=2).**
