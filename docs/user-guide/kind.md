@@ -97,6 +97,8 @@ as without them (through simple `docker run` commands).
 
 <p align="center"><img alt="sysbox" src="../figures/kind-sysbox.png" width="800x" /></p>
 
+**Check out this [video](https://asciinema.org/a/veCPJJtf0D38Cet2iLOY4j8ry?speed=1.75).**
+
 The [K8s.io KinD](https://kind.sigs.k8s.io) project produces a CLI tool called
 "kind" that enables deployment of Kubernetes clusters inside Docker containers.
 
@@ -175,7 +177,7 @@ Start Guide for step-by-step instructions.
 [Kindbox](https://github.com/nestybox/kindbox) is a simple open-source tool created by Nestybox
 to easily create K8s clusters with Docker + Sysbox.
 
-Check out this [video](https://asciinema.org/a/VCgF094wb4CuVeI8h3iDKhh5m?speed=1.75).
+**Check out this [video](https://asciinema.org/a/Vw8fwWwRJ26dNdMpaU8m5oaTQ?speed=1.75).**
 
 Kindbox does some of the same things that the K8s.io KinD tool does (e.g., cluster
 creation, destruction, etc.) but it's much simpler, more flexible, does not
@@ -216,7 +218,7 @@ up the k8s nodes, as well as the process for launching the K8s cluster.
 It's also possible to deploy a K8s cluster directly with Docker + Sysbox,
 without using the K8s.io `kind` or Nestybox's `kindbox` tools.
 
-Check out this [video](https://asciinema.org/a/bTN4oykrDRZGDIkDg7rngyP5b?speed=1.75).
+**Check out this [video](https://asciinema.org/a/V1UFSxz6JHb3rdHpGrnjefFIt?speed=1.75).**
 
 The upside is that you get full control of the cluster deployment. The drawback
 is that you need to manage the K8s cluster creation sequence. But it's pretty

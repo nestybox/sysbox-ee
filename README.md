@@ -60,7 +60,7 @@ We have some sample videos showing Sysbox in action:
 
 -   [Docker Sandboxing](https://asciinema.org/a/kkTmOxl8DhEZiM2fLZNFlYzbo?speed=2)
 
--   [Kubernetes-in-Docker](https://asciinema.org/a/VCgF094wb4CuVeI8h3iDKhh5m?speed=2)
+-   [Kubernetes-in-Docker](https://asciinema.org/a/V1UFSxz6JHb3rdHpGrnjefFIt?speed=1.75)
 
 ## Download
 
