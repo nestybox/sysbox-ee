@@ -53,6 +53,8 @@ The sections below show examples of this.
 
 <p align="center"><img alt="sysbox" src="../figures/kind-sysbox.png" width="800x" /></p>
 
+**Check out this [video](https://asciinema.org/a/veCPJJtf0D38Cet2iLOY4j8ry?speed=1.75).**
+
 The [K8s.io KinD](https://kind.sigs.k8s.io) project produces a CLI tool called
 `kind` that enables deployment of Kubernetes clusters inside Docker containers.
 
@@ -218,7 +220,7 @@ The [K8s.io KinD website](https://kind.sigs.k8s.io/) for more info on how to use
 [Kindbox](https://github.com/nestybox/kindbox) is a simple open-source tool created by Nestybox
 to easily create K8s clusters with Docker + Sysbox.
 
-**Check out this [video](https://asciinema.org/a/VCgF094wb4CuVeI8h3iDKhh5m?speed=2).**
+**Check out this [video](https://asciinema.org/a/Vw8fwWwRJ26dNdMpaU8m5oaTQ?speed=1.75).**
 
 Kindbox does some of the same things that the K8s.io KinD tool does (e.g., cluster
 creation, destruction, etc.) but it's much simpler, more flexible, does not
@@ -480,7 +482,7 @@ If you would like Nestybox to add more functionality, please file an
 It's also possible to deploy a K8s cluster directly with Docker + Sysbox,
 without using the K8s.io `kind` or Nestybox's `kindbox` tools.
 
-**Check out this [video](https://asciinema.org/a/bTN4oykrDRZGDIkDg7rngyP5b?speed=2).**
+**Check out this [video](https://asciinema.org/a/V1UFSxz6JHb3rdHpGrnjefFIt?speed=1.75).**
 
 The upside is that you get full control of the cluster deployment. The drawback
 is that you need to manage the K8s cluster creation sequence. But it's pretty
@@ -802,11 +804,6 @@ K8s.io KinD + Sysbox).
    required during the image build process (i.e, you can revert the config
    once the build completes if you wish).
 
-NOTE: if using the Ubuntu Docker snap package, edit the
-`/var/snap/docker/current/etc/docker/daemon.json` file instead of
-`/etc/docker/daemon.json` below. You can tell if you are using the Docker
-snap package if `which docker` yields `/snap/bin/docker`.
-
 ```console
 # more /etc/docker/daemon.json
 {
@@ -820,9 +817,6 @@ snap package if `which docker` yields `/snap/bin/docker`.
 ```
 
 2) Stop all containers and restart the Docker service:
-
-NOTE: if using the Ubuntu Docker snap package, do `$ sudo snap restart docker`
-instead of `systemctl restart docker.service` below.
 
 ```console
 $ docker stop $(docker ps -aq)
