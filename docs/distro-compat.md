@@ -29,3 +29,14 @@ package to do the upgrade as follows:
 ```console
 $ sudo apt-get update && sudo apt install --install-recommends linux-generic-hwe-18.04 -y
 ```
+
+### Using Sysbox On Kernels Without the Shiftfs Module
+
+Recent Ubuntu kernels carry a module called `shiftfs` that Sysbox uses as part
+of its container isolation strategy.
+
+However, some Ubuntu cloud images do not carry the module. In this case, Sysbox
+requires that Docker be configured in [userns-remap mode](https://docs.docker.com/engine/security/userns-remap/).
+
+The Sysbox installer will detect this condition and can automatically put
+Docker in userns-remap mode if desired. See [here](user-guide/install.md#docker-userns-remap) for details.
