@@ -1,9 +1,18 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [0.1.3] - 2020-02-03
+## [0.2.0] - 2020-07-03
 ### Added
-  * Added support for Ubuntu Eoan-Ermine release (19.10).
+  * Added initial Kubernetes-in-Docker support to enable secure, flexible and portable K8s clusters.
+  * Implemented inner Docker Image Sharing feature, to dramatically reduce host storage utilization for system containers that come preloaded with Docker images.
+  * Added support for running privileged-containers within secure system containers.
+  * Added support for containerd to run within system containers.
+  * Made multiple performance improvements to expedite container initialization and i/o operations.
+  * Added support for Ubuntu-Eoan (19.10) and Ubuntu-Focal (20.04).
+  * Extended support for Ubuntu-Cloud releases (Bionic, Eoan, Focal).
+  * Enhanced Sysbox documentation.
+### Removed
+  * Deprecated support of Ubuntu's EOL releases: Ubuntu-Disco (19.04) and Ubuntu-Cosmic (18.10).
 
 ## [0.1.2] - 2019-11-11
 ### Added
