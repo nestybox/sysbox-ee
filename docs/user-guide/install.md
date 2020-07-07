@@ -22,6 +22,8 @@ The Linux host on which Sysbox runs must meet the following requirements:
 
 ## Installing Sysbox
 
+**NOTE**: if you have a prior version of Sysbox already installed, please [uninstall it](#uninstalling-sysbox) first and then follow the installation instructions below.
+
 1) Download the latest Sysbox package from the [release](https://github.com/nestybox/sysbox-external/releases) page.
 
 2) Verify that the checksum of the downloaded file fully matches the expected/published one.
@@ -102,7 +104,7 @@ WARNING: No swap limit support
 
 ### Docker Userns-Remap
 
-In addition, the Sysbox installer will detect if Docker needs to be placed
+During installation, the Sysbox installer will also check if Docker needs to be placed
 in [userns-remap mode](https://docs.docker.com/engine/security/userns-remap/) or not.
 
 The installer uses the following logic:
