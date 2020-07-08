@@ -27,17 +27,17 @@
 
 ## Introduction
 
-**Sysbox** is a next-generation container runtime, developed by [Nestybox](#about-nestybox),
-that enables deployment of containers that are capable of running not just micro-services,
-but also system software such as Docker, Kubernetes, Systemd, etc., inside the container,
-**easily and securely**.
+**Sysbox** is a next-generation container runtime (runc), developed by
+[Nestybox](#about-nestybox), that enables containers to run not just
+micro-services, but also system software such as Docker, Kubernetes, Systemd,
+etc., inside the container, **seamlessly and securely**.
 
-What makes Sysbox unique is that the containers it creates can **seamlessly** run
-system software. It voids the need for unsecure privileged containers,
-complicated container images, custom entrypoints, or complex configurations. And
-it's very fast and efficient.
+Without Sysbox, running such software in a container requires complex images,
+custom entrypoints, special volume mounts, and risky privileged containers.
+Sysbox removes all of this complexity while ensuring strong container security.
+And it's very fast and efficient too.
 
-Sysbox sits below containers managers such as Docker and Containerd, allowing you to
+Sysbox sits below container managers such as Docker and Containerd, allowing you to
 use these well known tools to deploy the containers. No need to learn new tools!
 
 If you want to run Docker, Kubernetes, or Systemd-reliant apps inside Docker
@@ -296,7 +296,7 @@ Do [contact us](#contact) if you need any help.
 ## Filing Issues
 
 We apologize for any problems in the product or documentation, and we appreciate
-customers filing issues that help us improve Sysbox.
+users filing issues that help us improve Sysbox.
 
 To file issues with Sysbox (e.g., bugs, feature requests, documentation changes, etc.),
 please refer to the [issue guidelines](docs/issue-guidelines.md) document.
