@@ -475,7 +475,7 @@ And remember, it should be fairly easy to add functionality to Kindbox, as it's
 just a bash wrapper around Docker commands that manage the cluster.
 
 If you would like Nestybox to add more functionality, please file an
-[issue](../issue-guidelines.md) in the Sysbox Github repo, or [contact us](../../README.md#support).
+in the [Kindbox Github repo](https://github.com/nestybox/kindbox), or [contact us](../../README.md#support).
 
 ## Using Docker to Deploy a K8s Cluster
 
@@ -783,8 +783,8 @@ images that come [preloaded with inner container images](../user-guide/images.md
 
 You can use this to create K8s node images that include inner pod images.
 
-This can **significantly speed up deployment** of the K8s cluster, since K8s node
-need not download those inner pod images at runtime.
+This can **significantly speed up deployment** of the K8s cluster, since the K8s
+node container need not download those inner pod images at runtime.
 
 There are two ways to do this:
 
