@@ -54,7 +54,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y      \
 # Sshd install
 RUN apt-get update && apt-get install --no-install-recommends -y      \
             openssh-server &&                                         \
-    mkdir /home/admin/.ssh
+    mkdir /home/admin/.ssh &&                                         \
+    chown admin:admin /home/admin/.ssh
 
 EXPOSE 22
 
