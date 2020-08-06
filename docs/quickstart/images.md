@@ -1,4 +1,4 @@
-# Sysbox Quick Start Guide: Preloading Inner Container Images into System Containers
+# Sysbox-EE Quick Start Guide: Preloading Inner Container Images into System Containers
 
 This section shows how to preload inner container images into system container
 images.

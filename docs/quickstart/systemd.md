@@ -1,4 +1,4 @@
-# Sysbox Quick Start Guide: Systemd-in-Docker
+# Sysbox-EE Quick Start Guide: Systemd-in-Docker
 
 This sections shows examples for deploying system containers that include
 systemd inside.
