@@ -521,7 +521,7 @@ There are a couple of caveats to keep in mind here:
 
 -   A host directory bind-mounted into the system container's `/var/lib/docker` must
     only be mounted on a **single system container at any given time**. This is
-    a restriction imposed by the Docker daemon, which does not allow its image
+    a restriction imposed by the inner Docker daemon, which does not allow its image
     cache to be shared concurrently among multiple daemon instances. Sysbox will
     check for violations of this rule and report an appropriate error during
     system container creation.
