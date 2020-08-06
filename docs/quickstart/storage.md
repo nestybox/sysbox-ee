@@ -1,4 +1,4 @@
-# Sysbox Quick Start Guide: Storage
+# Sysbox-EE Quick Start Guide: Storage
 
 ## Sharing Storage Among System Containers
 

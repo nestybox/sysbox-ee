@@ -1,4 +1,4 @@
-# Sysbox Quick Start Guide
+# Sysbox-EE Quick Start Guide
 
 This document shows, by way of example, how to deploy system containers and
 quickly take advantage of their features.

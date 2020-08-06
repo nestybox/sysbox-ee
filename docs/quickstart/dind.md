@@ -1,4 +1,4 @@
-# Sysbox Quick Start Guide: Docker-in-Docker
+# Sysbox-EE Quick Start Guide: Docker-in-Docker
 
 This section shows examples for running Docker inside system containers.
 

@@ -3,7 +3,7 @@
 This document describes Sysbox-EE's features, usage, configuration, and
 limitations.
 
-This document complements the [Sysbox Quick Start Guide](../quickstart/README.md).
+This document complements the [Sysbox-EE Quick Start Guide](../quickstart/README.md).
 
 Refer to that document for a quick introduction to running containers with
 Sysbox. Come back to this document for a more comprehensive description of

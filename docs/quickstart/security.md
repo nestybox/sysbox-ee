@@ -1,4 +1,4 @@
-# Sysbox Quick Start Guide: Security
+# Sysbox-EE Quick Start Guide: Security
 
 This section shows system container security features by way of example.
 
