@@ -5,7 +5,7 @@ quickly take advantage of their features.
 
 It assumes you've [installed](../user-guide/install.md) Sysbox.
 
-For an in-depth description of Sysbox's functionality, refer to the [Sysbox Users Guide](../user-guide/README.md).
+For an in-depth description of Sysbox's functionality, refer to the [Sysbox-EE Users Guide](../user-guide/README.md).
 
 Also, the [Nestybox blog site](https://blog.nestybox.com) has even more examples on
 how to use system containers.

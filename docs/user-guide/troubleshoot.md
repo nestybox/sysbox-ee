@@ -18,7 +18,7 @@
 ## Sysbox Installation Problems
 
 When installing the Sysbox package with the `dpkg` command
-(see the [Installation instructions](../../README.md#installation)), the expected output is:
+(see the [Installation instructions](../../README.md#installing-sysbox)), the expected output is:
 
 ```console
 $ sudo dpkg -i sysbox_0.2.0-0.ubuntu-eoan_amd64.deb
