@@ -140,7 +140,7 @@ that Sysbox allocate 500MB of storage on the host. If you deploy 10 system
 containers, the overhead is 5GB. If you deploy 100 system containers, it grows
 to 50GB. And so on. You get the point: the overhead can quickly grow.
 
-To mitigate this, Sysbox has a feature called "inner Docker image sharing" that
+To mitigate this, Sysbox-EE has a feature called "inner Docker image sharing" that
 **significantly** reduces the storage overhead. This feature works by ensuring
 that multiple system containers created from the same image share preloaded
 inner Docker image layers using Copy-on-Write (COW).
@@ -151,12 +151,12 @@ preloaded inner images! In other words, the storage overhead for preloaded inner
 Docker images goes from O(n) to O(1), where 'n' is the number of system
 containers.
 
-Inner Docker image sharing is one of the key features that make Sysbox the most
+Inner Docker image sharing is one of the key features that make Sysbox-EE a very
 efficient container runtime for deploying Docker or Kubernetes inside
 containers.
 
-As another example, see this storage overhead [table](kind.md#performance--efficiency)
-for running Kubernetes in Docker containers with and without Sysbox.
+As another example, see this storage overhead [table](../quickstart/kind.md#why-sysbox-for-k8s-in-docker)
+for running Kubernetes in Docker containers with Sysbox vs Sysbox-EE.
 
 ### Effects on Container Startup Time
 

@@ -359,8 +359,8 @@ Kindbox is not meant to compete with the K8s.io KinD tool. Rather, it's meant to
 provide a reference example of how easy it is to deploy a K8s cluster inside
 containers when using the Sysbox container runtime.
 
-Kindbox is a [simple bash script](../user-guide/kind.md#kindbox-simplicity--flexibility)
-wrapper around Docker commands. Feel free to modify it to fit your needs.
+Kindbox is a simple bash script wrapper around Docker commands. Feel free to
+modify it to fit your needs.
 
 The subsections below describe how to use Kindbox.
 
