@@ -62,7 +62,7 @@ the user and cgroup namespaces. It has no namespaces in common with
 the host, which gives it stronger isolation compared to regular Docker
 containers.
 
-#### -------- Sysbox-EE Feature Highlight --------
+#### **-------- Sysbox-EE Feature Highlight --------**
 
 In addition, Sysbox-EE assigns each system container exclusive
 user-ID and group-ID mappings for each system container. This further
@@ -99,7 +99,7 @@ this new system container. This provides isolation from the host as
 well as from other system containers. More info on this can be found
 in the [Sysbox User Guide](../user-guide/security.md#user-namespace-id-mapping).
 
-#### ----------------------------------------------------------
+#### **----------------------------------------------------------**
 
 Now, let's check the capabilities of a process created by the root user inside
 the system container:

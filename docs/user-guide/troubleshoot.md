@@ -1,4 +1,4 @@
-# Sysbox User Guide: Troubleshooting
+# Sysbox-EE User Guide: Troubleshooting
 
 ## Contents
 

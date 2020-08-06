@@ -1,4 +1,4 @@
-# Sysbox User Guide: Docker-in Docker
+# Sysbox-EE User Guide: Docker-in Docker
 
 ## Contents
 
@@ -23,10 +23,6 @@ Docker socket into the container. The inner Docker is **totally isolated** from
 the Docker on the host.
 
 This is useful for Docker sandboxing, testing, and CI/CD use cases.
-
-Moreover, it's fast and very efficient: the inner Docker uses its fast overlay2
-storage driver, and Sysbox has a [feature](images.md#inner-docker-image-sharing)
-that significantly reduces the storage overhead of the inner containers.
 
 ## Installing Docker inside the Container
 

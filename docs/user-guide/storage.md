@@ -1,4 +1,4 @@
-# Sysbox User Guide: Mounting and Sharing Host Storage
+# Sysbox-EE User Guide: Mounting and Sharing Host Storage
 
 This document provides tips on mounting host storage into one or more system containers.
 
@@ -144,19 +144,6 @@ However, failure to meet one of these requirements will result in reduced host
 security as described [here](design.md#shiftfs-security-precautions).
 
 ## Storage Sharing Among System Containers
-
-System containers use the Linux user-namespace for increased isolation from the
-host and from other containers.
-
-A known issue with containers that use the user-namespace is that sharing
-storage between them is not trivial because each container may be assigned an
-exclusive user-ID(group-ID) range on the host, and thus may not have permissions
-to access the files in the shared storage (unless such storage has lax
-permissions allowing read-write-execute by any user).
-
-Sysbox system containers support storage sharing between multiple system
-containers, without lax permissions and in spite of the fact that each system
-container may be assigned an exclusive user-ID/group-ID range on the host.
 
 In order to share storage between multiple system containers, simply run the
 system containers and bind mount the storage into them.
