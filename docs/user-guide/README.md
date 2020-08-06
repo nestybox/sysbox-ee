@@ -1,6 +1,6 @@
-# Sysbox User Guide
+# Sysbox-EE User Guide
 
-This document describes Sysbox's features, usage, configuration, and
+This document describes Sysbox-EE's features, usage, configuration, and
 limitations.
 
 This document complements the [Sysbox Quick Start Guide](../quickstart/README.md).

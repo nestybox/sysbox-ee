@@ -1,4 +1,4 @@
-# Sysbox User Guide: Installation
+# Sysbox-EE User Guide: Installation
 
 ## Contents
 

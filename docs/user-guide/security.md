@@ -1,12 +1,6 @@
-# Sysbox User Guide: Security
+# Sysbox-EE User Guide: Security
 
 This document describes security aspects of Sysbox system containers.
-
-**Note:** it's early days for Nestybox and while our system containers already
-incorporate important security features such use of the Linux user namespace,
-exclusive user-ID mappings per container, and partial procfs virtualization,
-etc., other security aspects need further development. The text below describes
-what security features are currently in place and where more work is needed.
 
 ## Contents
 
@@ -46,7 +40,7 @@ which leaves it to the higher layer (e.g., Docker + containerd) to
 choose the namespaces that should be enabled for the container.
 
 The table below shows a comparison on namespace usage between
-Nestybox system containers and regular Docker containers.
+system containers and regular Docker containers.
 
 | Namespace | Docker + Sysbox | Docker + OCI runc                                                          |
 | --------- | --------------- | -------------------------------------------------------------------------- |
@@ -60,7 +54,7 @@ Nestybox system containers and regular Docker containers.
 
 ### User Namespace
 
-By virtue of using the Linux user namespace, Nestybox system containers get:
+By virtue of using the Linux user namespace, system containers get:
 
 -   Stronger container isolation (e.g., root in the container maps to an unprivileged
     user on the host).
@@ -148,6 +142,8 @@ This has a couple of advantages over Directed userns ID mapping:
 The rest of this section describes how Sysbox allocates user-ID mappings
 for the containers.
 
+#### **-------- Sysbox-EE Feature Highlight --------**
+
 #### Userns ID mapping allocation
 
 By way of example: if we launch two containers with Sysbox, notice the ID
@@ -210,6 +206,8 @@ available (i.e., when other system containers are stopped).
 The size of the reserved ID range, as well as the policy in case the range is
 exhausted, is configurable via the sysbox-mgr command line.  If you wish to
 change this, See `sudo sysbox-mgr --help` and use the [Sysbox reconfiguration procedure](configuration.md#reconfiguration-procedure).
+
+#### **----------------------------------------------------------**
 
 #### Dependence on Shiftfs
 
@@ -298,8 +296,8 @@ This mimics the way capabilities are assigned to users on a physical host or VM.
 
 ## System Calls
 
-Nestybox system containers allow a minimum set of 300+ syscalls, using
-Linux seccomp.
+System containers deployed with Sysbox allow a minimum set of 300+ syscalls,
+using Linux seccomp.
 
 Significant syscalls blocked within system containers are the
 same as those listed [in this Docker article](https://docs.docker.com/engine/security/seccomp/),

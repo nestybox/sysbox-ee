@@ -1,4 +1,4 @@
-# Sysbox User Guide: Configuration
+# Sysbox-EE User Guide: Configuration
 
 This document describes Sysbox configuration.
 

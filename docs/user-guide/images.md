@@ -1,4 +1,4 @@
-# Sysbox User Guide: System Container Images
+# Sysbox-EE User Guide: System Container Images
 
 ## Contents
 
@@ -35,8 +35,7 @@ how to do this.
 The [Nestybox Dockerhub repo](https://hub.docker.com/u/nestybox) has several images that
 we provide as reference for users.
 
-We often use these in the examples we provide in this User-Guide, [Quickstart guide](../quickstart/README.md), and
-Blog (<https://blog.nestybox.com>).
+We often use these in the examples we provide in this User-Guide and [Quickstart guide](../quickstart/README.md).
 
 The Dockerfiles are [here](../../dockerfiles). Feel free to copy them and adapt them to
 your needs.
@@ -59,14 +58,14 @@ This has several benefits:
 
 -   Improves efficiency:
 
-    -   Sysbox has a [feature](#inner-docker-image-sharing) that maximizes sharing
+    -   Sysbox-EE has a [feature](#inner-docker-image-sharing) that maximizes sharing
         of preloaded inner container images across system containers. This
         **significantly** reduces the storage overhead on the host.
 
 -   Ease of use:
 
     -   It's easier to deploy a system container that comes preloaded with your choice
-        of inner containers, than to pull those inner containers into system container
+        of inner containers than to pull those inner containers into system container
         at runtime.
 
 -   Air-gapped environments:
@@ -98,10 +97,9 @@ This process also works if the system container image has containerd inside
 (rather than Docker). In this case, the Dockerfile must request containerd
 to pull the inner images.
 
-Nestybox uses this feature often. For example, the
-[Dockerfile](../../dockerfiles/k8s-node) for our `nestybox/k8s-node` image (used
-for running Kubernetes-in-Docker) preloads the Kubernetes pod images using this
-same approach.
+We use this feature often. For example, the [Dockerfile](../../dockerfiles/k8s-node)
+for the `k8s-node` image (used for running Kubernetes-in-Docker) preloads the Kubernetes pod images using
+this same approach.
 
 ## Preloading Inner Container Images with Docker Commit
 
@@ -123,6 +121,8 @@ in the Quick-Start Guide.
 This approach is helpful as a way of saving work or exporting a working system
 container for deployment in another machine (i.e., commit the system container
 image, docker push to a repo, and docker pull from another machine).
+
+#### **-------- Sysbox-EE Feature Highlight --------**
 
 ## Inner Docker Image Sharing
 
@@ -234,3 +234,5 @@ sysbox-mgr.
 
 See the [User Guide Configuration doc](configuration.md) for further info
 on how to do this.
+
+#### **----------------------------------------------------------**

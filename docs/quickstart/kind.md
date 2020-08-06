@@ -30,7 +30,7 @@ There are currently two ways you can deploy the cluster:
 
 The sections below show examples of this.
 
-#### -------- Sysbox-EE Feature Highlight --------
+#### **-------- Sysbox-EE Feature Highlight --------**
 
  Sysbox-EE contains optimizations that enable deployment of K8s-in-Docker very efficiently.
 
@@ -41,7 +41,7 @@ The sections below show examples of this.
 | Host storage overhead |   10 GB  |     1 GB    |
 | Cluster creation time |   2 min  |    2 min    |
 
-#### ----------------------------------------------------------
+#### **----------------------------------------------------------**
 
 ## Using Docker to Deploy a K8s Cluster
 
@@ -270,12 +270,12 @@ $ docker exec k8s-master cat /proc/self/uid_map
 This means that the root user in the container is mapped to unprivileged host
 user-ID 165536.
 
-#### -------- Sysbox-EE Feature Highlight --------
+#### **-------- Sysbox-EE Feature Highlight --------**
 
 Sysbox-EE assigns each container an exclusive range of Linux user-namespace user-ID mappings
 in order to improve cross-container isolation.
 
-#### ----------------------------------------------------------
+#### **----------------------------------------------------------**
 
 11) After you are done, bring down the cluster:
 
