@@ -130,7 +130,7 @@ features), plus enterprise-level features. These are described below.
 
 * For example, with Sysbox-EE, a 10-node Kubernetes-in-Docker cluster
   starts in ~2 minutes and consumes only 1GB of overhead. In contrast,
-  the Sysbox open-source version takes ~3 minutes and consumes up 10GB
+  the Sysbox open-source version takes ~3 minutes and consumes up to 10GB
   for this same cluster.
 
 #### Scalability
@@ -143,9 +143,7 @@ features), plus enterprise-level features. These are described below.
 
 ## Download
 
-TODO: fix this link with "sysbox-ee"
-
-The latest release of Sysbox-EE is [here](https://github.com/nestybox/sysbox-external/releases).
+The latest release of Sysbox-EE is [here](https://github.com/nestybox/sysbox-ee/releases).
 
 Installation instructions are below.
 
