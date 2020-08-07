@@ -1,4 +1,4 @@
-TODO: modify banner image, add Nestybox logo, call it "sysbox enterprise"
+<p align="center"><img alt="sysbox" src="./docs/figures/sysbox-ee-header.png" width="800x" /></p>
 
 ## Contents
 
