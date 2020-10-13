@@ -28,7 +28,7 @@
 open-source [Sysbox container runtime](https://github.com/nestybox/sysbox),
 developed by [Nestybox](https://www.nestybox.com).
 
-Sysbox-EE enables Docker containers to act as virtual servers capable of running
+Sysbox enables Docker containers to act as virtual servers capable of running
 software such as Systemd, Docker, and Kubernetes in them, **seamlessly and
 securely**. This implies the ability for these containers to run inner
 containers (nested) while providing strong isolation from the underlying host.
@@ -36,6 +36,19 @@ containers (nested) while providing strong isolation from the underlying host.
 Sysbox-EE uses Sysbox at its core, but adds enterprise-level features around
 lifecycle, security, efficiency, scalability, and robustness. More on this
 in the [features](#key-features) section.
+
+## Features
+
+The table below summarizes the key features of Sysbox Enterprise Edition
+and compares it to the community edition (Sysbox CE).
+
+<p align="center">
+    <img alt="sysbox" src="./docs/figures/sysbox-features.png" width="1000x" />
+</p>
+
+More on the features [below](#feature-description).
+
+If you have questions, you can reach us [here](#contact).
 
 ## Videos
 
@@ -48,17 +61,12 @@ We have some sample videos showing Sysbox-EE in action:
 ## Audience
 
 Sysbox-EE is meant for engineers looking to use Sysbox as part of their
-company's IT operations.
+company's IT operations and/or looking to leverage the enterprise level
+features it includes (i.e., enhancements over the Sysbox community edition).
 
-Sysbox-EE is also meant for engineers looking to try Sysbox using an easy to
-install (i.e., packaged) version of the software.
-
-Sysbox-EE is **free for individual developers**, but licensed for enterprise
-use.
-
-That is, if you are an engineer that wants to try Sysbox (at home or at your
-work), it's free. However, if you want to use it as part of the IT
-infrastructure of your company, it's non-free, so please [contact us](#contact).
+Sysbox-EE is offered via a 30-day free trial. You can download and use
+it for free during this time. Afterwards, we ask that you [contact](#contact)
+Nestybox for pricing and payment information.
 
 ## System Containers
 
@@ -68,7 +76,7 @@ also system software such as Docker, Kubernetes, Systemd, inner containers, etc.
 
 More on system containers [here](docs/user-guide/concepts.md#system-container).
 
-## Key Features
+## Features Description
 
 Sysbox-EE includes all features of the open-source Sysbox runtime (aka core
 features), plus enterprise-level features. These are described below.
@@ -123,14 +131,15 @@ features), plus enterprise-level features. These are described below.
 * Stronger cross-container isolation (Sysbox-EE assigns exclusive
   user-namespaces user-ID and group-ID mappings to each container).
 
-#### Efficiency
+#### Performance & Efficiency
 
-* Important optimizations for running containers in containers. This speeds
-  up container deployment and significantly reduces storage overhead.
+* Sysbox EE includes optimizations for running containers in containers that are
+  not present in the Sysbox community edition. This speeds up container
+  deployment and significantly reduces storage overhead.
 
 * For example, with Sysbox-EE, a 10-node Kubernetes-in-Docker cluster
   starts in ~2 minutes and consumes only 1GB of overhead. In contrast,
-  the Sysbox open-source version takes ~3 minutes and consumes up to 10GB
+  the Sysbox open-source version takes 2 min 40 secs and consumes up to 10GB
   for this same cluster.
 
 #### Scalability
@@ -140,6 +149,14 @@ features), plus enterprise-level features. These are described below.
 #### Robustness
 
 * Sysbox-EE is tested and hardened for operation in production environments.
+
+#### Feature Prioritization
+
+* Sysbox-EE offers customers the ability to request and fast-track new features.
+
+#### Nestybox Support
+
+* Sysbox-EE includes official Nestybox support for bug fixes, updated, etc.
 
 ## Download
 
@@ -166,7 +183,7 @@ The Linux host on which Sysbox-EE runs must meet the following requirements:
 
 3) Docker must be [installed natively](docs/user-guide/install.md#docker-installation) (**not** with the Docker snap package).
 
-## Installing Sysbox
+## Installing Sysbox-EE
 
 It's very easy:
 
@@ -201,7 +218,7 @@ More information on the installation process can be found [here](docs/user-guide
 
 If you run into problems during install, see the [troubleshooting doc](docs/user-guide/troubleshoot.md).
 
-## Using Sysbox
+## Using Sysbox-EE
 
 Once Sysbox-EE is installed, you use it as follows:
 
