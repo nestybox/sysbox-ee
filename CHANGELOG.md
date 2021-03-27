@@ -1,6 +1,26 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2021-03-26
+### Added
+  * Secured system container initial mounts (mount/remount/unmounts on these from within the container are now restricted). See [here](docs/user-guide/security.md#initial-mount-immutability) for details.
+  * Improved Sysbox systemd service unit files (dependencies, open-file limits).
+  * Improved logging by sysbox-mgr and sysbox-fs (json logging, more succint logs).
+  * Added support for systemd-managed cgroups v1 on the host (cgroups v2 still not supported).
+  * Added support for read-only Docker containers.
+  * Synced-up sysbox-runc to include the latest changes from the OCI runc.
+  * Added support for Debian distribution (Buster and Bullseye).
+  * Added ground-work to support Sysbox on RedHat, Fedora, and CentOS (next step is creating a package manager for these).
+  * Added config option to configure the Sysbox work directory (defaults to /var/lib/sysbox).
+  * Fixed sporadic session stalling issue during syscall interception handling.
+  * Fixed sysbox-mgr file descriptor leak (sysbox issue #195).
+  * Fixed problem with "docker --restart" on Sysbox containers (sysbox issue #184).
+  * Fixed race condition in sysbox-fs procfs & sysfs emulation.
+  * Fixed problem preventing kernel-headers from being properly imported within sys containers.
+  * Fixed inappropriate handling of mount instructions in chroot jail environments.
+### Removed
+  * None.
+
 ## [0.2.0] - 2020-07-03
 ### Added
   * Added initial Kubernetes-in-Docker support to enable secure, flexible and portable K8s clusters.
