@@ -1,4 +1,4 @@
-# Sysbox-EE User Guide: Security
+# Sysbox User Guide: Security
 
 This document describes security aspects of Sysbox system containers.
 
@@ -11,9 +11,10 @@ This document describes security aspects of Sysbox system containers.
 -   [Sysfs Virtualization](#sysfs-virtualization)
 -   [Process Capabilities](#process-capabilities)
 -   [System Calls](#system-calls)
--   [System Call Interception](#system-call-interception)
+-   [System Call Interception \[ +v0.2.0 \]](#system-call-interception--v020-)
 -   [Devices](#devices)
 -   [Resource Limiting & Cgroups](#resource-limiting--cgroups)
+-   [Initial Mount Immutability \[ +v0.3.0 \]](#initial-mount-immutability--v030-)
 -   [No-New-Privileges Flag](#no-new-privileges-flag)
 -   [Support for Linux Security Modules (LSMs)](#support-for-linux-security-modules-lsms)
 -   [Out-of-Memory Score Adjustment](#out-of-memory-score-adjustment)
@@ -24,9 +25,11 @@ System container processes are confined to the directory hierarchy
 associated with the container's root filesystem, plus any
 configured mounts (e.g., Docker volumes or bind-mounts).
 
+This is known as the container's root filesystem jail (aka "rootfs jail").
+
 ## Linux Namespaces
 
-System containers deployed with Sysbox always use _all_ Linux
+System containers deployed with Sysbox always use *all* Linux
 namespaces.
 
 That is, when you deploy a system container with Sysbox, (e.g., `docker run
@@ -113,14 +116,10 @@ There is one advantage of Directed userns ID mapping:
     This means Sysbox can run in kernels that don't carry that module (e.g.,
     Ubuntu cloud images).
 
-But there are a couple of drawbacks:
+But there is a drawback:
 
 -   Configuring Docker with userns-remap places a few [functional limitations](https://docs.docker.com/engine/security/userns-remap/#user-namespace-known-limitations)
     on regular Docker containers (those launched with Docker's default runc).
-
--   Docker assigns the same user-ID mapping to all containers. This is not ideal:
-    it would be better to assign each container exclusive user-ID mappings for
-    improved cross-container isolation.
 
 ### Auto userns ID mapping
 
@@ -129,24 +128,46 @@ a container, Sysbox automatically enables it and allocates user-ID mappings for
 the container.
 
 For Docker specifically, this occurs when Docker is not configured with
-userns-remap (by default, Docker is not configured with userns-remap).
+userns-remap (which is normally the case).
 
-This has a couple of advantages over Directed userns ID mapping:
+This has the advantage that no change in the configuration of the container
+manager (e.g., Docker) is required, so it can continue to launch regular
+containers (i.e., with the OCI runc) as usual while at the same time launch
+system containers with Sysbox.
 
-1) No change in the configuration of the container manager (e.g.,
-   Docker) is required.
+#### Dependence on Shiftfs
 
-2) Sysbox allocates exclusive user-IDs to each container, which results in
-   enhanced cross-container isolation.
+Auto userns ID mapping requires the presence of the [shiftfs module](design.md#ubuntu-shiftfs-module)
+in the Linux kernel.
 
-The rest of this section describes how Sysbox allocates user-ID mappings
-for the containers.
+Sysbox will check for this. If the module is required but not present in the
+Linux kernel, Sysbox will fail to launch containers and issue an error such as
+[this one](troubleshoot.md#ubuntu-shiftfs-module-not-present).
+
+Note that shiftfs is present in Ubuntu Desktop and Server editions, but likely
+not present in Ubuntu cloud editions.
+
+### Common vs Exclusive Userns ID Mappings
+
+The Sysbox Community Edition (Sysbox-CE) uses a common user-ID mapping for all
+system containers. In other words, the root user in all containers is mapped to
+the same user-ID on the host.
+
+While this provides strong container-to-host isolation (i.e., root in the
+container is not root in the host), container-to-container is not as strong as
+it could be.
+
+The Sysbox Enterprise Edition (Sysbox-EE) improves on this by providing
+exclusive user-ID mappings to each container.
 
 #### **-------- Sysbox-EE Feature Highlight --------**
 
-#### Userns ID mapping allocation
+### Exclusive Userns ID mapping allocation
 
-By way of example: if we launch two containers with Sysbox, notice the ID
+In order to provide strong cross-container isolation, Sysbox-EE allocates
+exclusive userns ID mappings to each container,
+
+By way of example: if we launch two containers with Sysbox-EE, notice the ID
 mappings assigned to each:
 
     $ docker run --runtime=sysbox-runc --name=syscont1 --rm -d alpine tail -f /dev/null
@@ -177,7 +198,7 @@ access any other files in the host or in other containers.
 
 #### Userns ID Mapping Range
 
-The exclusive host user IDs chosen by Sysbox are obtained from the `/etc/subuid`
+The exclusive host user IDs chosen by Sysbox-EE are obtained from the `/etc/subuid`
 and `/etc/subgid` files:
 
     $ more /etc/subuid
@@ -208,18 +229,6 @@ exhausted, is configurable via the sysbox-mgr command line.  If you wish to
 change this, See `sudo sysbox-mgr --help` and use the [Sysbox reconfiguration procedure](configuration.md#reconfiguration-procedure).
 
 #### **----------------------------------------------------------**
-
-#### Dependence on Shiftfs
-
-Auto userns ID mapping requires the presence of the [shiftfs module](design.md#ubuntu-shiftfs-module)
-in the Linux kernel.
-
-Sysbox will check for this. If the module is required but not present in the
-Linux kernel, Sysbox will fail to launch containers and issue an error such as
-[this one](troubleshoot.md#ubuntu-shiftfs-module-not-present).
-
-Note that shiftfs is present in Ubuntu Desktop and Server editions, but likely
-not present in Ubuntu cloud editions.
 
 ## Procfs Virtualization
 
@@ -318,7 +327,7 @@ It's currently not possible to reduce the set of syscalls allowed within
 a system container (i.e., the Docker `--security-opt seccomp=<profile>` option
 is not supported).
 
-## System Call Interception
+## System Call Interception \[ +v0.2.0 ]
 
 Sysbox performs selective system call interception on a few "control-path"
 system calls, such as `mount` and `umount2`.
@@ -365,6 +374,296 @@ container consumes all available resources in the system.
 For example, when using Docker to deploy system containers, the
 `docker run --cpu*`, `--memory*`, `--blkio*`, etc., settings can be
 used for this purpose.
+
+## Initial Mount Immutability \[ +v0.3.0 ]
+
+Filesystem mounts that make up the [system container's rootfs jail](#root-filesystem-jail)
+(i.e., mounts setup at container creation time) are considered special, meaning
+that Sysbox places restrictions on the operations that may be done on them from
+within the container.
+
+This ensures processes inside the container can't modify those mounts in a way
+that would weaken or break container isolation, even though these processes may
+be running as root with full capabilities inside the container and thus have
+access to the `mount` and `umount` syscalls.
+
+We call these "immutable mounts".
+
+For example, assume we launch a system container with a read-only mount of a host
+Docker volume called `myvol`:
+
+```console
+$ docker run --runtime=sysbox-runc -it --rm --hostname=syscont -v myvol:/mnt/myvol:ro ubuntu
+root@syscont:/#
+```
+
+Inside the container, you'll see that the root filesystem is made up
+of several mounts setup implicitly by Sysbox, as well as the `myvol` mount:
+
+```console
+root@syscont:/# findmnt
+TARGET                                                       SOURCE                                                                                                    FSTYPE   OPTIONS
+/                                                            .                                                                                                         shiftfs  rw,relatime
+|-/sys                                                       sysfs                                                                                                     sysfs    rw,nosuid,nodev,noexec,relatime
+| |-/sys/firmware                                            tmpfs                                                                                                     tmpfs    ro,relatime,uid=165536,gid=165536
+| |-/sys/fs/cgroup                                           tmpfs                                                                                                     tmpfs    rw,nosuid,nodev,noexec,relatime,mode=755,uid=165536,gid=165536
+| | |-/sys/fs/cgroup/systemd                                 systemd                                                                                                   cgroup   rw,nosuid,nodev,noexec,relatime,xattr,name=systemd
+| | |-/sys/fs/cgroup/memory                                  cgroup                                                                                                    cgroup   rw,nosuid,nodev,noexec,relatime,memory
+| | |-/sys/fs/cgroup/cpuset                                  cgroup                                                                                                    cgroup   rw,nosuid,nodev,noexec,relatime,cpuset
+| | |-/sys/fs/cgroup/blkio                                   cgroup                                                                                                    cgroup   rw,nosuid,nodev,noexec,relatime,blkio
+| | |-/sys/fs/cgroup/net_cls,net_prio                        cgroup                                                                                                    cgroup   rw,nosuid,nodev,noexec,relatime,net_cls,net_prio
+| | |-/sys/fs/cgroup/perf_event                              cgroup                                                                                                    cgroup   rw,nosuid,nodev,noexec,relatime,perf_event
+| | |-/sys/fs/cgroup/hugetlb                                 cgroup                                                                                                    cgroup   rw,nosuid,nodev,noexec,relatime,hugetlb
+| | |-/sys/fs/cgroup/cpu,cpuacct                             cgroup                                                                                                    cgroup   rw,nosuid,nodev,noexec,relatime,cpu,cpuacct
+| | |-/sys/fs/cgroup/freezer                                 cgroup                                                                                                    cgroup   rw,nosuid,nodev,noexec,relatime,freezer
+| | |-/sys/fs/cgroup/devices                                 cgroup                                                                                                    cgroup   rw,nosuid,nodev,noexec,relatime,devices
+| | |-/sys/fs/cgroup/pids                                    cgroup                                                                                                    cgroup   rw,nosuid,nodev,noexec,relatime,pids
+| | `-/sys/fs/cgroup/rdma                                    cgroup                                                                                                    cgroup   rw,nosuid,nodev,noexec,relatime,rdma
+| |-/sys/kernel/config                                       tmpfs                                                                                                     tmpfs    rw,nosuid,nodev,noexec,relatime,size=1024k,uid=165536,gid=165536
+| |-/sys/kernel/debug                                        tmpfs                                                                                                     tmpfs    rw,nosuid,nodev,noexec,relatime,size=1024k,uid=165536,gid=165536
+| |-/sys/kernel/tracing                                      tmpfs                                                                                                     tmpfs    rw,nosuid,nodev,noexec,relatime,size=1024k,uid=165536,gid=165536
+| `-/sys/module/nf_conntrack/parameters/hashsize             sysboxfs[/sys/module/nf_conntrack/parameters/hashsize]                                                    fuse     rw,nosuid,nodev,relatime,user_id=0,group_id=0,default_permissions,allow_other
+|-/proc                                                      proc                                                                                                      proc     rw,nosuid,nodev,noexec,relatime
+| |-/proc/bus                                                proc[/bus]                                                                                                proc     ro,relatime
+| |-/proc/fs                                                 proc[/fs]                                                                                                 proc     ro,relatime
+| |-/proc/irq                                                proc[/irq]                                                                                                proc     ro,relatime
+| |-/proc/sysrq-trigger                                      proc[/sysrq-trigger]                                                                                      proc     ro,relatime
+| |-/proc/asound                                             tmpfs                                                                                                     tmpfs    ro,relatime,uid=165536,gid=165536
+| |-/proc/acpi                                               tmpfs                                                                                                     tmpfs    ro,relatime,uid=165536,gid=165536
+| |-/proc/keys                                               udev[/null]                                                                                               devtmpfs rw,nosuid,noexec,relatime,size=1971180k,nr_inodes=492795,mode=755
+| |-/proc/timer_list                                         udev[/null]                                                                                               devtmpfs rw,nosuid,noexec,relatime,size=1971180k,nr_inodes=492795,mode=755
+| |-/proc/sched_debug                                        udev[/null]                                                                                               devtmpfs rw,nosuid,noexec,relatime,size=1971180k,nr_inodes=492795,mode=755
+| |-/proc/scsi                                               tmpfs                                                                                                     tmpfs    ro,relatime,uid=165536,gid=165536
+| |-/proc/swaps                                              sysboxfs[/proc/swaps]                                                                                     fuse     rw,nosuid,nodev,relatime,user_id=0,group_id=0,default_permissions,allow_other
+| |-/proc/sys                                                sysboxfs[/proc/sys]                                                                                       fuse     rw,nosuid,nodev,relatime,user_id=0,group_id=0,default_permissions,allow_other
+| `-/proc/uptime                                             sysboxfs[/proc/uptime]                                                                                    fuse     rw,nosuid,nodev,relatime,user_id=0,group_id=0,default_permissions,allow_other
+|-/dev                                                       tmpfs                                                                                                     tmpfs    rw,nosuid,size=65536k,mode=755,uid=165536,gid=165536
+| |-/dev/console                                             devpts[/0]                                                                                                devpts   rw,nosuid,noexec,relatime,gid=165541,mode=620,ptmxmode=666
+| |-/dev/mqueue                                              mqueue                                                                                                    mqueue   rw,nosuid,nodev,noexec,relatime
+| |-/dev/pts                                                 devpts                                                                                                    devpts   rw,nosuid,noexec,relatime,gid=165541,mode=620,ptmxmode=666
+| |-/dev/shm                                                 shm                                                                                                       tmpfs    rw,nosuid,nodev,noexec,relatime,size=65536k,uid=165536,gid=165536
+| |-/dev/kmsg                                                udev[/null]                                                                                               devtmpfs rw,nosuid,noexec,relatime,size=1971180k,nr_inodes=492795,mode=755
+| |-/dev/null                                                udev[/null]                                                                                               devtmpfs rw,nosuid,noexec,relatime,size=1971180k,nr_inodes=492795,mode=755
+| |-/dev/random                                              udev[/random]                                                                                             devtmpfs rw,nosuid,noexec,relatime,size=1971180k,nr_inodes=492795,mode=755
+| |-/dev/full                                                udev[/full]                                                                                               devtmpfs rw,nosuid,noexec,relatime,size=1971180k,nr_inodes=492795,mode=755
+| |-/dev/tty                                                 udev[/tty]                                                                                                devtmpfs rw,nosuid,noexec,relatime,size=1971180k,nr_inodes=492795,mode=755
+| |-/dev/zero                                                udev[/zero]                                                                                               devtmpfs rw,nosuid,noexec,relatime,size=1971180k,nr_inodes=492795,mode=755
+| `-/dev/urandom                                             udev[/urandom]                                                                                            devtmpfs rw,nosuid,noexec,relatime,size=1971180k,nr_inodes=492795,mode=755
+|-/mnt/myvol                                                 /var/lib/docker/volumes/myvol/_data                                                                       shiftfs  ro,relatime
+|-/etc/resolv.conf                                           /var/lib/docker/containers/080fb5dbe347a947accf7ba27a545ce11d937f02f02ec0059535cfc065d04ea0[/resolv.conf] shiftfs  rw,relatime
+|-/etc/hostname                                              /var/lib/docker/containers/080fb5dbe347a947accf7ba27a545ce11d937f02f02ec0059535cfc065d04ea0[/hostname]    shiftfs  rw,relatime
+|-/etc/hosts                                                 /var/lib/docker/containers/080fb5dbe347a947accf7ba27a545ce11d937f02f02ec0059535cfc065d04ea0[/hosts]       shiftfs  rw,relatime
+|-/var/lib/docker                                            /dev/sda2[/var/lib/sysbox/docker/080fb5dbe347a947accf7ba27a545ce11d937f02f02ec0059535cfc065d04ea0]        ext4     rw,relatime
+|-/var/lib/kubelet                                           /dev/sda2[/var/lib/sysbox/kubelet/080fb5dbe347a947accf7ba27a545ce11d937f02f02ec0059535cfc065d04ea0]       ext4     rw,relatime
+|-/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs /dev/sda2[/var/lib/sysbox/containerd/080fb5dbe347a947accf7ba27a545ce11d937f02f02ec0059535cfc065d04ea0]    ext4     rw,relatime
+|-/usr/src/linux-headers-5.4.0-65                            /usr/src/linux-headers-5.4.0-65                                                                           shiftfs  ro,relatime
+|-/usr/src/linux-headers-5.4.0-65-generic                    /usr/src/linux-headers-5.4.0-65-generic                                                                   shiftfs  ro,relatime
+`-/usr/lib/modules/5.4.0-65-generic                          /lib/modules/5.4.0-65-generic                                                                             shiftfs  ro,relatime
+```
+
+All of these mounts are considered special / immutable because they are setup
+during container creation time (i.e., before any process inside the
+container starts executing).
+
+In order to ensure proper isolation between the container and the host, Sysbox
+places restrictions on what mount, remount, and unmount operations the processes
+inside the container can do with these immutable mounts.
+
+The default restrictions are:
+
+Remounts:
+
+-   A read-only immutable mount can't be modified (i.e., remounted) as a
+    read-write mount.
+
+    -   This ensures read-only mounts setup at container creation time remain as
+        such.
+
+    -   This behavior can be changed by setting the sysbox-fs config option
+        `allow-immutable-remounts=true`.
+
+    -   Note that the opposite does not apply: a read-write immutable mount **can** be
+        modified to a read-only mount, since this creates a stronger restriction on
+        the mount.
+
+-   Other attributes of immutable mounts can't be changed via a remount
+    (e.g., nosuid, noexec, relatime, etc.)
+
+Unmounts:
+
+-   The filesystem root "/" can't be unmounted.
+
+-   The immutable mounts at /proc and /sys (as well as any submounts underneath
+    them) can't be unmounted.
+
+-   Other immutable mounts *can* be unmounted. Doing so exposes the contents
+    of the container's immutable image below it.
+
+    -   While it may surprise you that Sysbox allows these unmounts, this is
+        necessary because system container images often have a process manager
+        inside, and some process managers (in particular systemd) unmount all
+        mountpoints inside the container during container stop. If Sysbox where to
+        restrict these unmounts, the process manager will report errors during
+        container stop
+
+    -   Allowing unmounts of immutable mounts is typically not a security
+        concern, because the unmount normally exposes the underlying contents of
+        the system container's image, and this image will likely not have
+        sensitive data that is masked by the mounts.
+
+    -   Having said this, this behavior can be changed by setting the sysbox-fs
+        config option `allow-immutable-unmounts=false`. When this option is set,
+        Sysbox does restrict unmounts on all immutable mounts.
+
+    -   See the [quickstart guide](../quickstart/security.md#immutable-mountpoints--v030-)
+        for an example.
+
+Restricted mount operations typically fail with "EPERM". For example,
+continuing with the prior example, let's try to remount as read-write
+the `myvol` mount:
+
+```console
+root@syscont:/# mount -o remount,rw,bind /mnt/myvol
+mount: /mnt/myvol: permission denied.
+```
+
+The same behavior occurs with the immutable read-only mount of the host's linux
+headers, setup implicitly by Sysbox into the container:
+
+```console
+root@syscont# mount -o remount,rw,bind /root/linux-headers-5.4.0-6
+mount: /root/linux-headers-5.4.0-6: permission denied.
+```
+
+In the example above, even though the root user had full capabilities inside
+the system container, it got EPERM when it tried to remount the immutable
+mounts because Sysbox detected the operation and blocked it.
+
+Note that these restrictions apply whether the mount occurs inside the Linux
+mount namespace for the system container, or any other mount namespace created
+inside the container (e.g., via `unshare -m`).
+
+### Bind-Mounts from Immutable Mounts
+
+Bind-mounts from immutable mounts are also restricted, meaning that it's OK to
+create a bind-mount from an immutable mount to another mountpoint inside the
+system container, but the new mountpoint will have similar restrictions as
+the corresponding immutable mount.
+
+The restrictions for bind mounts whose source is an immutable mount are:
+
+Remount:
+
+-   A bind mount whose source is a read-only immutable mount can't be modified
+    (i.e., remounted) as a read-write mount.
+
+    -   This ensures read-only mounts setup at container creation time remain as
+        such.
+
+    -   This behavior can be changed by setting the sysbox-fs config option
+        `allow-immutable-remounts=true`.
+
+Unmount:
+
+-   No restrictions.
+
+Continuing with the prior example, inside the system container let's create a
+bind mount from the immutable read-only mount `/usr/src/linux-headers-5.4.0-65` to
+`/root/headers`, and attempt a remount on the latter:
+
+```console
+root@syscont:/# mkdir /root/headers
+
+root@syscont:/# mount --bind /usr/src/linux-headers-5.4.0-65 /root/headers
+
+root@syscont:/# mount -o remount,bind,rw /root/headers
+mount: /root/headers: permission denied.
+```
+
+As you can see, the operation failed with EPERM (as expected) because the
+original mount `/usr/src/linux-headers-5.4.0-65` is a read-only immutable mount.
+
+Note that the new bind-mount can be unmounted without problem. Sysbox places
+no restriction on this since this simply removes the bind mount without
+having any effect on the immutable mount.
+
+```console
+root@syscont:/# umount /root/headers
+```
+
+### Other Mounts, Remounts, Unmounts are Allowed
+
+Except for the restrictions listed above, other mounts, remounts, and unmounts work
+fine inside the system container (just as they would on a physical host or VM).
+
+For example, one can create a new tmpfs mount inside, remount it read-only, and
+unmount it without problem. The new mount can even be stacked on top of an
+immutable mount, in which case it simply "hides" the immutable mount underneath
+(but does not change or remove it, meaning that container isolation remains
+untouched).
+
+### Inner Container Mounts
+
+When launching containers inside a system container (e.g., by installing Docker
+inside the system container), the inner container manager (e.g., Docker) will
+setup several mounts for the inner containers.
+
+This works perfectly fine, as those mounts typically fall under the "other
+mounts" category described in the prior section. However, if any of those mounts
+is associated with an immutable mount of the outer system container, then the
+immutable mount restrictions above apply.
+
+For example, let's launch a system container that comes with Docker inside. We
+will mount as "read-only" a host volume `myvol` into the system container's
+`/mnt/myvol` directory:
+
+```console
+$ docker run --runtime=sysbox-runc -it --rm --hostname=syscont -v myvol:/mnt/myvol:ro nestybox/alpine-docker
+```
+
+Inside the system container, let's start Docker:
+
+```console
+/ # dockerd > /var/log/dockerd.log 2>&1 &
+```
+
+Now let's launch an inner privileged container, and mount the system container's
+`/mnt/myvol` mount (which is immutable since it was setup at system container
+creation time) into the inner container:
+
+```console
+/ # docker run -it --rm --privileged --hostname=inner -v /mnt/myvol:/mnt/myvol ubuntu
+```
+
+Inside the inner privileged container, we can use the mount command. Let's try
+to remount `/mnt/myvol` to read-write:
+
+```console
+root@inner:/# mount -o remount,rw,bind /mnt/myvol
+mount: /mnt/myvol: permission denied.
+```
+
+As expected, this failed because the inner container's `/mnt/myvol` is
+technically a bind-mount of `/mnt/myvol` in the system container, and the latter
+is an immutable read-only mount of the system container, so it can't be
+remounted read-write.
+
+For the reasons described above, initial mount immutability is a key security
+feature of Sysbox. It enables system container processes to be properly
+isolated from the host, while still giving these processes full access to
+perform other types of mounts, remounts, and unmounts inside the container.
+
+As a point of comparison, other container runtimes either restrict mounts
+completely (by blocking the `mount` and `umount` system calls via the Linux
+seccomp mechanism) which prevents several system-level programs from working
+properly inside the container, or alternatively allow all mount, remount, and
+unmount operations inside the container (e.g., as in Docker privileged
+containers), creating a security weakness that can be easily used to break
+container isolation.
+
+In contrast, Sysbox offers a more nuanced approach, in which the `mount` and
+`umount` system calls are allowed inside the container, but are restricted
+when applied to the container's initial mounts.
 
 ## No-New-Privileges Flag
 
@@ -434,7 +733,7 @@ system is running low on memory.
 The decision on which process to kill is done based on an
 out-of-memory (OOM) score assigned to all processes.
 
-The score is in the range [-1000:1000], where higher values means higher
+The score is in the range \[-1000:1000], where higher values means higher
 probability of the process being killed when the host reaches an out-of-memory
 scenario.
 
@@ -450,7 +749,7 @@ $ docker run --runtime=sysbox-runc --oom-score-adj=-100 -it alpine:latest
 
 In addition, Sysbox ensures that system container processes are
 allowed to modify their out-of-memory (OOM) score adjustment to any
-value in the range [-999:1000], via `/proc/[pid]/oom_score_adj`.
+value in the range \[-999:1000], via `/proc/[pid]/oom_score_adj`.
 
 This is necessary in order to allow system software that requires such
 adjustment range (e.g., Kubernetes) to operate correctly within the system

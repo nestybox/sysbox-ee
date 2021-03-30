@@ -1,6 +1,6 @@
-# Sysbox-EE Quick Start Guide: Kubernetes-in-Docker
+# Sysbox Quick Start Guide: Kubernetes-in-Docker
 
-Sysbox has [preliminary support](../user-guide/kind.md#preliminary-support--known-limitations)
+Since release v0.2.0, Sysbox has [preliminary support](../user-guide/kind.md#preliminary-support--known-limitations)
 for running Kubernetes (K8s) inside system containers. This is known as
 "Kubernetes-in-Docker".
 
@@ -18,9 +18,48 @@ detail.
 
 ## Why Sysbox for K8s-in-Docker?
 
+In K8s-in-Docker, each Docker container acts as a K8s node. Multiple such
+containers, connected via a Docker network form a K8s cluster (see
+[here](../user-guide/kind.md#intro) for a diagram).
+
 Sysbox is the first container runtime capable of creating containers that can
 run K8s seamlessly, using simple Docker images, no special configurations, and
 strongly isolated containers (i.e,. using the Linux user-namespace).
+
+Other approaches at creating K8s-in-Docker clusters (e.g., K8s.io KinD) are good
+but use very insecure privileged containers and require customized images. With
+Sysbox, you get well isolated containers and there are no special image
+requirements (i.e., you fully control the container image).
+
+This is an excellent choice for CI/CD, local testing, and learning environments.
+It's a quick, very efficient, cost effective, and secure way of creating K8s
+clusters, compared to using cloud-hosted K8s clusters or local virtual machines.
+
+As Sysbox continues to mature, we expect K8s-in-Docker will be used in
+production scenarios (just like K8s runs inside VMs in production currently).
+
+#### **-------- Sysbox-EE Feature Highlight --------**
+
+Sysbox-EE contains [optimizations](../user-guide/images.md#inner-docker-image-sharing)
+that enable deployment of K8s-in-Docker very efficiently, resulting in
+significantly less storage consumption and much more scalability (i.e., more and
+larger K8s-in-Docker clusters).
+
+For example, here is a comparison for deploying a 10-node K8s cluster on a 4
+CPU, 4GB RAM host:
+
+| Criteria              | Sysbox-CE | Sysbox-EE |
+| --------------------- | :------: | :---------: |
+| Host storage overhead |   10 GB  |     1 GB    |
+| Cluster creation time |   2 min  |    2 min    |
+
+With Sysbox-EE, devOps teams can create larger and/or more K8s-in-Docker clusters
+on the same host machine, quickly and efficiently, reducing costs and allowing
+them to recreate the size/scale of production clusters.
+
+#### **----------------------------------------------------------**
+
+## Creating a K8s-in-Docker Cluster with Sysbox
 
 There are currently two ways you can deploy the cluster:
 
@@ -29,19 +68,6 @@ There are currently two ways you can deploy the cluster:
 -   Using a higher layer tool such as Nestybox's [Kindbox](https://github.com/nestybox/kindbox) tool.
 
 The sections below show examples of this.
-
-#### **-------- Sysbox-EE Feature Highlight --------**
-
- Sysbox-EE contains optimizations that enable deployment of K8s-in-Docker very efficiently.
-
- For example, here is a comparison for deploying a 10-node K8s cluster:
-
-| Criteria              | Sysbox | Sysbox-EE |
-| --------------------- | :------: | :---------: |
-| Host storage overhead |   10 GB  |     1 GB    |
-| Cluster creation time |   2 min  |    2 min    |
-
-#### **----------------------------------------------------------**
 
 ## Using Docker to Deploy a K8s Cluster
 
@@ -272,8 +298,12 @@ user-ID 165536.
 
 #### **-------- Sysbox-EE Feature Highlight --------**
 
-Sysbox-EE assigns each container an exclusive range of Linux user-namespace user-ID mappings
+Sysbox-EE assigns each container an [exclusive range of Linux user-namespace user-ID mappings](../user-guide/security.md#exclusive-userns-id-mapping-allocation)
 in order to improve cross-container isolation.
+
+Exclusive ID mappings ensure that if a container process somehow escapes the
+container's root filesystem jail, it will find itself without any permissions to
+access any other files in the host or in other containers.
 
 #### **----------------------------------------------------------**
 
@@ -372,7 +402,7 @@ that make up the cluster.
 It's a simple image that includes systemd, Docker, the K8s `kubeadm` tool, and
 preloaded inner pod images for the K8s control plane.
 
-The Dockerfile is [here](../../dockerfiles/k8s-node).
+The Dockerfile is [here](https://github.com/nestybox/dockerfiles/blob/main/k8s-node/Dockerfile).
 
 Feel free to copy it and customize it per your needs.
 
@@ -602,7 +632,7 @@ in the [Kindbox Github repo](https://github.com/nestybox/kindbox), or [contact u
 ## Preloading Inner Pod Images into the K8s Node Image
 
 A key feature of Sysbox is that it allows you to easily create system container
-images that come [preloaded with inner container images](../user-guide/images.md#preloading-inner-container-images-into-a-system-container).
+images that come [preloaded with inner container images](../user-guide/images.md#preloading-inner-container-images-into-a-system-container--v012-).
 
 You can use this to create K8s node images that include inner pod images.
 
@@ -766,10 +796,10 @@ When you deploy pods using the nginx image, the image won't be pulled from the n
 You can preload as many images as you want, but note that they will add to the
 size of your K8s node image.
 
-In fact, the [Dockerfile](../../dockerfiles/k8s-node) for the `nestybox/k8s-node`
-image does something even more clever: it invokes `kubeadm` inside the K8s node
-container to preload the inner images for the K8s control-plane pods. Kubeadm in turn
-invokes the inner Docker, which pulls the pod images. The result is that the
+In fact, the [Dockerfile](https://github.com/nestybox/dockerfiles/blob/main/k8s-node/Dockerfile)
+for the `nestybox/k8s-node` image does something even more clever: it invokes `kubeadm`
+inside the K8s node container to preload the inner images for the K8s control-plane pods.
+Kubeadm in turn invokes the inner Docker, which pulls the pod images. The result is that the
 `nestybox/k8s-node` image has the K8s control-plane pods embedded in it, making
 deployment of the K8s cluster **much faster**.
 

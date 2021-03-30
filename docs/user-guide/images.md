@@ -1,10 +1,11 @@
-# Sysbox-EE User Guide: System Container Images
+# Sysbox User Guide: System Container Images
 
 ## Contents
 
 -   [Intro](#intro)
 -   [Nestybox Dockerhub Repo](#nestybox-dockerhub-repo)
--   [Preloading Inner Container Images into a System Container](#preloading-inner-container-images-into-a-system-container)
+-   [Preloading Inner Container Images into a System Container \[ +v0.1.2 \]](#preloading-inner-container-images-into-a-system-container--v012-)
+-   [Approaches to Image Preloading](#approaches-to-image-preloading)
 -   [Preloading Inner Container Images with Docker Build](#preloading-inner-container-images-with-docker-build)
 -   [Preloading Inner Container Images with Docker Commit](#preloading-inner-container-images-with-docker-commit)
 -   [Inner Docker Image Sharing](#inner-docker-image-sharing)
@@ -27,7 +28,7 @@ software in the image runs correctly inside the container.
 
 Since system container images often include Docker in them, it is useful
 to preload inner container images inside the system container. Sysbox makes this
-very easy. See [below](#preloading-inner-container-images-into-a-system-container) for info on
+very easy. See [below](#preloading-inner-container-images-into-a-system-container--v012-) for info on
 how to do this.
 
 ## Nestybox Dockerhub Repo
@@ -37,13 +38,11 @@ we provide as reference for users.
 
 We often use these in the examples we provide in this User-Guide and [Quickstart guide](../quickstart/README.md).
 
-The Dockerfiles are [here](../../dockerfiles). Feel free to copy them and adapt them to
-your needs.
+The Dockerfiles are [here](https://github.com/nestybox/dockerfiles). Feel free to copy them and adapt them to your needs.
 
-If you see an error on them or think they can be improved, please file an
-[issue](../issue-guidelines.md). Thanks!
+If you see an error on them or think they can be improved, please file a GitHub issue.
 
-## Preloading Inner Container Images into a System Container
+## Preloading Inner Container Images into a System Container \[ +v0.1.2 ]
 
 Sysbox allows you to easily preload inner container images into a system container image.
 
@@ -56,12 +55,6 @@ This has several benefits:
         the network every time. Depending on the size of the inner image, it can
         significantly improve performance.
 
--   Improves efficiency:
-
-    -   Sysbox-EE has a [feature](#inner-docker-image-sharing) that maximizes sharing
-        of preloaded inner container images across system containers. This
-        **significantly** reduces the storage overhead on the host.
-
 -   Ease of use:
 
     -   It's easier to deploy a system container that comes preloaded with your choice
@@ -72,6 +65,18 @@ This has several benefits:
 
     -   In environments where there is no network connection, preloading the system
         container with inner container is a must have.
+
+#### **-------- Sysbox-EE Feature Highlight --------**
+
+In addition, Sysbox Enterprise Edition (Sysbox-EE) has a feature called "Inner
+Docker Image Sharing" that maximizes sharing of preloaded inner container images
+across system containers. This **significantly** reduces the storage overhead on
+the host. See the section on [Inner Docker Image Sharing](#inner-docker-image-sharing)
+below for more details.
+
+#### **----------------------------------------------------------**
+
+## Approaches to Image Preloading
 
 There are two ways preload inner container into a system container image:
 
@@ -90,14 +95,14 @@ Conceptually, the process is simple: the Dockerfile for the system container
 image has an instruction that requests the container manager inside the system
 container (e.g., inner Docker) to pull the inner container images. That's it.
 
-There is a [step-by-step example](../quickstart/images.md#building-a-system-container-that-includes-inner-container-images)
+There is a [step-by-step example](../quickstart/images.md#building-a-system-container-that-includes-inner-container-images--v012-)
 in the Sysbox Quick-Start Guide.
 
 This process also works if the system container image has containerd inside
 (rather than Docker). In this case, the Dockerfile must request containerd
 to pull the inner images.
 
-We use this feature often. For example, the [Dockerfile](../../dockerfiles/k8s-node)
+We use this feature often. For example, the [Dockerfile](https://github.com/nestybox/dockerfiles/blob/main/k8s-node/Dockerfile)
 for the `k8s-node` image (used for running Kubernetes-in-Docker) preloads the Kubernetes pod images using
 this same approach.
 
@@ -219,7 +224,7 @@ not required due to the inner Docker image sharing feature.
 
 There are a few limitations for inner Docker image sharing:
 
--   The storage savings apply only for inner container images that are [preloaded into the system container](#preloading-inner-container-images-into-a-system-container).
+-   The storage savings apply only for inner container images that are [preloaded into the system container](#preloading-inner-container-images-into-a-system-container--v012-).
     They do not apply for inner images downloaded into the system container at runtime.
 
 -   The storage savings apply only when the inner container images are Docker

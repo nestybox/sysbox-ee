@@ -1,73 +1,96 @@
-# Sysbox-EE User Guide: Installation
+# Sysbox User Guide: Installation
 
 ## Contents
 
--   [Host Requirements](#host-requirements)
--   [Installing Sysbox](#installing-sysbox)
--   [Uninstalling Sysbox](#uninstalling-sysbox)
--   [Docker Installation](#docker-installation)
+- [Host Requirements](#host-requirements)
+- [Installing Sysbox](#installing-sysbox)
+- [Uninstalling Sysbox](#uninstalling-sysbox)
+- [Installing Sysbox w/o Docker restart](#Installing-Sysbox-without-Docker-restart)
+- [Docker Installation](#docker-installation)
 
 ## Host Requirements
 
 The Linux host on which Sysbox runs must meet the following requirements:
 
-1) It must have one of the [supported Linux distros](../distro-compat.md).
+1. It must have one of the [supported Linux distros](../distro-compat.md).
 
-2) Systemd must be the system's process-manager (the default in the supported distros).
+2. Systemd must be the system's process-manager (the default in the supported distros).
 
-3) Docker must be installed natively (i.e., **not** with the Docker snap package).
+3. Docker must be installed natively (i.e., **not** with the Docker snap package).
 
--   See [below](#docker-installation) if you have a Docker snap installation and
-    need to change it to a native installation.
+- See [below](#docker-installation) if you have a Docker snap installation and
+  need to change it to a native installation.
 
 ## Installing Sysbox
 
-**NOTE**: if you have a prior version of Sysbox already installed, please [uninstall it](#uninstalling-sysbox) first and then follow the installation instructions below.
+**NOTE**: if you have a prior version of Sysbox already installed, please
+[uninstall it](#uninstalling-sysbox) first and then follow the installation
+instructions below.
 
-1) Download the latest Sysbox package from the [release](https://github.com/nestybox/sysbox-external/releases) page.
+1. Download the latest Sysbox package from the [release](https://github.com/nestybox/sysbox/releases) page.
 
-2) Verify that the checksum of the downloaded file fully matches the expected/published one.
-   For example:
-
-```console
-$ sha256sum sysbox_0.2.0-0.ubuntu-focal_amd64.deb
-736dba5645549ac0aabe11f29c6410bdbb76e717431a8a241833f20ce8b58a11  sysbox_0.2.0-0.ubuntu-focal_amd64.deb
-```
-
-3) In scenarios where kernel carries `shiftfs` module, there is no need to stop
-and eliminate existing containers prior to Sysbox installation. Sysbox's installer
-will seamlessly complete the installation process without service disruption.
-
-   On the other hand, if `shiftfs` module is missing, Sysbox installer may require
-   a Docker Service restart. In this scenario (see [userns-remap](#docker-userns-remap) mode), if Docker is not already operating in
-   `userns-remap` mode, we encourage users to stop and remove existing containers
-   before launching the Sysbox installer:
-
-```
-$ docker stop $(docker ps -a -q) && docker container prune -f
-```
-
-   If an error is returned, it simply indicates that no existing containers were
-   found.
-
-4) Install the Sysbox package and follow the installer instructions:
+2. Verify that the checksum of the downloaded file fully matches the
+   expected/published one. For example:
 
 ```console
-$ sudo apt-get install ./sysbox_0.2.0-0.ubuntu-focal_amd64.deb -y
+$ sha256sum sysbox-ee_0.3.0-0.ubuntu-focal_amd64.deb
+c98e5f5adc90ef4279bdf05d32fa9052d62ac7b8a4de300ce4f78d513786c639  sysbox-ee_0.3.0-0.ubuntu-focal_amd64.deb
 ```
 
-5) Verify that Sysbox's Systemd units have been properly installed, and
+3. Stop and eliminate all running Docker containers. Refer to the
+   [Installing Sysbox w/o Docker restart](#Installing-Sysbox-without-Docker-restart) section
+   further below for information on how to avoid impacting existing containers.
+
+```
+$ docker rm $(docker ps -a -q) -f
+```
+
+... if an error is returned, it simply indicates that no existing containers were found.
+
+4. Install the Sysbox package and follow the installer instructions:
+
+```console
+$ sudo apt-get install ./sysbox-ee_0.3.0-0.ubuntu-focal_amd64.deb -y
+```
+
+5. Verify that Sysbox's Systemd units have been properly installed, and
    associated daemons are properly running:
 
 ```console
-$ systemctl list-units -t service --all | grep sysbox
-sysbox-fs.service                   loaded    active   running sysbox-fs component
-sysbox-mgr.service                  loaded    active   running sysbox-mgr component
-sysbox.service                     loaded    active   exited  Sysbox General Service
-```
+$ sudo systemctl status sysbox -n20
+● sysbox.service - Sysbox container runtime
+     Loaded: loaded (/lib/systemd/system/sysbox.service; enabled; vendor preset: enabled)
+     Active: active (running) since Sat 2021-03-27 00:15:36 EDT; 20s ago
+       Docs: https://github.com/nestybox/sysbox
+   Main PID: 2305016 (sh)
+      Tasks: 2 (limit: 9487)
+     Memory: 792.0K
+     CGroup: /system.slice/sysbox.service
+             ├─2305016 /bin/sh -c /usr/local/sbin/sysbox-runc --version && /usr/local/sbin/sysbox-mgr --version && /usr/local/sbin/sysbox-fs --version && /bin/sleep infinity
+             └─2305039 /bin/sleep infinity
 
-Note: the sysbox.service is ephemeral (it exits once it launches the other sysbox services; that's why
-you see `sysbox.service   loaded  active  exited` above).
+Mar 27 00:15:36 dev-vm1 systemd[1]: Started Sysbox container runtime.
+Mar 27 00:15:36 dev-vm1 sh[2305018]: sysbox-runc
+Mar 27 00:15:36 dev-vm1 sh[2305018]:         edition:         Enterprise Edition (CE)
+Mar 27 00:15:36 dev-vm1 sh[2305018]:         version:         0.3.0
+Mar 27 00:15:36 dev-vm1 sh[2305018]:         commit:          df952e5276cb6e705e0be331e9a9fe88f372eab8
+Mar 27 00:15:36 dev-vm1 sh[2305018]:         built at:         Sat Mar 27 01:34:12 UTC 2021
+Mar 27 00:15:36 dev-vm1 sh[2305018]:         built by:         Rodny Molina
+Mar 27 00:15:36 dev-vm1 sh[2305018]:         oci-specs:         1.0.2-dev
+Mar 27 00:15:36 dev-vm1 sh[2305024]: sysbox-mgr
+Mar 27 00:15:36 dev-vm1 sh[2305024]:         edition:         Enterprise Edition (CE)
+Mar 27 00:15:36 dev-vm1 sh[2305024]:         version:         0.3.0
+Mar 27 00:15:36 dev-vm1 sh[2305024]:         commit:          6ae5668e797ee1bb88fd5f5ae663873a87541ecb
+Mar 27 00:15:36 dev-vm1 sh[2305024]:         built at:         Sat Mar 27 01:34:41 UTC 2021
+Mar 27 00:15:36 dev-vm1 sh[2305024]:         built by:         Rodny Molina
+Mar 27 00:15:36 dev-vm1 sh[2305031]: sysbox-fs
+Mar 27 00:15:36 dev-vm1 sh[2305031]:         edition:         Enterprise Edition (CE)
+Mar 27 00:15:36 dev-vm1 sh[2305031]:         version:         0.3.0
+Mar 27 00:15:36 dev-vm1 sh[2305031]:         commit:          bb001b7fe2a0a234fe86ab20045677470239e248
+Mar 27 00:15:36 dev-vm1 sh[2305031]:         built at:         Sat Mar 27 01:34:30 UTC 2021
+Mar 27 00:15:36 dev-vm1 sh[2305031]:         built by:         Rodny Molina
+$
+```
 
 After you've installed Sysbox, you can now use it to deploy containers that can
 run systemd, Docker, and Kubernetes inside of them seamlessly. See the
@@ -85,11 +108,11 @@ configuration to `/etc/docker/daemon.json` and sending a signal (SIGHUP) to Dock
 
 ```json
 {
-   "runtimes": {
-      "sysbox-runc": {
-         "path": "/usr/local/sbin/sysbox-runc"
-      }
-   }
+  "runtimes": {
+    "sysbox-runc": {
+      "path": "/usr/local/sbin/sysbox-runc"
+    }
+  }
 }
 ```
 
@@ -109,21 +132,26 @@ in [userns-remap mode](https://docs.docker.com/engine/security/userns-remap/) or
 
 The installer uses the following logic:
 
--   If the kernel carries a module called `shiftfs`, then Docker does not need to be
-    placed in userns-remap mode.
+- If the kernel carries a module called `shiftfs`, then Docker does not need to be
+  placed in userns-remap mode.
 
-    -   This is normally the case for the Ubuntu desktop and server editions.
+  - This is normally the case for the Ubuntu desktop and server editions.
 
--   Otherwise, Docker does need to be placed in userns-remap mode.
+- Otherwise, Docker does need to be placed in userns-remap mode.
 
-    -   This is likely the case for Ubuntu cloud editions.
+  - This is likely the case for some Ubuntu cloud editions and for all the
+    other [supported distributions](../distro-compat.md).
 
 If Docker needs to be placed in userns-remap, the Sysbox installer will check if
 Docker is already in this mode (by looking for `userns-remap` in
-`/etc/docker/daemon.json` and `userns` entry in `docker info` output). If so, no further action is required.
+`/etc/docker/daemon.json` and `userns` entry in `docker info` output). If so, no further
+action is required.
 
-Otherwise, the Sysbox installer will add the following `userns-remap` entry to the
-`/etc/docker/daemon.json` file:
+Otherwise, the Sysbox installer will ask the user for permission to transition Docker
+into `userns-remap` mode. If user responds affirmatively, Sysbox installer will make
+the required changes (below) and restart Docker automatically. Alternatively, the user
+will need to make these changes manually and restart Docker service afterwards (e.g.,
+`systemctl restart docker`)
 
 ```console
 {
@@ -136,48 +164,103 @@ Otherwise, the Sysbox installer will add the following `userns-remap` entry to t
 }
 ```
 
-The installer will then ask the user if Docker should be restarted. If the user
-responds affirmatively, the installer will restart Docker
-automatically. Otherwise, the user will need to restart Docker manually (e.g.,
-`systemctl restart docker`) before using Sysbox.
-
 When Docker is placed in userns-remap mode, there are a couple of caveats to
 keep in mind:
 
--   Configuring Docker this way places a few functional limitations on regular
-    Docker containers (those launched with Docker's default `runc`), as described
-    in this [Docker document](https://docs.docker.com/engine/security/userns-remap).
+- Configuring Docker this way places a few functional limitations on regular
+  Docker containers (those launched with Docker's default `runc`), as described
+  in this [Docker document](https://docs.docker.com/engine/security/userns-remap).
 
--   System container isolation, while strong, is reduced compared to using
-    `shiftfs`. That's because userns-remap causes Docker to put Sysbox into
-    "Directed Userns ID Mapping" mode. See [here](security.md#user-namespace-id-mapping)
-    for more info on this.
+- System container isolation, while strong, is reduced compared to using
+  `shiftfs`. That's because userns-remap causes Docker to put Sysbox into
+  "Directed Userns ID Mapping" mode. See [here](security.md#user-namespace-id-mapping)
+  for more info on this.
 
 ## Uninstalling Sysbox
 
 Prior to uninstalling Sysbox, make sure all system containers are removed.
 There is a simple shell script to do this [here](../../scr/rm_all_syscont).
 
-1) Uninstall Sysbox binaries plus all the associated configuration and Systemd
-files:
+1. Uninstall Sysbox binaries plus all the associated configuration and Systemd
+   files:
 
 ```console
 $ sudo apt-get purge sysbox -y
 ```
 
-2) Remove the `sysbox` user from the system:
+2. Remove the `sysbox` user from the system:
 
 ```console
 $ sudo userdel sysbox
 ```
 
+## Installing Sysbox without Docker restart
+
+To simplify the Sysbox installation process, we explicitly ask the user to stop and remove
+the existing containers. This may not be a feasible option in production scenarios though.
+This section tackles this problem by enumerating the docker configuration elements that can
+be pre-configured, to allow Sysbox installation to succeed without impacting the existing
+containers.
+
+During Sysbox installation, the installer adds the following attributes into Docker's
+configuration file if these are not already present. With the exception of the `runtime`
+attribute, all others require a Docker process restart for changes to be digested by the
+Docker engine.
+
+- `runtime` -- sysbox-runc must be added as a new runtime.
+- `bip` -- explicitly sets docker's interface (docker0) network IP address.
+- `default-address-pools` -- explicitly defines the subnets to be utilized by Docker
+  for custom-networks purposes.
+- `userns-remap` -- activates 'userns-remap' mode (only required in scenarios without
+  'shiftfs' module, see [Docker Userns-Remap](#Docker-Userns-Remap) section above).
+
+To prevent Sysbox installer from restarting Docker daemon during the installation process,
+the Docker engine must be already aware of these required attributes, and for this to
+happen, Docker configuration files such as the following ones should be in placed:
+
+- "shiftfs" scenario
+
+```
+cat /etc/docker/daemon.json
+{
+    "bip": "172.24.0.1/16",
+    "default-address-pools": [
+        {
+            "base": "172.31.0.0/16",
+            "size": 24
+        }
+    ]
+}
+```
+
+- "userns-remap" scenario
+
+```
+cat /etc/docker/daemon.json
+{
+    "userns-remap": "sysbox",
+    "bip": "172.24.0.1/16",
+    "default-address-pools": [
+        {
+            "base": "172.31.0.0/16",
+            "size": 24
+        }
+    ]
+}
+```
+
+Notice that it is up to the user to decide which specific `bip` or `default-address-pools`
+values/ranges are pre-configured, and the same applies to the `userns-remap` entry.
+Sysbox will not restart Docker as long as there's one instance of these must-have attributes
+in Docker's `/etc/docker/daemon.json` configuration file.
+
 ## Docker Installation
 
 Ubuntu offers two methods for installing Docker:
 
-1) Via `apt get` (aka native installation)
+1. Via `apt get` (aka native installation)
 
-2) Via `snap install` (aka snappy installation)
+2. Via `snap install` (aka snappy installation)
 
 In recent versions of Ubuntu, (2) is the default approach. For example, while installing
 Ubuntu Focal on a VM, the installer will ask if you want to install Docker. If you answer
@@ -197,25 +280,25 @@ In the meantime, you **must install Docker natively** (method (1) above).
 
 These are the steps to do so:
 
-1) If Docker is installed via a snap, remove the snap:
+1. If Docker is installed via a snap, remove the snap:
 
 ```console
 $ sudo snap remove docker
 docker removed
 ```
 
-2) Install Docker natively.
+2. Install Docker natively.
 
 Follow the instructions in this [Docker doc](https://docs.docker.com/engine/install/ubuntu/).
 
-3) Confirm Docker is installed natively:
+3. Confirm Docker is installed natively:
 
 ```console
 $ which docker
 /usr/bin/docker
 ```
 
-4) Make sure you are in the `docker` group:
+4. Make sure you are in the `docker` group:
 
 ```console
 $ sudo usermod -a -G docker $(whoami)
@@ -230,7 +313,7 @@ $ docker run -it alpine
 Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: ... connect: permission denied
 ```
 
-5) Verify Docker works:
+5. Verify Docker works:
 
 ```console
 $ docker run -it alpine
@@ -247,11 +330,11 @@ At this point you have Docker working, and can now [install Sysbox](#installing-
 If you want to revert back to the Docker snap, the steps are below, but keep in
 mind that Sysbox **won't work**.
 
-1) Uninstall the native Docker
+1. Uninstall the native Docker
 
 See [here](https://docs.docker.com/engine/install/ubuntu/#uninstall-old-versions).
 
-2) Re-install the Docker snap:
+2. Re-install the Docker snap:
 
 ```console
 $ sudo snap install docker

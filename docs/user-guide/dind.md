@@ -1,4 +1,4 @@
-# Sysbox-EE User Guide: Docker-in Docker
+# Sysbox User Guide: Docker-in Docker
 
 ## Contents
 
@@ -30,7 +30,7 @@ The easiest way is to use a system container image that has Docker preinstalled
 in it.
 
 You can find a few such images in the [Nestybox DockerHub repo](https://hub.docker.com/r/nestybox). The
-Dockerfiles for the images are [here](../../dockerfiles).
+Dockerfiles for the images are [here](https://github.com/nestybox/dockerfiles).
 
 Alternatively, you can always deploy a baseline system container image (e.g.,
 ubuntu or alpine) and install Docker in it just as you would on a physical host
@@ -61,7 +61,7 @@ There are two ways to do this:
 
 2) Using `docker commit`
 
-See the [User-Guide System Container Images document](images.md#preloading-inner-container-images-into-a-system-container)
+See the [User-Guide System Container Images document](images.md#preloading-inner-container-images-into-a-system-container--v012-)
 for a full explanation on how to do this.
 
 ## Persistence of Inner Docker Images

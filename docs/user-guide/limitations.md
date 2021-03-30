@@ -1,4 +1,4 @@
-# Sysbox-EE User Guide: Functional Limitations
+# Sysbox User Guide: Functional Limitations
 
 This document describes functional restrictions and limitations of Sysbox and
 system containers.
@@ -18,7 +18,7 @@ Sysbox.
 
 Sysbox system containers are incompatible with the Docker `--privileged` flag.
 
-The raison d'être for Sysbox is to avoid the use of (very unsecure) privileged
+The raison d'être for Sysbox is to avoid the use of (very insecure) privileged
 containers yet enable users to run any type of software inside the container.
 
 Using the Docker `--privileged` + Sysbox will fail:
@@ -50,19 +50,6 @@ system container's user namespace).
 For example, when using Docker to launch system containers, the
 `docker run --pid=host` and `docker run --network=host` options
 do not work with system containers.
-
-### Support for Docker's `--read-only` Option
-
-Sysbox does not support system containers configured with a read-only rootfile
-system (e.g., those created with the `docker run --read-only` flag):
-
-```console
-$ docker run --runtime=sysbox-runc --read-only -it alpine
-docker: Error response from daemon: OCI runtime create failed: error in the container spec: invalid or unsupported container spec: root path must be read-write but it's set to read-only: unknown.
-```
-
-The rationale is that system containers are designed to run system-level
-software, and such software can't run properly on a read-only filesystem.
 
 ### Docker cgroup driver restriction
 
