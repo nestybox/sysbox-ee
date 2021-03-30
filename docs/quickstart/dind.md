@@ -1,4 +1,4 @@
-# Sysbox-EE Quick Start Guide: Docker-in-Docker
+# Sysbox Quick Start Guide: Docker-in-Docker
 
 This section shows examples for running Docker inside system containers.
 
@@ -17,7 +17,7 @@ deeper detail.
 
 We will use a system container image that has Alpine + Docker inside. It's called
 `nestybox/alpine-docker` and it's in the [Nestybox DockerHub repo](https://hub.docker.com/u/nestybox). The
-Dockerfile is [here](../../dockerfiles/alpine-docker/Dockerfile).
+Dockerfile is [here](https://github.com/nestybox/dockerfiles/blob/master/alpine-docker/Dockerfile).
 
 1) Start the system container:
 
@@ -69,7 +69,7 @@ As shown, Docker runs normally inside the secure system container and we
 can deploy an inner container (busybox) without problem.
 
 The Sysbox runtime allows you to do this easily and securely (no complex
-Docker run commands, no unsecure Docker privileged containers!).
+Docker run commands, no insecure Docker privileged containers!).
 
 ## Deploy a System Container with Systemd, sshd, and Docker inside
 
@@ -83,7 +83,8 @@ We've also added an SSH daemon in into the system container image, so that you
 can login remotely into it, just as you would on a physical host or VM.
 
 We will use a system container image called `nestybox/ubuntu-bionic-systemd-docker:latest` which is in
-[Nestybox DockerHub repo](https://hub.docker.com/u/nestybox). The Dockerfile is [here](../../dockerfiles/ubuntu-bionic-systemd-docker/Dockerfile).
+[Nestybox DockerHub repo](https://hub.docker.com/u/nestybox). The Dockerfile is
+[here](https://github.com/nestybox/dockerfiles/blob/master/ubuntu-bionic-systemd-docker/Dockerfile).
 
 1) Start the system container:
 
@@ -224,7 +225,7 @@ manager inside a system container.
 
 We will use a system container image called `nestybox/alpine-supervisord-docker:latest`.
 Nestybox DockerHub public repo. The Dockerfile, supervisord.conf, and docker-entrypoint.sh files
-can be found [here](../../dockerfiles/alpine-supervisord-docker).
+can be found [here](https://github.com/nestybox/dockerfiles/tree/master/alpine-supervisord-docker).
 
 1) Start the system container:
 

@@ -1,4 +1,4 @@
-# Sysbox-EE Quick Start Guide: Preloading Inner Container Images into System Containers
+# Sysbox Quick Start Guide: Preloading Inner Container Images into System Containers
 
 This section shows how to preload inner container images into system container
 images.
@@ -6,7 +6,7 @@ images.
 This way, you can deploy the system container image and run inner containers
 without having to pull the inner container images from the network.
 
-A complete list of advantages is described [here](../user-guide/images.md#preloading-inner-container-images-into-a-system-container).
+A complete list of advantages is described [here](../user-guide/images.md#preloading-inner-container-images-into-a-system-container--v012-).
 
 There are two ways to do this:
 
@@ -16,14 +16,14 @@ There are two ways to do this:
 
 The following sections show examples of each.
 
-## Building A System Container That Includes Inner Container Images
+## Building A System Container That Includes Inner Container Images \[ +v0.1.2 ]
 
 **Check out this [video](https://asciinema.org/a/tYLbk5rQNOQtVgr236kErv7Gn?speed=2).**
 
 Below are the steps:
 
-1) Reconfigure the host's Docker daemon to use `sysbox-runc` as it's default
-   runtime by editing the `/etc/docker/daemon.json` file and restarting Docker:
+1.  Reconfigure the host's Docker daemon to use `sysbox-runc` as it's default
+    runtime by editing the `/etc/docker/daemon.json` file and restarting Docker:
 
 ```console
 # more /etc/docker/daemon.json
@@ -43,7 +43,7 @@ This is needed because during the build process, Docker is creating intermediate
 containers for each Dockerfile instruction. Those intermediate containers must
 be system containers deployed by Sysbox.
 
-2) Create a Dockerfile for the system container image. For example:
+2.  Create a Dockerfile for the system container image. For example:
 
 ```dockerfile
 FROM nestybox/alpine-docker
@@ -53,7 +53,7 @@ RUN chmod +x /usr/bin/docker-pull.sh && docker-pull.sh && rm /usr/bin/docker-pul
 ```
 
 This Dockerfile inherits from the `nestybox/alpine-docker` base image which simply contains
-Alpine plus a Docker daemon (the Dockerfile is [here](../../dockerfiles/alpine-docker/Dockerfile)).
+Alpine plus a Docker daemon (the Dockerfile is [here](https://github.com/nestybox/dockerfiles/blob/main/alpine-docker/Dockerfile)).
 
 The presence of the inner Docker in the base image is required since we will use
 it to pull the inner container images.
@@ -90,7 +90,7 @@ The reason we need this script is because it's hard to put all of these commands
 into a single Dockerfile `RUN` instruction. It's simpler to put them in a
 separate script and call it from the `RUN` instruction.
 
-3) Do a `docker build` on this Dockerfile:
+3.  Do a `docker build` on this Dockerfile:
 
 ```console
 $ docker build -t nestybox/syscont-with-inner-containers:latest .
@@ -127,24 +127,24 @@ We can see from above that the Docker build process has pulled the
 busybox and alpine container images and stored them inside the system
 container image. Cool!
 
-4) Optionally revert the `default-runtime` config in step (1) (it's only needed
-   for the Docker build).
+4.  Optionally revert the `default-runtime` config in step (1) (it's only needed
+    for the Docker build).
 
-5) Optionally prune any dangling images created during the Docker build process
-   to save storage.
+5.  Optionally prune any dangling images created during the Docker build process
+    to save storage.
 
 ```console
 $ docker image prune
 ```
 
-6) Start a system container using the newly created image:
+6.  Start a system container using the newly created image:
 
 ```console
 $ docker run --runtime=sysbox-runc -it --rm --hostname=syscont nestybox/syscont-with-inner-containers:latest
 / #
 ```
 
-7) Start the inner Docker and verify the inner images are in there:
+7.  Start the inner Docker and verify the inner images are in there:
 
 ```console
 / # dockerd > /var/log/dockerd.log 2>&1 &
@@ -160,14 +160,51 @@ There they are!
 You can preload as many inner container images as you want. Just keep in mind
 that they will add to the size of the system container image.
 
+### A Caveat on Inner Image Preloading
+
+In the Dockerfile for the system container (see step (2) above), make sure that
+the container's `/var/lib/docker` is not backed by a host volume. Otherwise, the
+contents of `/var/lib/docker` will be stored in that volume rather than the
+Docker image being built (i.e., the built image won't have any inner containers
+preloaded in it).
+
+As an example, avoid using the `docker:19-dind` image as the base image in the
+system container Dockerfile, because this image [implicitly mounts a volume](https://github.com/docker-library/docker/blob/master/19.03/dind/Dockerfile)
+over the container's `/var/lib/docker` directory.
+
+For example, this will **not work**:
+
+```dockerfile
+FROM docker:19-dind
+COPY docker-pull.sh /usr/bin
+RUN chmod +x /usr/bin/docker-pull.sh && docker-pull.sh && rm /usr/bin/docker-pull.sh
+```
+
+If you build this image (e.g., `docker built -t my-image .`), you'll see that
+the resulting image builds properly, but it won't have any inner containers
+preloaded in it (i.e., the inner containers pulled by the `docker-pull.sh`
+script end up in the host volume that backs `/var/lib/docker`, rather than in
+the container image itself).
+
+If you want to use the `docker:19-dind` image and preload it with inner
+containers, create a new image by copying it's [Dockerfile](https://github.com/docker-library/docker/blob/master/19.03/dind/Dockerfile)
+and removing the `VOLUME /var/lib/docker` line from it. You can then
+preload inner containers into that new image with:
+
+```dockerfile
+FROM new_image
+COPY docker-pull.sh /usr/bin
+RUN chmod +x /usr/bin/docker-pull.sh && docker-pull.sh && rm /usr/bin/docker-pull.sh
+```
+
 ## Committing A System Container That Includes Inner Container Images
 
 **Check out this [video](https://asciinema.org/a/SeinIdpOJBxuDvSf2cGS4NvHZ?speed=2).**
 
 Below are the steps:
 
-1) Deploy a system container, start dockerd within it, and
-   pull some images inside:
+1.  Deploy a system container, start dockerd within it, and
+    pull some images inside:
 
 ```console
 $ docker run --runtime=sysbox-runc -it --rm nestybox/alpine-docker
@@ -192,7 +229,7 @@ Digest: sha256:c19173c5ada610a5989151111163d28a67368362762534d8a8121ce95cf2bd5a
 Status: Downloaded newer image for alpine:latest
 ```
 
-2) From the host, let's use the outer Docker to "commit" the system container image:
+2.  From the host, let's use the outer Docker to "commit" the system container image:
 
 ```console
 $ docker ps
@@ -206,8 +243,8 @@ sha256:82686f19cd10d2830e9104f46cbc8fc4a7d12c248f7757619513ca2982ae8464
 The commit operation may take several seconds, depending on how many changes
 were done in the container's files since it was created.
 
-3) Create a system container using the committed image, and verify the inner
-images are there:
+3.  Create a system container using the committed image, and verify the inner
+    images are there:
 
 ```console
 $ docker run --runtime=sysbox-runc -it --rm nestybox/syscont-with-inner-containers:latest

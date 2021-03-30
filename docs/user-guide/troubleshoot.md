@@ -1,4 +1,4 @@
-# Sysbox-EE User Guide: Troubleshooting
+# Sysbox User Guide: Troubleshooting
 
 ## Contents
 
@@ -18,7 +18,7 @@
 ## Sysbox Installation Problems
 
 When installing the Sysbox package with the `dpkg` command
-(see the [Installation instructions](../../README.md#installing-sysbox)), the expected output is:
+(see the [Installation instructions](../../README.md#installing-sysbox-ee)), the expected output is:
 
 ```console
 $ sudo dpkg -i sysbox_0.2.0-0.ubuntu-eoan_amd64.deb
@@ -119,6 +119,43 @@ $ sudo systemctl restart docker.service
 **NOTE:** The Sysbox installer automatically does this configuration and
 restarts Docker. Thus this error is uncommon.
 
+## Docker indicates "unable to retrieve OCI runtime error"
+
+When creating a system container, Docker may report the following error:
+
+```
+# docker run --runtime=sysbox-runc -it --rm nestybox/alpine-docker
+33a50b33f0e23f7ce9c2e42b9c6521d91ab1f833b9b8cd5884d8f32c60dfd144
+docker: Error response from daemon: OCI runtime create failed: unable to retrieve OCI runtime error (open /run/containerd/io.containerd.runtime.v1.linux/moby/33a50b33f0e23f7ce9c2e42b9c6521d91ab1f833b9b8cd5884d8f32c60dfd144/log.json: no such file or directory): /usr/local/sbin/sysbox-runc did not terminate successfully: unknown.
+```
+
+This can occur is distros such as Fedora and CentOS where `shiftfs` is not
+supported.  In such distros, Sysbox requires that Docker be configured with
+"userns-remap". If it's not, the error above can occur.
+
+To solve it, please configure Docker with userns-remap as follows:
+
+1) Add the userns-remap line to the `/etc/docker/daemon.json` file as shown below:
+
+```console
+# cat /etc/docker/daemon.json
+{
+   "userns-remap": "sysbox",
+   "runtimes": {
+      "sysbox-runc": {
+         "path": "/usr/local/sbin/sysbox-runc"
+      }
+   }
+}
+```
+
+2) Restart the Docker daemon (make sure any running containers are stopped):
+
+```console
+# sudo docker stop $(docker ps -aq)
+# sudo systemctl restart docker
+```
+
 ## Ubuntu Shiftfs Module Not Present
 
 When creating a system container, the following error indicates that
@@ -130,13 +167,20 @@ in the Linux kernel:
 docker: Error response from daemon: OCI runtime create failed: container requires user-ID shifting but error was found: shiftfs module is not loaded in the kernel. Update your kernel to include shiftfs module or enable Docker with userns-remap. Refer to the Sysbox troubleshooting guide for more info: unknown
 ```
 
-In general, this error should not occur as the Sysbox installer checks
-for the presence of `shiftfs` during installation, and if not present
-configures Docker in such a way that the module is no longer needed
-(see [the Sysbox installation doc](install.md#docker-userns-remap)).
+First, check if shiftfs if present:
 
-But if you still see this error, you can work-around it by placing Docker in
-userns-remap mode as follows:
+```
+# lsmod | grep shiftfs
+```
+
+If not present, try loading it manually into the kernel:
+
+```
+# sudo modprobe shiftfs
+```
+
+If you don't have shiftfs, you can try placing Docker in userns-remap mode as
+follows:
 
 1) Add the userns-remap line to the `/etc/docker/daemon.json` file as shown below:
 
@@ -180,6 +224,24 @@ sudo sh -c "echo 1 > /proc/sys/kernel/unprivileged_userns_clone"
 **Note:** The Sysbox package installer automatically executes this
 instruction, so normally there is no need to do this configuration
 manually.
+
+## Duplicate Sysbox entries in /etc/subuid
+
+The host's `/etc/subuid` and `/etc/subgid` files contain the host user-id and
+group-id ranges that Sysbox assigns to the containers. These files should
+have a single entry for user `sysbox` that looks similar to this:
+
+```
+$ more /etc/subuid
+sysbox:165536:65536
+```
+
+If for some reason this file has more than one entry for user `sysbox`, you'll
+see the following error when creating a container:
+
+```
+docker: Error response from daemon: OCI runtime create failed: error in the container spec: invalid user/group ID config: sysbox-runc requires user namespace uid mapping array have one element; found [{0 231072 65536} {65536 296608 65536}]: unknown.
+```
 
 ## Bind Mount Permissions Error
 
@@ -250,6 +312,21 @@ $ sudo systemctl restart sysbox
 Normally Systemd ensures these services are running and restarts them automatically if
 for some reason they stop.
 
+## Failed to interact with sysbox-fs or sysbox-mgr
+
+The following error may be reported within a system container or any of its
+inner (child) containers:
+
+```
+# ls /proc/sys
+ls: cannot access '/proc/sys': Transport endpoint is not connected
+```
+
+This error usually indicates that sysbox-fs daemon (and potentially sysbox-mgr
+too) has been restarted after the affected system container was initiated. In
+this scenario user is expected to recreate (stop and start) all the
+active Sysbox containers.
+
 ## Docker reports failure setting up ptmx
 
 When creating a system container with Docker + Sysbox, if Docker reports an error such as:
@@ -282,7 +359,8 @@ The Sysbox daemons (i.e. sysbox-fs and sysbox-mgr) will log information related
 to their activities in `/var/log/sysbox-fs.log` and `/var/log/sysbox-mgr.log`
 respectively. These logs should be useful during troubleshooting exercises.
 
-You can modify the log level as described [here](configuration.md#reconfiguration-procedure).
+You can modify the log file location, log level, and log format. See [here](configuration.md#reconfiguration-procedure)
+and [here](configuration.md#sysbox-log-configuration) for more info.
 
 ### sysbox-runc
 

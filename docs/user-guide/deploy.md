@@ -1,4 +1,4 @@
-# Sysbox-EE User Guide: Container Deployment
+# Sysbox User Guide: Container Deployment
 
 ## Contents
 

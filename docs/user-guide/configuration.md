@@ -1,4 +1,4 @@
-# Sysbox-EE User Guide: Configuration
+# Sysbox User Guide: Configuration
 
 This document describes Sysbox configuration.
 
@@ -8,6 +8,8 @@ Note that usually you don't need to modify Sysbox's default configuration.
 
 -   [Reconfiguration Procedure](#reconfiguration-procedure)
 -   [Sysbox Configuration Options](#sysbox-configuration-options)
+-   [Sysbox Log Configuration](#sysbox-log-configuration)
+-   [Sysbox Data Store Configuration \[ +v0.3.0 \]](#sysbox-data-store-configuration--v030-)
 -   [Sysbox Kernel Parameter Configurations](#sysbox-kernel-parameter-configurations)
 
 ## Reconfiguration Procedure
@@ -27,11 +29,11 @@ passing the `--log-level debug` to the sysbox-fs or sysbox-mgr daemons.
 
 In order to reconfigure Sysbox, do the following:
 
-1) Stop all system containers (there is a sample script for this [here](../../scr/rm_all_syscont)).
+1.  Stop all system containers (there is a sample script for this [here](../../scr/rm_all_syscont)).
 
-2) Modify the desired Systemd service initialization command.
+2.  Modify the desired Systemd service initialization command.
 
-   For example, if you wish to change the log-level, do the following:
+    For example, if you wish to change the log-level, do the following:
 
 ```console
 $ sudo sed -i --follow-symlinks '/^ExecStart/ s/$/ --log-level debug/' /lib/systemd/system/sysbox-fs.service
@@ -40,19 +42,19 @@ $ egrep "ExecStart" /lib/systemd/system/sysbox-fs.service
 ExecStart=/usr/local/sbin/sysbox-fs --log /var/log/sysbox-fs.log --log-level debug
 ```
 
-3) Reload Systemd to digest the previous change:
+3.  Reload Systemd to digest the previous change:
 
 ```console
 $ sudo systemctl daemon-reload
 ```
 
-4) Restart the sysbox service:
+4.  Restart the sysbox service:
 
 ```console
 $ sudo systemctl restart sysbox
 ```
 
-5) Verify the sysbox service is running:
+5.  Verify the sysbox service is running:
 
 ```console
 $ sudo systemctl status sysbox.service
@@ -82,6 +84,63 @@ supported by the sysbox-mgr component.
 
 Same for sysbox-fs: `sysbox-fs --help`.
 
+## Sysbox Log Configuration
+
+The Sysbox logs are located at `/var/log/sysbox-*.log`. You can change the
+location of the log file via the `--log` option in both the sysbox-fs and
+sysbox-mgr daemons.
+
+In addition, the format of the logs can be controlled. By default they are in
+text format, but you can change them to json format via the `--log-format`
+config option in both the sysbox-mgr and sysbox-fs daemons.
+
+Finally, the log-level (info, debug, etc) can be changed via the
+`--log-level` option. This is useful for debugging.
+
+## Sysbox Data Store Configuration \[ +v0.3.0 ]
+
+As part of its operation, Sysbox uses a host directory as a data
+store. By default, Sysbox uses `/var/lib/sysbox`, but this can be
+changed if needed (see below).
+
+Depending on the workloads running on the system containers created by Sysbox,
+the amount of data stored in the Sysbox data store can be significant (hundreds
+of MBs to several GBs).
+
+We recommend that the Sysbox data store be no smaller than 10GB, but
+the capacity really depends on how many system container instances you
+will be running, whether inside of those containers you will be
+deploying inner containers, and the size of those inner container
+images.
+
+For example, when running Docker inside a system container, the inner
+Docker images are stored in this Sysbox's data store. The size of
+those can add up quickly. Similarly, when running Kubernetes inside a
+system container, the Kubelet's data is also stored in the Sysbox's
+data store.
+
+It's important to understand that this data resides in the Sysbox data
+store only while the container is running. When the container stops,
+Sysbox deletes the associated data (containers are stateless by
+default).
+
+You can change the location of the Sysbox data store by passing the
+`--data-root` option to the Sysbox Manager daemon via its associated
+systemd service:
+
+    ExecStart=/usr/local/sbin/sysbox-mgr --data-root /some/other/dir
+
+Once reconfigured, restart the Sysbox systemd service as described in
+[Reconfiguration Procedure](#reconfiguration-procedure) above.
+
+Finally: if you create a system container and mount a Docker
+volume (or a host directory) into the container's `/var/lib/docker`
+directory, then the inner Docker images are stored in that Docker
+volume rather than in the Sysbox data store. This also means
+that the data can persist across the container's life-cycle
+(i.e., it won't be deleted when the container is removed). See [this section in the quickstart guide](../quickstart/dind.md#persistence-of-inner-container-images-using-docker-volumes)
+for an example of how to do this.
+
 ## Sysbox Kernel Parameter Configurations
 
 Sysbox requires some kernel parameters to be modified from their default values,
@@ -92,7 +151,10 @@ The Sysbox installer performs these changes automatically.
 
 Below is the list of kernel parameters configured by Sysbox (via `sysctl`):
 
-    fs.inotify.max_queued_events = 1048576
-    fs.inotify.max_user_watches = 1048576
-    fs.inotify.max_user_instances = 1048576
-    kernel.keys.maxkeys = 20000
+```console
+fs.inotify.max_queued_events = 1048576
+fs.inotify.max_user_watches = 1048576
+fs.inotify.max_user_instances = 1048576
+kernel.keys.maxkeys = 20000
+kernel.keys.maxbytes = 400000
+```

@@ -1,4 +1,4 @@
-# Sysbox-EE User Guide: Concepts & Terminology
+# Sysbox User Guide: Concepts & Terminology
 
 These document describes concepts and terminology used by the Sysbox container
 runtime. We use these throughout our documents.
@@ -14,7 +14,7 @@ runtime. We use these throughout our documents.
 
 ## Container Runtime
 
-The software that given the the container's configuration and root filesystem
+The software that given the container's configuration and root filesystem
 (i.e., a directory that has the contents of the container) interacts with the
 Linux kernel to create the container.
 

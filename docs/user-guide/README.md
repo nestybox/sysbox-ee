@@ -1,11 +1,11 @@
-# Sysbox-EE User Guide
+# Sysbox User Guide
 
-This document describes Sysbox-EE's features, usage, configuration, and
+This document describes Sysbox's features, usage, configuration, and
 limitations.
 
-This document complements the [Sysbox-EE Quick Start Guide](../quickstart/README.md).
+This document complements the [Sysbox Quick Start Guide](../quickstart/README.md).
 
-Refer to that document for a quick introduction to running containers with
+Refer to the quickstart guide for a fast introduction to running containers with
 Sysbox. Come back to this document for a more comprehensive description of
 functionality.
 
@@ -25,7 +25,7 @@ functionality.
 
 [System Container Images](images.md)
 
-[Preloading System Containers with Inner Container Images](images.md#preloading-inner-container-images-into-a-system-container)
+[Preloading System Containers with Inner Container Images](images.md#preloading-inner-container-images-into-a-system-container--v012-)
 
 [Enhanced Container Isolation & Security](security.md)
 
