@@ -1,29 +1,26 @@
-# Sysbox Documentation
+# Sysbox-EE Documentation
 
-This directory contains the Sysbox documentation for both
+Sysbox-EE is a drop-in replacement for Sysbox, meaning that it's installed and
+used in the same way.
 
-- **Sysbox Community Edition (Sysbox-CE)**
-- **Sysbox Enterprise Edition (Sysbox-EE)**
-
-In general, the features and limitations described in these docs apply equally
-to Sysbox-CE and Sysbox-EE.
+For this reason, the documents in the Sysbox repo apply equally to Sysbox-EE.
 
 Features that are specific to Sysbox-EE are tagged with **"Sysbox-EE Feature
 Highlight"**.
 
 Features that appear in a particular Sysbox release are flagged in the docs with
-the release tag (e.g., "**\[ +v0.1.2 ]**" indicates the feature appeared in
+the release tag (e.g., "**\[ v0.1.2+ ]**" indicates the feature appeared in
 Sysbox release v0.1.2 and beyond).
 
 ## Documents
 
 - [Sysbox Distro Compatibility doc](distro-compat.md)
 
-  - Shows Linux distros supported by Sysbox.
+  - Shows Linux distros supported by Sysbox and Sysbox-EE.
 
 - [Sysbox Quick Start Guide](quickstart/README.md)
 
-  - Start here if new to Sysbox; has lots of examples on how to use it.
+  - Start here if new to Sysbox / Sysbox-EE; has lots of examples on how to use it.
 
 - [Sysbox User Guide](user-guide/README.md)
 
