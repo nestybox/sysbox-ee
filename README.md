@@ -51,7 +51,7 @@ Sysbox (aka Sysbox Community Edition).
 
 Sysbox-EE is offered via a 30-day free trial and a paid subscription after that.
 
-Features and pricing info is shown below.
+Features and pricing info are shown below.
 
 <p align="center">
     <img alt="sysbox" src="./docs/figures/sysbox-features.png" height="800" width="1000" />
@@ -80,7 +80,7 @@ We plan to add support for more distros in the near future.
 
 The Sysbox host must meet the following requirements:
 
-*   It must be running of the [supported Linux distros](docs/distro-compat.md).
+*   It must be running one of the [supported Linux distros](docs/distro-compat.md).
 
 *   We recommend a minimum of 4 CPUs (e.g., 2 cores with 2 hyperthreads) and 4GB
     of RAM. Though this is not a hard requirement, smaller configurations may
@@ -154,10 +154,6 @@ Highlight"** in the docs.
 *   [Sysbox User Guide](https://github.com/nestybox/sysbox/blob/master/docs/user-guide/README.md)
 
     *   Provides more detailed information on Sysbox features and troubleshooting.
-
-*   [Sysbox Distro Compatibility Doc](docs/distro-compat.md)
-
-    *   Distro compatibility requirements.
 
 In addition, the [Nestybox blog site](https://blog.nestybox.com) has articles
 on how to use Sysbox to deploy containers.
