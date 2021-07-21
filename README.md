@@ -2,26 +2,18 @@
 
 ## Contents
 
-- [Introduction](#introduction)
-- [Features](#features)
-- [Videos](#videos)
-- [Audience](#audience)
-- [System Containers](#system-containers)
-- [Features Description](#features-description)
-- [Supported Distros](#supported-distros)
-- [Host Requirements](#host-requirements)
-- [Installing Sysbox-EE](#installing-sysbox-ee)
-- [Using Sysbox-EE](#using-sysbox-ee)
-- [Documentation](#documentation)
-- [Integration with Container Managers & Orchestrators](#integration-with-container-managers-&-orchestrators)
-- [Troubleshooting](#troubleshooting)
-- [Filing Issues](#filing-issues)
-- [Support](#support)
-- [We want your feedback](#we-want-your-feedback)
-- [Uninstallation](#uninstallation)
-- [About Nestybox](#about-nestybox)
-- [Contact](#contact)
-- [Thank You](#thank-you)
+*   [Introduction](#introduction)
+*   [Features & Pricing](#features--pricing)
+*   [Supported Distros](#supported-distros)
+*   [Host Requirements](#host-requirements)
+*   [Installation](#installation)
+*   [Using Sysbox-EE](#using-sysbox-ee)
+*   [Documentation](#documentation)
+*   [Filing Issues](#filing-issues)
+*   [Support](#support)
+*   [About Nestybox](#about-nestybox)
+*   [Contact](#contact)
+*   [Thank You](#thank-you)
 
 ## Introduction
 
@@ -29,135 +21,47 @@
 open-source [Sysbox container runtime](https://github.com/nestybox/sysbox),
 developed by [Nestybox](https://www.nestybox.com).
 
-Sysbox enables Docker containers to act as virtual servers capable of running
-software such as Systemd, Docker, and Kubernetes in them, **seamlessly and
-securely**. This implies the ability for these containers to run inner
-containers (nested) while providing strong isolation from the underlying host.
+Sysbox-EE uses Sysbox at its core, but adds enterprise-level features such as:
 
-Sysbox-EE uses Sysbox at its core, but adds enterprise-level features around
-lifecycle, security, efficiency, scalability, and robustness. More on this
-in the [features](#features) section.
+*   Improved container isolation / security
 
-## Features
+*   Running more types of system-level workloads inside containers
 
-The table below summarizes the key features of Sysbox Enterprise Edition
-and compares it to the community edition (Sysbox CE).
+*   Scalability (running more containers per host)
+
+*   Significant performance and efficiency optimizations (for faster container deployment with reduced disk utilization)
+
+*   Lifecycle (higher release cadence, critical bug fixes ASAP)
+
+*   Nestybox professional support with a guaranteed SLA (rather than best effort on Sysbox)
+
+*   Feature prioritization (Sysbox-EE feature requests are prioritized)
+
+For these reasons, **we recommend that enterprises that wish to use Sysbox in
+their IT infrastructure use Sysbox-EE**.
+
+Sysbox-EE is a drop-in replacement for Sysbox. It installs and it's used in the
+exact same way, but includes the enterprise level features described above. On a
+given host however, either Sysbox or Sysbox-EE must be installed, never both.
+
+See the [next section](#features--pricing)for a comparison between Sysbox-EE and
+Sysbox (aka Sysbox Community Edition).
+
+## Features & Pricing
+
+Sysbox-EE is offered via a 30-day free trial and a paid subscription after that.
+
+Features and pricing info is shown below.
 
 <p align="center">
     <img alt="sysbox" src="./docs/figures/sysbox-features.png" width="1000x" />
 </p>
 
-More on the features [below](#features-description).
+You can download Sysbox-EE for free and use it during the free trial period.
+
+Afterwards, we ask that you contact Nestybox for [pricing and payment information](https://www.nestybox.com/pricing).
 
 If you have questions, you can reach us [here](#contact).
-
-## Videos
-
-We have some sample videos showing Sysbox-EE in action:
-
-- [Docker Sandboxing](https://asciinema.org/a/kkTmOxl8DhEZiM2fLZNFlYzbo?speed=2)
-
-- [Kubernetes-in-Docker](https://asciinema.org/a/V1UFSxz6JHb3rdHpGrnjefFIt?speed=1.75)
-
-## Audience
-
-Sysbox-EE is meant for engineers looking to use Sysbox as part of their
-company's IT operations and/or looking to leverage the enterprise level
-features it includes (i.e., enhancements over the Sysbox community edition).
-
-Sysbox-EE is offered via a 30-day free trial. You can download and use
-it for free during this time. Afterwards, we ask that you [contact](#contact)
-Nestybox for pricing and payment information.
-
-## System Containers
-
-We call the containers deployed by Sysbox **system containers**, to highlight the
-fact that they can run not just micro-services (as regular containers do), but
-also system software such as Docker, Kubernetes, Systemd, inner containers, etc.
-
-More on system containers [here](docs/user-guide/concepts.md#system-container).
-
-## Features Description
-
-Sysbox-EE includes all features of the open-source Sysbox runtime (aka core
-features), plus enterprise-level features. These are described below.
-
-### Core Features
-
-#### Systemd-in-Docker
-
-- Run Systemd inside a Docker container easily, without complex container configurations.
-
-- Enables you to containerize apps that rely on Systemd (e.g., legacy apps).
-
-#### Docker-in-Docker
-
-- Run Docker inside a container easily and without unsecure privileged containers.
-
-- Full isolation between the Docker inside the container and the Docker on the host.
-
-#### Kubernetes-in-Docker
-
-- Deploy Kubernetes (K8s) inside containers with proper isolation (no
-  privileged containers), using simple Docker images and Docker run commands
-  (no need for custom Docker images with tricky entrypoints).
-
-- Deploy directly with `docker run` commands for full flexibility, or using a
-  higher level tool (e.g., such as [kindbox](https://github.com/nestybox/kindbox)).
-
-#### Strong container isolation
-
-- Root user in the system container maps to a fully unprivileged user on the host.
-
-- The procfs and sysfs exposed in the container are fully namespaced.
-
-- Programs running inside the system container (e.g., Docker, Kubernetes, etc)
-  are limited to using the resources given to the system container itself.
-
-- Avoid the need for unsecure privileged containers.
-
-#### Inner Container Image Preloading
-
-- You can create a system container image that includes inner container
-  images, with a simple Dockerfile or Docker commit.
-
-### Enterprise-level Features
-
-#### Lifecycle
-
-- Sysbox-EE package installer and systemd services.
-
-#### Security
-
-- Stronger cross-container isolation (Sysbox-EE assigns exclusive
-  user-namespaces user-ID and group-ID mappings to each container).
-
-#### Performance & Efficiency
-
-- Sysbox EE includes optimizations for running containers in containers that are
-  not present in the Sysbox community edition. This speeds up container
-  deployment and significantly reduces storage overhead.
-
-- For example, with Sysbox-EE, a 10-node Kubernetes-in-Docker cluster
-  starts in ~2 minutes and consumes only 1GB of overhead. In contrast,
-  the Sysbox open-source version takes 2 min 40 secs and consumes up to 10GB
-  for this same cluster.
-
-#### Scalability
-
-- Higher efficiency means you can launch more system containers per host.
-
-#### Robustness
-
-- Sysbox-EE is tested and hardened for operation in production environments.
-
-#### Feature Prioritization
-
-- Sysbox-EE offers customers the ability to request and fast-track new features.
-
-#### Nestybox Support
-
-- Sysbox-EE includes official Nestybox support for bug fixes, updated, etc.
 
 ## Supported Distros
 
@@ -171,119 +75,89 @@ We plan to add support for more distros in the near future.
 
 ## Host Requirements
 
-The Linux host on which Sysbox-EE runs must meet the following requirements:
+The Sysbox host must meet the following requirements:
 
-1. It must have one of the supported Linux distros.
+*   It must be running of the [supported Linux distros](docs/distro-compat.md).
 
-2. Systemd must be the system's process-manager (the default in the supported distros).
+*   We recommend a minimum of 4 CPUs (e.g., 2 cores with 2 hyperthreads) and 4GB
+    of RAM. Though this is not a hard requirement, smaller configurations may
+    slow down Sysbox-EE.
 
-3. Docker must be [installed natively](docs/user-guide/install.md#docker-installation) (**not** with the Docker snap package).
+## Installation
 
-## Installing Sysbox-EE
+Sysbox-EE is a drop-in replacement for Sysbox, meaning that it's installed and
+used in the same way.
 
-1. Download the latest Sysbox-EE package from the
-   [release](https://github.com/nestybox/sysbox-ee/releases) page:
+For this reason, the documents in the [Sysbox repo](https://github.com/nestybox/sysbox/tree/master/docs)
+apply equally to both Sysbox and Sysbox-EE.
 
-```console
-wget https://github.com/nestybox/sysbox-ee/releases/download/v0.3.0/sysbox-ee_0.3.0-0.ubuntu-focal_amd64.deb
-```
+Here are the links to the docs showing how to install Sysbox-EE:
 
-2. Verify that the checksum of the downloaded file fully matches the expected/published one.
-   For example:
+*   [Installation on Docker hosts](https://github.com/nestybox/sysbox/blob/master/docs/user-guide/install-package.md#installing-sysbox-enterprise-edition-sysbox-ee)
 
-```console
-$ sha256sum sysbox-ee_0.3.0-0.ubuntu-focal_amd64.deb
-c98e5f5adc90ef4279bdf05d32fa9052d62ac7b8a4de300ce4f78d513786c639  sysbox-ee_0.3.0-0.ubuntu-focal_amd64.deb
-```
-
-3. Stop and eliminate all running Docker containers. Refer to the
-   [detailed](docs/user-guide/install.md) installation process for information
-   on how to avoid impacting existing containers.
-
-```
-$ docker rm $(docker ps -a -q) -f
-```
-
-... if an error is returned, it simply indicates that no existing containers were found.
-
-4. Install the Sysbox-EE package and follow the installer instructions:
-
-```console
-$ sudo apt-get install ./sysbox-ee_0.3.0-0.ubuntu-focal_amd64.deb -y
-```
-
-More information on the installation process can be found [here](docs/user-guide/install.md).
-
-If you run into problems during install, see the [troubleshooting doc](docs/user-guide/troubleshoot.md).
+*   [Installation on Kubernetes Clusters](https://github.com/nestybox/sysbox/blob/master/docs/user-guide/install-k8s.md#installation-of-sysbox-enterprise-edition-sysbox-ee)
 
 ## Using Sysbox-EE
 
-Once Sysbox-EE is installed, you use it as follows:
+Once Sysbox-EE is installed, you create a container using your container manager
+or orchestrator (e.g., Docker or Kubernetes) and an image of your choice.
+
+Docker command example:
 
 ```console
-$ docker run --runtime=sysbox-runc --rm -it --hostname my_cont debian:latest
+$ docker run --runtime=sysbox-runc --rm -it --hostname my_cont registry.nestybox.com/nestybox/ubuntu-bionic-systemd-docker
 root@my_cont:/#
 ```
 
-This launches a system container. It looks very much like a regular container,
-but it's different under the hood.
+Kubernetes pod spec example:
 
-In this container, you can now run system software such as Systemd, Docker,
-Kubernetes, etc., seamlessly and securely, just as you would on a physical host
-or virtual machine.
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ubu-bio-systemd-docker
+  annotations:
+    io.kubernetes.cri-o.userns-mode: "auto:size=65536"
+spec:
+  runtimeClassName: sysbox-runc
+  containers:
+  - name: ubu-bio-systemd-docker
+    image: registry.nestybox.com/nestybox/ubuntu-bionic-systemd-docker
+    command: ["/sbin/init"]
+  restartPolicy: Never
+```
 
-You can launch inner containers (and even inner privileged containers), with
-strong isolation from the underlying host. No more complex docker images or
-docker run commands, and no need for insecure privileged containers.
+You can choose whatever container image you want, Sysbox-EE places no requirements
+on the image.
 
-The [Sysbox Quickstart Guide](docs/quickstart/README.md) and the [Nestybox Blog Site](https://blog.nestybox.com) have
-many usage examples.
-
-Note that if you omit the `--runtime` option, Docker will use its default `runc`
-runtime to launch regular containers (rather than system containers). It's
-perfectly fine to run system containers launched with Docker + Sysbox alongside
-regular Docker containers; they won't conflict and can co-exist side-by-side.
+Refer to the [Documentation](#documentation) section below for further examples
+on how to use Sysbox-EE.
 
 ## Documentation
 
-We have several documents to help you get started and get the best out of
-Sysbox-EE:
+The following documents in the [Sysbox repo](https://github.com/nestybox/sysbox/tree/master/docs)
+show how to use Docker and Kubernetes to deploy containers with Sysbox.
 
-- [Sysbox Quick Start Guide](docs/quickstart/README.md)
+These docs apply equally to both Sysbox and Sysbox-EE.
 
-  - Provides many examples for using system containers. New users
-    should start here.
+Features that are specific to Sysbox-EE are tagged with **"Sysbox-EE Feature
+Highlight"** in the docs.
 
-- [Sysbox User Guide](docs/user-guide/README.md)
+*   [Sysbox Quick Start Guide](https://github.com/nestybox/sysbox/blob/master/docs/quickstart/README.md)
 
-  - Provides more detailed information on Sysbox features.
+    *   Provides many examples for using Sysbox to deploy enhanced
+        containers. New users should start here.
 
-- [Sysbox Distro Compatibility Doc](docs/distro-compat.md)
+*   [Sysbox User Guide](https://github.com/nestybox/sysbox/blob/master/docs/user-guide/README.md)
 
-  - Distro compatibility requirements.
+    *   Provides more detailed information on Sysbox features and troubleshooting.
 
-- [Issue Guidelines](docs/issue-guidelines.md)
+*   [Sysbox Distro Compatibility Doc](docs/distro-compat.md)
 
-  - Guidelines for filing issues in the Sysbox-EE GitHub project site.
+    *   Distro compatibility requirements.
 
 In addition, the [Nestybox blog site](https://blog.nestybox.com) has articles
-on how to use system containers.
-
-## Integration with Container Managers & Orchestrators
-
-Though Sysbox is OCI-based (and thus compatible with OCI container managers),
-it's currently only tested with Docker / containerd.
-
-In particular, we don't yet support using Kubernetes to deploy system containers
-with Sysbox (though we plan to).
-
-## Troubleshooting
-
-Refer to the [Troubleshooting document](docs/user-guide/troubleshoot.md)
-and to the [issues](https://github.com/nestybox/sysbox-ee/issues) in
-the GitHub site.
-
-Do [contact us](#contact) if you need any help.
+on how to use Sysbox to deploy containers.
 
 ## Filing Issues
 
@@ -298,33 +172,8 @@ please refer to the [issue guidelines](docs/issue-guidelines.md) document.
 Reach us at our [slack channel][slack] or at `contact@nestybox.com` for any questions.
 See our [contact info](#contact) below for more options.
 
-## We want your feedback
-
-We love feedback, as it helps us improve Sysbox and set its future
-direction.
-
-We would much appreciate if you would take a couple of minutes to
-answer the following survey:
-
-<https://www.surveymonkey.com/r/SH8HMGY>
-
-## Uninstallation
-
-Prior to uninstalling Sysbox, make sure all system containers are removed.
-There is a simple shell script to do this [here](scr/rm_all_syscont).
-
-1. Uninstall Sysbox binaries plus all the associated configuration and Systemd
-   files:
-
-```console
-$ sudo apt-get purge sysbox-ee -y
-```
-
-2. Remove the `sysbox` user from the system:
-
-```console
-$ sudo userdel sysbox-ee
-```
+Sysbox Enterprise customers get a guaranteed support SLA from Nestybox, and their
+issues and requests are prioritized.
 
 ## About Nestybox
 
@@ -350,10 +199,10 @@ We are there from Monday-Friday, 9am-5pm Pacific Time.
 
 ## Thank You
 
-We thank you **very much** for using Sysbox. We hope you find it useful.
+We thank you **very much** for using Sysbox-EE. We hope you find it useful.
 
-Your trust in us is very much appreciated.
+Your trust in us is very much appreciated!
 
-\-- _The Nestybox Team_
+\-- *The Nestybox Team*
 
 [slack]: https://join.slack.com/t/nestybox-support/shared_invite/enQtOTA0NDQwMTkzMjg2LTAxNGJjYTU2ZmJkYTZjNDMwNmM4Y2YxNzZiZGJlZDM4OTc1NGUzZDFiNTM4NzM1ZTA2NDE3NzQ1ODg1YzhmNDQ
