@@ -1,4 +1,4 @@
-<p align="center"><img alt="sysbox" src="./docs/figures/sysbox-ee-header.png" width="800x" /></p>
+<p align="center"><img alt="sysbox" src="./docs/figures/sysbox-ee-header.png" width="1000x" /></p>
 
 ## Contents
 
