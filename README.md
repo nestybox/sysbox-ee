@@ -37,8 +37,8 @@ Sysbox-EE uses Sysbox at its core, but adds enterprise-level features such as:
 
 *   Feature prioritization (Sysbox-EE feature requests are prioritized)
 
-For these reasons, **we recommend that enterprises that wish to use Sysbox in
-their IT infrastructure use Sysbox-EE**.
+For these reasons, **\*\*we recommend that enterprises that wish to use Sysbox in
+their IT infrastructure use Sysbox-EE\*\***.
 
 Sysbox-EE is a drop-in replacement for Sysbox. It installs and it's used in the
 exact same way, but includes the enterprise level features described above. On a
@@ -54,12 +54,15 @@ Sysbox-EE is offered via a 30-day free trial and a paid subscription after that.
 Features and pricing info is shown below.
 
 <p align="center">
-    <img alt="sysbox" src="./docs/figures/sysbox-features.png" width="1000x" />
+    <img alt="sysbox" src="./docs/figures/sysbox-features.png" height="800" width="1000" />
 </p>
 
-You can download Sysbox-EE for free and use it during the free trial period.
+(\*) For pricing purposes, a "host" is a computer (bare-metal or virtual-machine)
+with 16 CPU cores (32 hyper threads). Per-core pricing is also available for smaller
+hosts / VMs.
 
-Afterwards, we ask that you contact Nestybox for [pricing and payment information](https://www.nestybox.com/pricing).
+You can download Sysbox-EE for free and use it during the free trial
+period. Afterwards, we ask that you contact Nestybox for [pricing and payment information](https://www.nestybox.com/pricing).
 
 If you have questions, you can reach us [here](#contact).
 
