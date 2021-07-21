@@ -2,7 +2,7 @@
 
 Issues can be filed [here](https://github.com/nestybox/sysbox-external/issues)
 
-Please follow these guidelines when filing issues with Sysbox.
+Please follow these guidelines when filing issues with Sysbox-EE.
 
 1) Create an issue with one of the following labels:
 
@@ -14,7 +14,7 @@ Please follow these guidelines when filing issues with Sysbox.
 
 -   `Question`: for questions related to usage, design, etc.
 
-2) Add a label corresponding to the Sysbox release (e.g. `v0.1.0`)
+2) Add a label corresponding to the Sysbox-EE release (e.g. `v0.3.0`)
 
 3) Include information about the host's Linux (e.g., `lsb_release`, `uname -a`).
 
@@ -26,4 +26,4 @@ We appreciate when our users report issues. Nestybox will try to
 address them ASAP. We will mark them as `fixed`, `invalid`,
 `duplicate`, or `wont-fix`.
 
-Thanks for helping us improve Sysbox!
+Thanks for helping us improve Sysbox-EE!
