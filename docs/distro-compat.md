@@ -24,7 +24,7 @@ methods supported, and any other requirements:
 
 -   "K8s-install" means you can deploy Sysbox-EE on a Kubernetes worker node based on that distro. See [here](../README.md#installation) for more.
 
--   "Kernel upgrade" means a kernel upgrade may be required (Sysbox-EE requires a fairly new kernel). See [below](#kernel-upgrade-procedures) for more.
+-   "Kernel upgrade" means a kernel upgrade may be required (Sysbox-EE requires a fairly recent kernel). See [below](#kernel-upgrade-procedures) for more.
 
 ## Kernel Upgrade Procedures
 
