@@ -45,7 +45,7 @@ exact same way, but includes the enterprise level features described above. On a
 given host however, either Sysbox or Sysbox-EE must be installed, never both.
 
 See the [next section](#features--pricing)for a comparison between Sysbox-EE and
-Sysbox (aka Sysbox Community Edition).
+Sysbox (aka Sysbox Community Edition or Sysbox-CE).
 
 ## Features & Pricing
 
@@ -78,7 +78,7 @@ We plan to add support for more distros in the near future.
 
 ## Host Requirements
 
-The Sysbox host must meet the following requirements:
+The Sysbox-EE host must meet the following requirements:
 
 *   It must be running one of the [supported Linux distros](docs/distro-compat.md).
 
