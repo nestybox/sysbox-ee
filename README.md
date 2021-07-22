@@ -1,4 +1,4 @@
-<p align="center"><img alt="sysbox" src="./docs/figures/sysbox-ee-header.png" width="1000x" /></p>
+<p align="center"><img alt="sysbox" src="./docs/figures/sysbox-ee-header.png" width="1000" /></p>
 
 ## Contents
 
@@ -54,7 +54,7 @@ Sysbox-EE is offered via a 30-day free trial and a paid subscription after that.
 Features and pricing info are shown below.
 
 <p align="center">
-    <img alt="sysbox" src="./docs/figures/sysbox-features.png" height="800" width="1000" />
+    <img alt="sysbox" src="./docs/figures/sysbox-features.gif" width="1000" />
 </p>
 
 (\*) For pricing purposes, a "host" is a computer (bare-metal or virtual-machine)
