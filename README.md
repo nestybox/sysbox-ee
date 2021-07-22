@@ -49,7 +49,7 @@ Sysbox (aka Sysbox Community Edition or Sysbox-CE).
 
 ## Features & Pricing
 
-Sysbox-EE is offered via a 30-day free trial and a paid subscription after that.
+Sysbox-EE is offered via a **30-day free trial** and a paid subscription after that.
 
 Features and pricing info are shown below.
 
@@ -57,8 +57,8 @@ Features and pricing info are shown below.
     <img alt="sysbox" src="./docs/figures/sysbox-features.gif" width="1000" />
 </p>
 
-(\*) For pricing purposes, a "host" is a computer (bare-metal or virtual-machine)
-with 16 CPU cores (32 hyper threads). Per-core pricing is also available for smaller
+(\*) For pricing purposes, a "host" is a computer (bare-metal or virtual-machine) with
+up to 16 CPU cores (32 hyper threads). Per-core pricing is also available for smaller
 hosts / VMs.
 
 You can download Sysbox-EE for free and use it during the free trial
