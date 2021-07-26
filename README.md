@@ -59,7 +59,7 @@ Features and pricing info are shown below.
 
 (\*) For pricing purposes, a "host" is a computer (bare-metal or virtual-machine) with
 up to 16 CPU cores (32 hyper threads). Per-core pricing is also available for smaller
-hosts / VMs.
+hosts / VMs. Volume discounts available for 50 or more licenses.
 
 You can download Sysbox-EE for free and use it during the free trial
 period. Afterwards, we ask that you contact Nestybox for [pricing and payment information](https://www.nestybox.com/pricing).
