@@ -54,7 +54,7 @@ Sysbox-EE is offered via a **30-day free trial** and a paid subscription after t
 Features and pricing info are shown below.
 
 <p align="center">
-    <img alt="sysbox" src="./docs/figures/sysbox-features.gif" width="1000" />
+    <img alt="sysbox" src="./docs/figures/sysbox-features.png" width="1000" />
 </p>
 
 (\*) For pricing purposes, a "host" is a computer (bare-metal or
