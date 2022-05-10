@@ -2,17 +2,16 @@
 
 ***
 
-**Security Note (01/21/22)**:
+**Docker advances container isolation and workloads with acquisition of Nestybox**:
 
-A vulnerability ([CVE 2022-0185](https://ubuntu.com/security/CVE-2022-0185)) was
-recently found in the Linux kernel, permitting a "User Namespace" escape (i.e.,
-an unprivileged user inside a user-namespace may gain root access to the
-host). This vulnerability affects containers deployed with Sysbox as they always
-use the Linux user-namespace for extra isolation. To mitigate it, check if your
-kernel distro carries the fix. For Ubuntu, the fix has been released and requires
-a [kernel update](https://ubuntu.com/security/notices/USN-5240-1). Reach out to the
-[Sysbox Slack channel][slack] for further questions.
+Hi everyone, this is Cesar & Rodny, co-founders of [Nestybox](https://www.nestybox.com).
 
+We are humbled and excited to announce that Nestybox is now officially part of
+Docker, Inc! Docker is an excellent home for Sysbox, and this will accelerate
+innovation of Sysbox to advance container isolation and workloads.
+
+Please see this [blog](https://www.docker.com/blog/docker-acquires-nestybox-advancing-container-isolation-workloads/) and
+this [Q&A](https://www.nestybox.com/docker-nestybox-qa) for more info. Thanks!
 ***
 
 ## Contents
@@ -182,6 +181,18 @@ users filing issues that help us improve Sysbox-EE.
 
 To file issues with Sysbox-EE (e.g., bugs, feature requests, documentation changes, etc.),
 please refer to the [issue guidelines](docs/issue-guidelines.md) document.
+
+## Security
+
+If you find bugs or issues that may expose a Sysbox-EE vulnerability, please report
+these by sending an email to security@nestybox.com. Please do not open security
+issues in this repo. Thanks!
+
+In addition, a few vulnerabilities have recently been found in the Linux kernel
+that in some cases reduce or negate the enhanced isolation provided by Sysbox
+containers. Fortunately they are all fixed in recent Linux kernels. See the
+Sysbox User Guide's [Vulnerabilities & CVEs chapter](https://github.com/nestybox/sysbox/tree/master/docs/user-guide/security-cve.md)
+for more info, and reach out on the [Sysbox Slack channel][slack] for further questions.
 
 ## Support
 
