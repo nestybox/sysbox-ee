@@ -2,22 +2,27 @@
 
 ***
 
-**Docker advances container isolation and workloads with acquisition of Nestybox**:
+**Sysbox-EE End-of-Life Announcement (07/07/22)**
 
-Hi everyone, this is Cesar & Rodny, co-founders of [Nestybox](https://www.nestybox.com).
+Prior to the [acquisition by Docker][docker-acquisition] on 05/2022, Nestybox
+offered Sysbox Enterprise as an enhanced version of Sysbox (e.g., more security,
+more workloads, and official support), via a paid license agreement.
 
-We are humbled and excited to announce that Nestybox is now officially part of
-Docker, Inc! Docker is an excellent home for Sysbox, and this will accelerate
-innovation of Sysbox to advance container isolation and workloads.
+After the acquisition however, Sysbox Enterprise will no longer be offered as a
+standalone product. Instead, Docker plans to port some (TBD) Sysbox-EE features
+to Sysbox-CE so users can replace the former with the latter.
 
-Please see this [blog](https://www.docker.com/blog/docker-advances-container-isolation-and-workloads-with-acquisition-of-nestybox/) and
-this [Q&A](https://www.nestybox.com/docker-nestybox-qa) for more info. Thanks!
+At this time, **no new licenses of Sysbox-EE are sold and no license renewals
+are offered**. This repo will remain open for existing customers as a way to
+download Sysbox-EE binaries, but will be phased out in mid 2023 (after all
+existing license agreements expire).
+
 ***
 
 ## Contents
 
 *   [Introduction](#introduction)
-*   [Features & Pricing](#features--pricing)
+*   [Features](#features)
 *   [Supported Distros](#supported-distros)
 *   [Host Requirements](#host-requirements)
 *   [Installation](#installation)
@@ -51,34 +56,20 @@ Sysbox-EE uses Sysbox at its core, but adds enterprise-level features such as:
 
 *   Feature prioritization (Sysbox-EE feature requests are prioritized)
 
-For these reasons, **\*\*we recommend that enterprises that wish to use Sysbox in
-their IT infrastructure use Sysbox-EE\*\***.
-
 Sysbox-EE is a drop-in replacement for Sysbox. It installs and it's used in the
-exact same way, but includes the enterprise level features described above. On a
-given host however, either Sysbox or Sysbox-EE must be installed, never both.
+exact same way, but includes the additional features listed above. On a given
+host however, either Sysbox or Sysbox-EE must be installed, never both.
 
-See the [next section](#features--pricing)for a comparison between Sysbox-EE and
+See the [next section](#features) for a comparison between Sysbox-EE and
 Sysbox (aka Sysbox Community Edition or Sysbox-CE).
 
-## Features & Pricing
+## Features
 
-Sysbox-EE is offered via a **30-day free trial** and a paid subscription after that.
-
-Features and pricing info are shown below.
+Features are shown below.
 
 <p align="center">
     <img alt="sysbox" src="./docs/figures/sysbox-features.png" width="1000" />
 </p>
-
-(\*) For pricing purposes, a "host" is a computer (bare-metal or
-virtual-machine) with up to 16 CPU cores (32 hyper threads). Per-core pricing at
-**$5 per-core per-month** is also available for hosts with < 8 cores. Licensing
-is per-year. Volume discounts available for 50+ per-host licenses or 350+
-per-core licenses.
-
-You can download Sysbox-EE for free and use it during the free trial
-period. Afterwards, we ask that you contact Nestybox for [pricing and payment information](https://www.nestybox.com/pricing).
 
 If you have questions, you can reach us [here](#contact).
 
@@ -204,13 +195,10 @@ issues and requests are prioritized.
 
 ## About Nestybox
 
-[Nestybox](https://www.nestybox.com) enhances the power of Linux containers.
+[Nestybox](https://www.nestybox.com) enhances security and workloads in Linux
+containers.
 
-We are developing software that enables containers to run **any type of
-workload** (not just micro-services), and do so easily and securely.
-
-Our mission is to provide users with a fast, efficient, easy-to-use, and secure
-alternative to virtual machines for deploying virtual hosts on Linux.
+**NOTE: Nestybox was [acquired by Docker][docker-acquisition] on 05/2022.**
 
 ## Contact
 
@@ -224,12 +212,10 @@ Phone: 1-800-600-6788
 
 We are there from Monday-Friday, 9am-5pm Pacific Time.
 
-## Thank You
-
-We thank you **very much** for using Sysbox-EE. We hope you find it useful.
-
-Your trust in us is very much appreciated!
-
-\-- *The Nestybox Team*
-
 [slack]: https://join.slack.com/t/nestybox-support/shared_invite/enQtOTA0NDQwMTkzMjg2LTAxNGJjYTU2ZmJkYTZjNDMwNmM4Y2YxNzZiZGJlZDM4OTc1NGUzZDFiNTM4NzM1ZTA2NDE3NzQ1ODg1YzhmNDQ
+
+[sysbox-ee]: https://www.nestybox.com/sysbox-ee
+
+[docker-acquisition]: https://www.docker.com/blog/docker-advances-container-isolation-and-workloads-with-acquisition-of-nestybox/
+
+[docker-desktop]: https://www.docker.com/products/
