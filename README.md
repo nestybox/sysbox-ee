@@ -2,7 +2,7 @@
 
 ***
 
-**Sysbox-EE End-of-Life Announcement (07/07/22)**
+**Sysbox-EE End-of-Life Announcement (01/2023)**
 
 Prior to the [acquisition by Docker][docker-acquisition] on 05/2022, Nestybox
 offered Sysbox Enterprise as an enhanced version of Sysbox (e.g., more security,
