@@ -38,7 +38,7 @@ existing license agreements expire).
 
 **Sysbox Enterprise Edition** (Sysbox-EE) is the enterprise version of the
 open-source [Sysbox container runtime](https://github.com/nestybox/sysbox),
-developed by [Nestybox](https://www.nestybox.com).
+developed by Nestybox ([acquired by Docker][docker-acquisition] on 05/2022).
 
 Sysbox-EE uses Sysbox at its core, but adds enterprise-level features such as:
 
@@ -190,16 +190,6 @@ for more info, and reach out on the [Sysbox Slack channel][slack] for further qu
 Reach us at our [slack channel][slack] or at `contact@nestybox.com` for any questions.
 See our [contact info](#contact) below for more options.
 
-Sysbox Enterprise customers get a guaranteed support SLA from Nestybox, and their
-issues and requests are prioritized.
-
-## About Nestybox
-
-[Nestybox](https://www.nestybox.com) enhances security and workloads in Linux
-containers.
-
-**NOTE: Nestybox was [acquired by Docker][docker-acquisition] on 05/2022.**
-
 ## Contact
 
 We are happy to help. You can reach us at:
@@ -208,13 +198,7 @@ Email: `contact@nestybox.com`
 
 Slack: [Nestybox Slack Workspace][slack]
 
-Phone: 1-800-600-6788
-
-We are there from Monday-Friday, 9am-5pm Pacific Time.
-
 [slack]: https://join.slack.com/t/nestybox-support/shared_invite/enQtOTA0NDQwMTkzMjg2LTAxNGJjYTU2ZmJkYTZjNDMwNmM4Y2YxNzZiZGJlZDM4OTc1NGUzZDFiNTM4NzM1ZTA2NDE3NzQ1ODg1YzhmNDQ
-
-[sysbox-ee]: https://www.nestybox.com/sysbox-ee
 
 [docker-acquisition]: https://www.docker.com/blog/docker-advances-container-isolation-and-workloads-with-acquisition-of-nestybox/
 
